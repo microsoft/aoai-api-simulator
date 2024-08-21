@@ -1,7 +1,7 @@
 fastapi==0.109.2
 uvicorn[standard]==0.27.0.post1
 gunicorn==21.2.0
-requests==2.31.0
+requests==2.32.2
 PyYAML==6.0.1
 tiktoken==0.6.0
 nanoid==2.0.0
