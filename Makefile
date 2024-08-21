@@ -12,7 +12,7 @@ help: ## Show this help
 	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-32s\033[0m %s\n", $$1, $$2}'
 
 install-requirements: ## Install PyPI requirements for all projects
-	pip install -r src/aoai-simulated-api/requirements.txt
+	pip install -r src/aoai-api-simulator/requirements.txt
 	pip install -r loadtest/requirements.txt
 	pip install -r tests/requirements.txt
 	pip install -r tools/test-client/requirements.txt
@@ -23,7 +23,7 @@ erase-recording: ## Erase all *.recording files
 
 run-simulated-api: ## Launch the AOAI Simulated API locally
 	gunicorn \
-		aoai_simulated_api.main:app \
+		aoai_api_simulator.main:app \
 		--worker-class uvicorn.workers.UvicornWorker \
 		--workers 1 \
 		--bind 0.0.0.0:8000 \
@@ -50,8 +50,8 @@ run-test-client-web: ## Launch the test client web app locally
 
 docker-build-simulated-api: ## Build the AOAI Simulated API as a docker image
 	# TODO should set a tag!
-	cd src/aoai-simulated-api && \
-	docker build -t aoai-simulated-api .
+	cd src/aoai-api-simulator && \
+	docker build -t aoai-api-simulator .
 
 docker-run-simulated-api: ## Run the AOAI Simulated API docker container
 	echo "makefile_dir: ${makefile_dir}"
@@ -65,7 +65,7 @@ docker-run-simulated-api: ## Run the AOAI Simulated API docker container
 		-e AZURE_OPENAI_ENDPOINT \
 		-e AZURE_OPENAI_KEY \
 		-e AZURE_OPENAI_DEPLOYMENT \
-		aoai-simulated-api
+		aoai-api-simulator
 
 test: ## Run PyTest (verbose)
 	pytest ./tests -v
@@ -76,8 +76,8 @@ test-not-slow: ## Run PyTest (verbose, skip slow tests)
 test-watch: ## Start PyTest Watch
 	ptw --clear ./tests
 
-lint: ## Lint aoai-simulated-api source code
-	pylint ./src/aoai-simulated-api/
+lint: ## Lint aoai-api-simulator source code
+	pylint ./src/aoai-api-simulator/
 
 deploy-aca: ## Run deployment script for Azure Container Apps
 	./scripts/deploy-aca.sh
@@ -85,4 +85,4 @@ deploy-aca: ## Run deployment script for Azure Container Apps
 docker-build-load-test: ## Build the AOAI Simulated API Load Test as a docker image
 	# TODO should set a tag!
 	cd loadtest && \
-	docker build -t aoai-simulated-api-load-test .
+	docker build -t aoai-api-simulator-load-test .

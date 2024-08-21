@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "aoai_simulated_api"
+name = "aoai_api_simulator"
 version = "0.0.1"
 authors = [
   { name="Stuart Leeks", email="stuartle@microsoft.com" },

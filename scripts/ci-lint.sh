@@ -9,10 +9,10 @@ if [[ -n "$GITHUB_BASE_REF" ]]; then
 	# then the linter will show the comparison against that baseline
 	echo "Checking out base ref $GITHUB_BASE_REF to determine linter baseline..."
 	git checkout "$GITHUB_BASE_REF"
-	pylint "$script_dir/../src/aoai-simulated-api/"  --exit-zero > /dev/null
+	pylint "$script_dir/../src/aoai-api-simulator/"  --exit-zero > /dev/null
 
 	git checkout -
 fi
 
 echo "Running linter..."
-pylint "$script_dir/../src/aoai-simulated-api/"  --exit-zero
+pylint "$script_dir/../src/aoai-api-simulator/"  --exit-zero

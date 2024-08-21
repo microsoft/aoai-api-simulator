@@ -8,7 +8,7 @@
             "envFile": "${workspaceFolder}/.env",
             "program": "/home/vscode/.local/bin/gunicorn",
             "args": [
-                "aoai_simulated_api.main:app",
+                "aoai_api_simulator.main:app",
                 "--worker-class",
                 "uvicorn.workers.UvicornWorker",
                 "-b",
@@ -17,7 +17,7 @@
                 "--timeout=0"
             ],
             "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}/src/aoai-simulated-api"
+            "cwd": "${workspaceFolder}/src/aoai-api-simulator"
         },
         {
             "name": "Python Debugger: Current File",

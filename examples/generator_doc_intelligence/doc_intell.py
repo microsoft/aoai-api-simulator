@@ -7,10 +7,10 @@ import uuid
 from fastapi import Response
 
 
-from aoai_simulated_api.auth import validate_api_key_header
-from aoai_simulated_api.constants import SIMULATOR_KEY_LIMITER
-from aoai_simulated_api.models import RequestContext
-from aoai_simulated_api.generator.openai import raw_lorem_get_word
+from aoai_api_simulator.auth import validate_api_key_header
+from aoai_api_simulator.constants import SIMULATOR_KEY_LIMITER
+from aoai_api_simulator.models import RequestContext
+from aoai_api_simulator.generator.openai import raw_lorem_get_word
 
 document_analysis_config = {}
 

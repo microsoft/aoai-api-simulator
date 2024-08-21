@@ -49,8 +49,8 @@ from typing import Callable
 from fastapi import Request
 import requests
 
-from aoai_simulated_api.auth import validate_api_key_header
-from aoai_simulated_api.models import Config, RequestContext
+from aoai_api_simulator.auth import validate_api_key_header
+from aoai_api_simulator.models import Config, RequestContext
 
 async def forward_to_my_host(context: RequestContext) -> Response | None:
     # Determine whether the request matches your forwarder
@@ -124,7 +124,7 @@ This allows you to replace the default lorem ipsum responses with responses that
 An extension needs to have an `initialize` method as shown below:
 
 ```python
-from aoai_simulated_api.models import Config, RequestContext
+from aoai_api_simulator.models import Config, RequestContext
 from fastapi import Response
 
 def initialize(config: Config):

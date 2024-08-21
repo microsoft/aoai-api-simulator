@@ -7,9 +7,9 @@ from fastapi.datastructures import URL
 import requests
 
 
-from aoai_simulated_api import constants
-from aoai_simulated_api.auth import validate_api_key_header
-from aoai_simulated_api.models import RequestContext
+from aoai_api_simulator import constants
+from aoai_api_simulator.auth import validate_api_key_header
+from aoai_api_simulator.models import RequestContext
 
 #
 # This example shows a multi-file extension to the simulator

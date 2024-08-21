@@ -1,6 +1,6 @@
 import math
 import time
-from aoai_simulated_api.limiters import SlidingWindow
+from aoai_api_simulator.limiters import SlidingWindow
 import pytest
 
 

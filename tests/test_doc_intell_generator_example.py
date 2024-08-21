@@ -3,14 +3,14 @@ Test the OpenAI generator endpoints
 """
 
 import os
-from aoai_simulated_api.models import (
+from aoai_api_simulator.models import (
     Config,
     LatencyConfig,
     ChatCompletionLatency,
     CompletionLatency,
     EmbeddingLatency,
 )
-from aoai_simulated_api.generator.manager import get_default_generators
+from aoai_api_simulator.generator.manager import get_default_generators
 from azure.core.credentials import AzureKeyCredential
 from azure.core.exceptions import ClientAuthenticationError
 from azure.ai.formrecognizer import DocumentAnalysisClient

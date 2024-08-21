@@ -3,11 +3,11 @@ import logging
 import os
 import time
 from typing import Callable
-from aoai_simulated_api.limiters import no_op_limiter
+from aoai_api_simulator.limiters import no_op_limiter
 from fastapi import Response
 from limits import storage, strategies, RateLimitItemPerSecond
 
-from aoai_simulated_api.models import Config, RequestContext
+from aoai_api_simulator.models import Config, RequestContext
 
 from .doc_intell import doc_intelligence_analyze, doc_intelligence_analyze_result
 

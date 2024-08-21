@@ -8,7 +8,7 @@ make install-requirements
 
 # Install the simulator code in the dev container so that types are 
 # available for loaded extensions (forwarders/generators)
-api_path=$(realpath "${script_dir}/../src/aoai-simulated-api" )
+api_path=$(realpath "${script_dir}/../src/aoai-api-simulator" )
 
 pip install --editable "${api_path}"
 

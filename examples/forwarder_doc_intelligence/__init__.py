@@ -1,4 +1,4 @@
-from aoai_simulated_api.models import Config
+from aoai_api_simulator.models import Config
 
 from .document_intelligence_forwarder import forward_to_azure_document_intelligence
 

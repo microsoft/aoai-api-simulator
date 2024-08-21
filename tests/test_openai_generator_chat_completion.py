@@ -2,7 +2,7 @@
 Test the OpenAI generator endpoints
 """
 
-from aoai_simulated_api.models import (
+from aoai_api_simulator.models import (
     Config,
     LatencyConfig,
     ChatCompletionLatency,
@@ -10,7 +10,7 @@ from aoai_simulated_api.models import (
     EmbeddingLatency,
     OpenAIDeployment,
 )
-from aoai_simulated_api.generator.manager import get_default_generators
+from aoai_api_simulator.generator.manager import get_default_generators
 from openai import AzureOpenAI, AuthenticationError, NotFoundError, RateLimitError, Stream
 from openai.types.chat import ChatCompletionChunk
 import pytest

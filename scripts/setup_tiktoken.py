@@ -6,7 +6,7 @@ folder_path = os.path.join(
     os.path.dirname(__file__),
     "..",
     "src",
-    "aoai-simulated-api",
+    "aoai-api-simulator",
     "tiktoken_cache",
 )
 

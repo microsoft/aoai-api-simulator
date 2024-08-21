@@ -31,7 +31,7 @@ def home():
 
 @app.route("/api", methods=["POST"])
 def foo():
-    return {"message": "👋 aoai-simulated-api is running"}
+    return {"message": "👋 aoai-api-simulator is running"}
 
 
 @app.route("/api/chat", methods=["POST"])
@@ -47,7 +47,10 @@ def api_chat():
     else:
         print("Sending request to simulated API...", flush=True)
         aoai_client = AzureOpenAI(
-            api_key=simulator_api_key, api_version="2023-12-01-preview", azure_endpoint="http://localhost:8000", max_retries=0
+            api_key=simulator_api_key,
+            api_version="2023-12-01-preview",
+            azure_endpoint="http://localhost:8000",
+            max_retries=0,
         )
 
     messages = body["messages"]

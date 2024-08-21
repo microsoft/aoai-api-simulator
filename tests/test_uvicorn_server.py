@@ -10,9 +10,9 @@ import pytest
 import requests
 import uvicorn
 
-from aoai_simulated_api.app_builder import app, apply_config
-from aoai_simulated_api.config_loader import set_config
-from aoai_simulated_api.models import (
+from aoai_api_simulator.app_builder import app, apply_config
+from aoai_api_simulator.config_loader import set_config
+from aoai_api_simulator.models import (
     Config,
     LatencyConfig,
     ChatCompletionLatency,
@@ -81,4 +81,4 @@ async def test_root_message():
     with server.run_in_thread():
         response = requests.get("http://localhost:8001/", timeout=10)
         assert response.status_code == 200
-        assert b"aoai-simulated-api is running" in response.content
+        assert b"aoai-api-simulator is running" in response.content

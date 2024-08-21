@@ -133,5 +133,5 @@ The simulator supports a set of basic Open Telemetry configuration options. Thes
 
 | Variable| Description |
 | ------- | ----------- |
-| `OTEL_SERVICE_NAME`| Sets the value of the service name reported to Open Telemetry. Defaults to `aoai-simulated-api`|
+| `OTEL_SERVICE_NAME`| Sets the value of the service name reported to Open Telemetry. Defaults to `aoai-api-simulator`|
 | `OTEL_METRIC_EXPORT_INTERVAL`| The time interval (in milliseconds) between the start of two export attempts..|

@@ -5,8 +5,8 @@ The main challenges have been ensuring low max_token values generate the correct
 """
 
 import time
-from aoai_simulated_api.generator.openai import generate_lorem_text
-from aoai_simulated_api.generator.openai_tokens import num_tokens_from_string
+from aoai_api_simulator.generator.openai import generate_lorem_text
+from aoai_api_simulator.generator.openai_tokens import num_tokens_from_string
 import pytest
 
 

@@ -2,8 +2,8 @@
 # Generators can be sync or async methods
 
 
-from aoai_simulated_api.auth import validate_api_key_header
-from aoai_simulated_api.models import Config, RequestContext
+from aoai_api_simulator.auth import validate_api_key_header
+from aoai_api_simulator.models import Config, RequestContext
 from fastapi import Response
 
 def initialize(config: Config):

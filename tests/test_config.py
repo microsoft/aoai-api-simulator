@@ -11,15 +11,15 @@ from tests.test_openai_record import TempDirectory
 
 from .test_uvicorn_server import UvicornTestServer
 
-from aoai_simulated_api.generator.manager import get_default_generators
-from aoai_simulated_api.models import (
+from aoai_api_simulator.generator.manager import get_default_generators
+from aoai_api_simulator.models import (
     Config,
     LatencyConfig,
     ChatCompletionLatency,
     CompletionLatency,
     EmbeddingLatency,
 )
-from aoai_simulated_api.record_replay.handler import get_default_forwarders
+from aoai_api_simulator.record_replay.handler import get_default_forwarders
 
 API_KEY = "123456789"
 

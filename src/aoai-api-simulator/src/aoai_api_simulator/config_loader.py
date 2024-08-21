@@ -5,10 +5,10 @@ import os
 
 import sys
 
-from aoai_simulated_api.limiters import get_default_limiters
-from aoai_simulated_api.models import Config, OpenAIDeployment
-from aoai_simulated_api.record_replay.handler import get_default_forwarders
-from aoai_simulated_api.generator.manager import get_default_generators
+from aoai_api_simulator.limiters import get_default_limiters
+from aoai_api_simulator.models import Config, OpenAIDeployment
+from aoai_api_simulator.record_replay.handler import get_default_forwarders
+from aoai_api_simulator.generator.manager import get_default_generators
 
 
 def get_config_from_env_vars(logger: logging.Logger) -> Config:

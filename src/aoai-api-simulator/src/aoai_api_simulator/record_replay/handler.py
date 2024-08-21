@@ -6,11 +6,11 @@ from typing import Awaitable, Callable
 import fastapi
 import requests
 
-from aoai_simulated_api import constants
-from aoai_simulated_api.models import RequestContext
-from aoai_simulated_api.record_replay.openai import forward_to_azure_openai
-from aoai_simulated_api.record_replay.models import RecordedResponse, get_request_hash, hash_request_parts
-from aoai_simulated_api.record_replay.persistence import YamlRecordingPersister
+from aoai_api_simulator import constants
+from aoai_api_simulator.models import RequestContext
+from aoai_api_simulator.record_replay.openai import forward_to_azure_openai
+from aoai_api_simulator.record_replay.models import RecordedResponse, get_request_hash, hash_request_parts
+from aoai_api_simulator.record_replay.persistence import YamlRecordingPersister
 
 logger = logging.getLogger(__name__)
 

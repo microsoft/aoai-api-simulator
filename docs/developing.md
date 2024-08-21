@@ -13,7 +13,7 @@ The repo contains a Dev Container configuration that sets up a container with al
 - `test-aoai.http` contains a collection of HTTP requests that can be run in VS Code using the REST Client extension
 
 Under the `src` folder ther are the following subfolders:
-- `aoai_simulated_api` - the simulator code
+- `aoai_api_simulator` - the simulator code
 - `examples` - example code showing how to extend the simulator
 - `loadtest` - locust-based load tests for validating the simulator performance
 - `test-client` -  a simple client that can be used to test the simulator interactively

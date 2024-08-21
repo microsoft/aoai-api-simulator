@@ -11,8 +11,8 @@ from pytest_httpserver import HTTPServer
 
 from .test_uvicorn_server import UvicornTestServer
 
-from aoai_simulated_api.record_replay.handler import get_default_forwarders
-from aoai_simulated_api.models import (
+from aoai_api_simulator.record_replay.handler import get_default_forwarders
+from aoai_api_simulator.models import (
     Config,
     LatencyConfig,
     ChatCompletionLatency,
@@ -26,7 +26,7 @@ class TempDirectory:
     _temp_dir: str | None = None
     _prefix: str
 
-    def __init__(self, prefix: str = "aoai-simulated-api-test-"):
+    def __init__(self, prefix: str = "aoai-api-simulator-test-"):
         self._prefix = prefix
 
     def __enter__(self):

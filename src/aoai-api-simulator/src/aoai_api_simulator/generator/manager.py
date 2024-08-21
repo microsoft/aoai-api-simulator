@@ -4,7 +4,7 @@ from typing import Callable, Awaitable
 
 from fastapi import HTTPException, Response
 
-from aoai_simulated_api.models import RequestContext
+from aoai_api_simulator.models import RequestContext
 from .openai import azure_openai_embedding, azure_openai_completion, azure_openai_chat_completion
 
 logger = logging.getLogger(__name__)

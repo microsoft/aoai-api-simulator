@@ -3,9 +3,9 @@
 
 import json
 
-from aoai_simulated_api.auth import validate_api_key_header
-from aoai_simulated_api.models import Config, RequestContext
-from aoai_simulated_api.generator.openai import (
+from aoai_api_simulator.auth import validate_api_key_header
+from aoai_api_simulator.models import Config, RequestContext
+from aoai_api_simulator.generator.openai import (
     calculate_latency,
     create_lorem_chat_completion_response,
     get_model_name_from_deployment_name,

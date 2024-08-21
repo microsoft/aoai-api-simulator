@@ -92,15 +92,15 @@ fi
 
 
 log "=="
-log "== Building and pushing aoai-simulated-api-load-test image to $acr_login_server"
+log "== Building and pushing aoai-api-simulator-load-test image to $acr_login_server"
 log "=="
 
 src_path=$(realpath "$script_dir/../loadtest")
 
-docker build -t "${acr_login_server}/aoai-simulated-api-load-test:latest" "$src_path" -f "$src_path/Dockerfile" 1>&2
+docker build -t "${acr_login_server}/aoai-api-simulator-load-test:latest" "$src_path" -f "$src_path/Dockerfile" 1>&2
 
 az acr login --name "$acr_name" 1>&2
-docker push "${acr_login_server}/aoai-simulated-api-load-test:latest" 1>&2
+docker push "${acr_login_server}/aoai-api-simulator-load-test:latest" 1>&2
 
 log "\n"
 
@@ -123,7 +123,7 @@ az containerapp job create \
   --replica-timeout 1800 \
   --registry-server "$acr_login_server" \
   --registry-identity "$aca_identity_id" \
-  --image "${acr_login_server}/aoai-simulated-api-load-test:latest" \
+  --image "${acr_login_server}/aoai-api-simulator-load-test:latest" \
   --cpu "1" \
   --memory "2Gi" \
   --command "locust" \

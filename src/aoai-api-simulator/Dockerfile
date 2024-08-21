@@ -27,4 +27,4 @@ COPY tiktoken_cache ${TIKTOKEN_CACHE_PATH}
 ENV TIKTOKEN_CACHE_DIR=${TIKTOKEN_CACHE_PATH}
 
 FROM simulator-${network_type}-network as final
-CMD [ "gunicorn", "aoai_simulated_api.main:app", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
+CMD [ "gunicorn", "aoai_api_simulator.main:app", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]

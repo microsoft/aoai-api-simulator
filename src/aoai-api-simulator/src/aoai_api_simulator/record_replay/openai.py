@@ -2,8 +2,8 @@ import json
 import logging
 import requests
 
-from aoai_simulated_api.models import RequestContext
-from aoai_simulated_api.constants import (
+from aoai_api_simulator.models import RequestContext
+from aoai_api_simulator.constants import (
     SIMULATOR_KEY_DEPLOYMENT_NAME,
     SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
     SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,

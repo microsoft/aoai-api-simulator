@@ -38,7 +38,7 @@ var appInsightsName = 'aoaisim-${baseName}'
 var keyVaultName = replace('aoaisim-${baseName}', '-', '')
 var storageAccountName = replace('aoaisim${baseName}', '-', '')
 
-var apiSimulatorName = 'aoai-simulated-api'
+var apiSimulatorName = 'aoai-api-simulator'
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' existing = {
   name: containerRegistryName
@@ -209,8 +209,8 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
     template: {
       containers: [
         {
-          name: 'aoai-simulated-api'
-          image: '${containerRegistry.properties.loginServer}/aoai-simulated-api:${simulatorImageTag}'
+          name: 'aoai-api-simulator'
+          image: '${containerRegistry.properties.loginServer}/aoai-api-simulator:${simulatorImageTag}'
           resources: {
             cpu: json('1')
             memory: '2Gi'

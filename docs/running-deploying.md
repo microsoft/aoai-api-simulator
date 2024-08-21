@@ -20,12 +20,12 @@ After cloning the repo, install dependencies using `make install-requirements`.
 
 If you want to run the API simulator as a Docker container, there is a `Dockerfile` that can be used to build the image.
 
-To build the image, run `docker build -t aoai-simulated-api .` from the `src/aoai-simulated-api` folder.
+To build the image, run `docker build -t aoai-api-simulator .` from the `src/aoai-api-simulator` folder.
 
-Once the image is built, you can run is using `docker run -p 8000:8000 -e SIMULATOR_MODE=record -e AZURE_OPENAI_ENDPOINT=https://mysvc.openai.azure.com/ -e AZURE_OPENAI_KEY=your-api-key aoai-simulated-api`.
+Once the image is built, you can run is using `docker run -p 8000:8000 -e SIMULATOR_MODE=record -e AZURE_OPENAI_ENDPOINT=https://mysvc.openai.azure.com/ -e AZURE_OPENAI_KEY=your-api-key aoai-api-simulator`.
 
 Note that you can set any of the environment variable listed in the [Getting Started](#getting-started) section when running the container.
-For example, if you have the recordings on your host (in `/some/path`) , you can mount that directory into the container using the `-v` flag: `docker run -p 8000:8000 -e SIMULATOR_MODE=replay -e RECORDING_DIR=/recording -v /some/path:/recording aoai-simulated-api`.
+For example, if you have the recordings on your host (in `/some/path`) , you can mount that directory into the container using the `-v` flag: `docker run -p 8000:8000 -e SIMULATOR_MODE=replay -e RECORDING_DIR=/recording -v /some/path:/recording aoai-api-simulator`.
 
 ## Deploying to Azure Container Apps
 
@@ -65,6 +65,6 @@ The semi-restricted network access scenario applies when the build machine has a
 The restricted network access scenario applies when both the build machine and the runtime environment do not have access to the public internet. In this scenario, the simulator can be built using a pre-downloaded TikToken encoding file that must be included in a specific location. 
 
 This can be done by running the [setup_tiktoken.py](./scripts/setup_tiktoken.py) script. 
-Alternatively, you can download the [encoding file](https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken) from the public blob storage account and place it in the `src/aoai-simulated-api/tiktoken_cache` directory. Then rename the file to `9b5ad71b2ce5302211f9c61530b329a4922fc6a4`.
+Alternatively, you can download the [encoding file](https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken) from the public blob storage account and place it in the `src/aoai-api-simulator/tiktoken_cache` directory. Then rename the file to `9b5ad71b2ce5302211f9c61530b329a4922fc6a4`.
 
 To build the simulator in this mode, set the Docker build argument `network_type=restricted`. The simulator and the build process will then use the cached TikToken encoding file instead of retrieving it through the public internet. The build process will also set the required `TIKTOKEN_CACHE_DIR` environment variable to point to the cached TikToken encoding file. 

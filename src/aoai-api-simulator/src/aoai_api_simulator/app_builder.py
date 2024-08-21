@@ -3,14 +3,14 @@ import traceback
 from typing import Annotated
 from fastapi import Depends, FastAPI, Request, Response, HTTPException
 
-from aoai_simulated_api.auth import validate_api_key_header
-from aoai_simulated_api.config_loader import get_config, set_config
-from aoai_simulated_api.generator.manager import invoke_generators
-from aoai_simulated_api.latency import LatencyGenerator
-from aoai_simulated_api.limiters import apply_limits
-from aoai_simulated_api.models import RequestContext
-from aoai_simulated_api.record_replay.handler import RecordReplayHandler
-from aoai_simulated_api.record_replay.persistence import YamlRecordingPersister
+from aoai_api_simulator.auth import validate_api_key_header
+from aoai_api_simulator.config_loader import get_config, set_config
+from aoai_api_simulator.generator.manager import invoke_generators
+from aoai_api_simulator.latency import LatencyGenerator
+from aoai_api_simulator.limiters import apply_limits
+from aoai_api_simulator.models import RequestContext
+from aoai_api_simulator.record_replay.handler import RecordReplayHandler
+from aoai_api_simulator.record_replay.persistence import YamlRecordingPersister
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ def apply_config():
 
     record_replay_handler = None
 
-    logger.info("🚀 Starting aoai-simulated-api in %s mode", get_config().simulator_mode)
+    logger.info("🚀 Starting aoai-api-simulator in %s mode", get_config().simulator_mode)
     logger.info("🗝️ Simulator api-key                       : %s", get_config().simulator_api_key)
 
     if get_config().simulator_mode in ["record", "replay"]:
@@ -55,7 +55,7 @@ def _default_validate_api_key_header(request: Request):
 
 @app.get("/")
 async def root():
-    return {"message": "👋 aoai-simulated-api is running"}
+    return {"message": "👋 aoai-api-simulator is running"}
 
 
 @app.post("/++/save-recordings")

@@ -11,10 +11,10 @@ import nanoid
 from fastapi import Response
 from fastapi.responses import StreamingResponse
 
-from aoai_simulated_api import constants
-from aoai_simulated_api.auth import validate_api_key_header
-from aoai_simulated_api.models import RequestContext, OpenAIDeployment
-from aoai_simulated_api.constants import (
+from aoai_api_simulator import constants
+from aoai_api_simulator.auth import validate_api_key_header
+from aoai_api_simulator.models import RequestContext, OpenAIDeployment
+from aoai_api_simulator.constants import (
     SIMULATOR_KEY_DEPLOYMENT_NAME,
     SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
     SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
@@ -24,7 +24,7 @@ from aoai_simulated_api.constants import (
     SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED,
     SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE,
 )
-from aoai_simulated_api.generator.openai_tokens import (
+from aoai_api_simulator.generator.openai_tokens import (
     get_max_completion_tokens,
     num_tokens_from_string,
     num_tokens_from_messages,

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import random
 from typing import Annotated, Awaitable, Callable
 
-# from aoai_simulated_api.pipeline import RequestContext
+# from aoai_api_simulator.pipeline import RequestContext
 from fastapi import Request, Response
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -148,6 +148,7 @@ class OpenAIDeployment:
     model: str
     tokens_per_minute: int = 0
     embedding_size: int = 0
+
 
 # re-using Starlette's Route class to define a route
 # endpoint to pass to Route

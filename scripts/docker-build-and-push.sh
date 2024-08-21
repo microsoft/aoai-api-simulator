@@ -29,14 +29,14 @@ if [[ -z "$acr_name" ]]; then
 fi
 
 echo "=="
-echo "== Building and pushing aoai-simulated-api image (tag: $image_tag) to $acr_login_server"
+echo "== Building and pushing aoai-api-simulator image (tag: $image_tag) to $acr_login_server"
 echo "=="
 
-src_path=$(realpath "$script_dir/../src/aoai-simulated-api")
+src_path=$(realpath "$script_dir/../src/aoai-api-simulator")
 
-docker build -t "${acr_login_server}/aoai-simulated-api:$image_tag" "$src_path" -f "$src_path/Dockerfile"
+docker build -t "${acr_login_server}/aoai-api-simulator:$image_tag" "$src_path" -f "$src_path/Dockerfile"
 
 az acr login --name "$acr_name"
-docker push "${acr_login_server}/aoai-simulated-api:$image_tag"
+docker push "${acr_login_server}/aoai-api-simulator:$image_tag"
 
 echo -e "\n"

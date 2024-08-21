@@ -2,9 +2,9 @@ import asyncio
 import time
 from fastapi import Response
 
-from aoai_simulated_api import constants
-from aoai_simulated_api.metrics import simulator_metrics
-from aoai_simulated_api.models import RequestContext
+from aoai_api_simulator import constants
+from aoai_api_simulator.metrics import simulator_metrics
+from aoai_api_simulator.models import RequestContext
 
 
 class LatencyGenerator:
