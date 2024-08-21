@@ -1,4 +1,4 @@
-# Azure OpenAI Simulated API
+# Azure OpenAI API Simulator 
 
 This repo is an exploration into creating a simulated API implementation for Azure OpenAI (AOAI). 
 
@@ -6,10 +6,10 @@ WARNING: This is a work in progress!
 
 ## Table of Contents
 
-- [Azure OpenAI Simulated API](#azure-openai-simulated-api)
+- [Azure OpenAI API Simulator](#azure-openai-api-simulator)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
-    - [What is the OpenAI Simulated API?](#what-is-the-openai-simulated-api)
+    - [What is the Azure OpenAI API Simulator?](#what-is-the-azure-openai-api-simulator)
     - [Simulator Modes](#simulator-modes)
       - [Record/Replay Mode](#recordreplay-mode)
       - [Generator Mode](#generator-mode)
@@ -20,10 +20,10 @@ WARNING: This is a work in progress!
 
 ## Overview
 
-### What is the OpenAI Simulated API?
+### What is the Azure OpenAI API Simulator?
 
-The OpenAI Simulated API is a tool that allows you to easily deploy endpoints that simulate the OpenAI API.
-A common use-case for the OpenAI Simulated API is to test the behaviour your application under load. Let's illustrate this with an example...
+The Azure OpenAI API Simulator is a tool that allows you to easily deploy endpoints that simulate the OpenAI API.
+A common use-case for the simulator is to test the behaviour your application under load. Let's illustrate this with an example...
 
 Let's assume that you have build a chatbot that uses the OpenAI API to generate responses to user queries. Before your chatbot becomes popular, you want to ensure that it can handle a large number of users. One of the factors that will impact whether your chatbot can gracefully handle such load will be the way that your chatbot handles calls to OpenAI. However, when load testing your chatbot there are a number of reasons why you might not want to call the OpenAI API directly:
 
@@ -34,13 +34,13 @@ Let's assume that you have build a chatbot that uses the OpenAI API to generate 
 
 In fact, when considering Rate Limits and Latency, these might be things that you'd like to control. You may also want to inject latency, or inject rate limit issues, so that you can test how your chatbot deals with these issues.
 
-**This is where the OpenAI Simulater API plays it's part!**
+**This is where the Azure OpenAI API Simulator plays it's part!**
 
-By using the OpenAI Simulated API, you can reduce the cost of running load tests against the OpenAI API and ensure that your application behaves as expected under different conditions.
+By using the Azure OpenAI API Simulator, you can reduce the cost of running load tests against the OpenAI API and ensure that your application behaves as expected under different conditions.
 
 ### Simulator Modes
 
-The simulated API has two approaches to simulating API responses: record/replay and generators.
+The simulator has two approaches to simulating API responses: record/replay and generators.
 If you don't have any requirements around the content of the responses, the generator approach is probably the easiest for  you to use.
 If you need to simulate specific responses, then the record/replay approach is likely the best fit for you.
 
