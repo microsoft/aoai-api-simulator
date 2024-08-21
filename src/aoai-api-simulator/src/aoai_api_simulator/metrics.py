@@ -17,37 +17,37 @@ def _get_simulator_metrics() -> SimulatorMetrics:
     return SimulatorMetrics(
         # dimensions: deployment, status_code
         histogram_latency_base=meter.create_histogram(
-            name="aoai-simulator.latency.base",
+            name="aoai-api-simulator.latency.base",
             description="Latency of handling the request (before adding simulated latency)",
             unit="seconds",
         ),
         # dimensions: deployment, status_code
         histogram_latency_full=meter.create_histogram(
-            name="aoai-simulator.latency.full",
+            name="aoai-api-simulator.latency.full",
             description="Full latency of handling the request (including simulated latency)",
             unit="seconds",
         ),
         # dimensions: deployment, token_type
         histogram_tokens_used=meter.create_histogram(
-            name="aoai-simulator.tokens.used",
+            name="aoai-api-simulator.tokens.used",
             description="Number of tokens used per request",
             unit="tokens",
         ),
         # dimensions: deployment, token_type
         histogram_tokens_requested=meter.create_histogram(
-            name="aoai-simulator.tokens.requested",
+            name="aoai-api-simulator.tokens.requested",
             description="Number of tokens across all requests (success or not)",
             unit="tokens",
         ),
         # dimensions: deployment
         histogram_tokens_rate_limit=meter.create_histogram(
-            name="aoai-simulator.tokens.rate-limit",
+            name="aoai-api-simulator.tokens.rate-limit",
             description="Number of tokens that were counted for rate-limiting",
             unit="tokens",
         ),
         # dimensions: deployment, reason
         histogram_rate_limit=meter.create_histogram(
-            name="aoai-simulator.limits",
+            name="aoai-api-simulator.limits",
             description="Number of requests that were rate-limited",
             unit="requests",
         ),

@@ -74,7 +74,7 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= startTime
     and TimeGenerated <= endTime
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | summarize Sum=sum(Sum),  Count = sum(ItemCount), Max=max(Max)
 | project mean_latency_ms=1000*Sum/Count, max_latency_ms=1000*Max
 """.strip(),
@@ -114,7 +114,7 @@ let timeRange = range TimeStamp from startTime to endTime step interval
 let query = AppMetrics
 | where TimeGenerated >= startTime
     and TimeGenerated <= endTime
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | extend deployment = tostring(Properties["deployment"])
 | extend status_code = Properties["status_code"]
 | where status_code == 200
@@ -155,7 +155,7 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | extend status_code = Properties["status_code"]
 | where status_code == 429
 | summarize ItemCount=sum(ItemCount)
@@ -177,7 +177,7 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | extend status_code = tostring(Properties["status_code"])
 | summarize rps = sum(ItemCount)/10 by bin(TimeGenerated, 10s), status_code
 | project TimeGenerated, rps, status_code
@@ -204,7 +204,7 @@ AppMetrics
 # AppMetrics
 # | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
 #     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-#     and Name == "aoai-simulator.latency.base"
+#     and Name == "aoai-api-simulator.latency.base"
 # | summarize RPS = sum(ItemCount)/10 by bin(TimeGenerated, 10s)
 # | project TimeGenerated, RPS
 # """.strip(),
@@ -233,7 +233,7 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | summarize Sum=sum(Sum),  Count = sum(ItemCount), Max=max(Max) by bin(TimeGenerated, 10s)
 | project TimeGenerated, mean_latency_ms=1000*Sum/Count, max_latency_ms=1000*Max
 | render timechart

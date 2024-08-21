@@ -72,7 +72,7 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | summarize Sum=sum(Sum),  Count = sum(ItemCount), Max=max(Max)
 | project mean_latency_ms=1000*Sum/Count, max_latency_ms=1000*Max
 """.strip(),
@@ -111,7 +111,7 @@ let timeRange = range TimeStamp from startTime to endTime step interval
 let query = AppMetrics
 | where TimeGenerated >= startTime
     and TimeGenerated <= endTime
-    and Name == "aoai-simulator.tokens.rate-limit"
+    and Name == "aoai-api-simulator.tokens.rate-limit"
 | extend deployment = tostring(Properties["deployment"])
 | summarize Sum=sum(Sum),  Count = sum(ItemCount), Max=max(Max) by bin(TimeGenerated, interval);
 let aggregateQuery =timeRange
@@ -141,7 +141,7 @@ let timeRange = range TimeStamp from startTime to endTime step interval
 let query = AppMetrics
 | where TimeGenerated >= startTime
     and TimeGenerated <= endTime
-    and Name == "aoai-simulator.tokens.used"
+    and Name == "aoai-api-simulator.tokens.used"
 | extend deployment = tostring(Properties["deployment"]), token_type=tostring(Properties["token_type"])
 | where token_type == "completion"| summarize Sum=sum(Sum),  Count = sum(ItemCount), Max=max(Max) by bin(TimeGenerated, interval);
 let aggregateQuery =timeRange
@@ -180,7 +180,7 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | extend status_code = Properties["status_code"]
 | where status_code == 429
 | summarize ItemCount=sum(ItemCount)
@@ -202,14 +202,14 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-    and (Name == "aoai-simulator.tokens.used" or Name == "aoai-simulator.tokens.requested")
+    and (Name == "aoai-api-simulator.tokens.used" or Name == "aoai-api-simulator.tokens.requested")
 | extend deployment = tostring(Properties["deployment"])
 | summarize total_token_count = sum(Sum) by bin(TimeGenerated, 10s), Name
 | evaluate pivot(Name, sum(total_token_count))
 | render timechart with (title="Tokens per 10s over time")
 """.strip(),
     is_chart=True,
-    columns=["aoai-simulator.tokens.used", "aoai-simulator.tokens.requested"],
+    columns=["aoai-api-simulator.tokens.used", "aoai-api-simulator.tokens.requested"],
     chart_config={
         "height": 15,
         "min": 0,
@@ -234,7 +234,7 @@ query_processor.add_query(
 AppMetrics
 | where TimeGenerated >= datetime({test_start_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
     and TimeGenerated <= datetime({test_stop_time.strftime('%Y-%m-%dT%H:%M:%SZ')})
-    and Name == "aoai-simulator.latency.base"
+    and Name == "aoai-api-simulator.latency.base"
 | summarize Sum=sum(Sum),  Count = sum(ItemCount), Max=max(Max) by bin(TimeGenerated, 10s)
 | project TimeGenerated, mean_latency_ms=1000*Sum/Count, max_latency_ms=1000*Max
 | render timechart with (title="Latency (base) over time in ms")
