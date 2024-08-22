@@ -13,6 +13,7 @@ WARNING: This is a work in progress!
     - [Simulator Modes](#simulator-modes)
       - [Record/Replay Mode](#recordreplay-mode)
       - [Generator Mode](#generator-mode)
+  - [When to use the simulator](#when-to-use-the-simulator)
   - [Read More](#read-more)
   - [Changelog](#changelog)
   - [Contributing](#contributing)
@@ -61,6 +62,14 @@ The simulated API can also be run in generator mode, where responses are generat
 
 ![Simulator in generator mode](./docs/images/mode-generate.drawio.png "The Simulator in generate mode showing lorem ipsum generated content in the response")
 
+## When to use the simulator
+
+The simulator has been used in the following scenarios:
+
+- **Load Testing**: The simulator can be used to simulate the Azure OpenAI API in a development environment, allowing you to test how your application behaves under load. This can be useful both to save money when load testing or to allow you to test scaling the system beyond the Azure OpenAI capacity available in your development environment
+- **Integration Testing**: The simulator can be used to run integration tests, for example in CI builds without needing to have credentials for an Azure OpenAI endpoint
+
+The simulator is not a replacement for testing against the real Azure OpenAI API, but it can be a useful tool in your testing toolbox.
 
 ## Read More
 
@@ -72,7 +81,7 @@ The simulated API supports [extensions](./docs/extensions.md) that allow you to 
 
 ## Changelog
 
-For a list of tagged versions and changes, see the [CHANGELOG.md](./CHANGELOG.md) file.# Project
+For a list of tagged versions and changes, see the [CHANGELOG.md](./CHANGELOG.md) file.
 
 ## Contributing
 
