@@ -72,7 +72,7 @@ The simulated API supports [extensions](./docs/extensions.md) that allow you to 
 
 ## Changelog
 
-For a list of tagged versions and changes, see the [CHANGELOG.md](./CHANGELOG.md) file.# Project
+For a list of tagged versions and changes, see the [CHANGELOG.md](./CHANGELOG.md) file.
 
 ## Contributing
 
