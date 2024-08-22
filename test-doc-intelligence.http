@@ -1,0 +1,83 @@
+# Comment/uncomment to switch between Azure and local deployment
+@doc_intelligence_endpoint={{$dotenv AZURE_FORM_RECOGNIZER_ENDPOINT}}
+@doc_intelligence_key={{$dotenv AZURE_FORM_RECOGNIZER_KEY}}
+
+# @doc_intelligence_endpoint=http://localhost:8000/
+# @doc_intelligence_key={{$dotenv SIMULATOR_API_KEY}}
+
+# https://learn.microsoft.com/en-gb/azure/ai-services/document-intelligence/quickstarts/get-started-sdks-rest-api?view=doc-intel-3.1.0&viewFallbackFrom=form-recog-3.0.0&preserve-view=true&pivots=programming-language-rest-api
+
+
+# @name doc_intell_receipt
+POST {{doc_intelligence_endpoint}}formrecognizer/documentModels/prebuilt-receipt:analyze?api-version=2023-07-31
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+Content-Type: application/octet-stream
+Accept: application/json
+
+< ./tools/test-client/receipt.png
+
+
+###
+
+GET {{doc_intell_receipt.response.headers.operation-location }}
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+
+
+###
+
+# @name doc_intell_receipt_local
+POST http://localhost:8000/formrecognizer/documentModels/prebuilt-receipt:analyze?api-version=2023-07-31
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+Content-Type: application/octet-stream
+Accept: application/json
+
+< ./tools/test-client/receipt.png
+
+
+###
+
+GET {{doc_intell_receipt_local.response.headers.operation-location }}
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+
+
+### Document Analysis - Read
+# @name doc_intell_read
+POST {{doc_intelligence_endpoint}}formrecognizer/documentModels/prebuilt-read:analyze?api-version=2023-07-31
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+Content-Type: application/octet-stream
+Accept: application/json
+
+< ./tools/test-client/sample-layout.pdf
+
+
+###
+
+GET {{doc_intell_read.response.headers.operation-location }}
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+
+
+### Document Analysis - Read - Local
+
+# @name doc_intell_read_local
+POST http://localhost:8000/formrecognizer/documentModels/prebuilt-read:analyze?api-version=2023-07-31
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+Content-Type: application/octet-stream
+Accept: application/json
+
+< ./tools/test-client/sample-layout.pdf
+
+
+### 
+
+GET {{doc_intell_read_local.response.headers.operation-location }}
+ocp-apim-subscription-key: {{doc_intelligence_key}}
+
+
+### Local echo test
+
+###
+POST http://localhost:8000/echo HTTP/1.1
+Content-Type: application/octet-stream
+Accept: application/json
+
+{'hello': 'world'}

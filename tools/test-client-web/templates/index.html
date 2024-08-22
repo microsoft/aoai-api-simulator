@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OpenAI Simulator Test Client</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+		}
+
+		.section {
+			margin-bottom: 10px;
+			width: 45em;
+			/*border: 1px solid #ccc;*/
+			position: relative
+		}
+
+		#input {
+			width: 37em;
+			margin-left: 1em;
+		}
+
+		#output {
+			width: 100%;
+			height: 25em;
+		}
+
+		#send-message {
+			position: absolute;
+			top: 0px;
+			right: 0px;
+		}
+	</style>
+	<script>
+		let messages = [];
+
+		function clearMessages() {
+			messages = [];
+			document.getElementById('output').textContent = '';
+		}
+		function sendMessage() {
+			const input = document.getElementById('input');
+			const output = document.getElementById('output');
+			const targetEndpoint = document.querySelector('select').value;
+
+			const inputText = input.value;
+			messages.push({ "role": "user", "content": inputText });
+			if (messages.length > 1) { // 1 because we just pushed the user message
+				output.textContent += `\n---\n`;
+			}
+			output.textContent += `You: ${inputText}\n`;
+			input.value = '';
+
+			const apiUrl = `${window.location}api`
+			fetch(`${apiUrl}/chat`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					"messages": messages,
+					"target_endpoint": targetEndpoint
+				})
+			})
+				.then(response => response.json())
+				.then(data => {
+					messages.push({ "role": "assistant", "content": data.content });
+					output.textContent += `Bot: ${data.content}\n`;
+				})
+				.catch((error) => {
+					console.error('Error:', error);
+				});
+		}
+	</script>
+</head>
+
+<body>
+	<h1>Chat completion test app 🤖</h1>
+	<div class="section">
+		Target endpoint:
+		<select>
+			<option value="live">Azure OpenAI</option>
+			<option value="simulator">OpenAI Simulator</option>
+		</select>
+		<button id="clear" onclick="clearMessages()">Clear</button>
+	</div>
+	<div class="section">
+		<textarea id="output" readonly></textarea>
+	</div>
+	<div class="section">
+		Enter your message:<input id="input" type="text">
+		<button id="send-message" onclick="sendMessage()">Send</button>
+	</div>
+</body>
+
+</html>

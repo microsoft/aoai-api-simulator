@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aoai_api_simulator"
+version = "0.0.1"
+authors = [
+  { name="Stuart Leeks", email="stuartle@microsoft.com" },
+]
+description = "API Simulator for OpenAI"
+#readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+]
+
+dependencies=[
+  "fastapi==0.109.2",
+  "uvicorn[standard]==0.27.0.post1",
+  "gunicorn==21.2.0",
+  "requests==2.31.0",
+  "PyYAML==6.0.1",
+  "tiktoken==0.6.0",
+  "nanoid==2.0.0",
+  "limits==3.8.0"
+]

@@ -1,0 +1,33 @@
+name: ci-test
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # get all branches so that we can check out main to compare lint scores
+
+    - name: Run make ci-build in dev container
+      uses: devcontainers/ci@v0.3
+      with:    
+        # TODO - cache dev container image
+        push: never
+        env: |
+          GITHUB_BASE_REF
+        runCmd: |
+          echo -e "Running ci-build for ref:$GITHUB_BASE_REF\n\n"
+          make install-requirements
+
+          echo -e "\n\n--------------------------------------------------------------------------------\n\n"
+          ./scripts/ci-lint.sh
+
+          echo -e "\n\n--------------------------------------------------------------------------------\n\n"
+          make test
+
+

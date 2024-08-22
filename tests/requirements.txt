@@ -1,0 +1,7 @@
+openai==1.16.1
+pytest==8.1.1
+pytest-asyncio==0.23.6
+pytest-watch==4.2.0
+pytest-httpserver==1.0.10
+azure-ai-formrecognizer==3.3.2
+aiohttp==3.9.5
