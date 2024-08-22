@@ -30,6 +30,8 @@ param logLevel string
 
 param simulatorImageTag string
 
+param currentUserPrincipalId string
+
 // extract these to a common module to have a single, shared place for these across base/infra?
 var containerRegistryName = replace('aoaisim-${baseName}', '-', '')
 var containerAppEnvName = 'aoaisim-${baseName}'
@@ -113,6 +115,19 @@ resource assignSecretsReaderRole 'Microsoft.Authorization/roleAssignments@2020-0
     roleDefinitionId: keyVaultSecretsUserRoleDefinition.id
   }
 }
+
+resource assignSecretsReaderRole_CurrentUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(resourceGroup().id, vault.name, currentUserPrincipalId, 'assignSecretsReaderRole')
+  scope: vault
+  properties: {
+    description: 'Assign Key Vault Secrets Reader role to current user'
+    principalId: currentUserPrincipalId
+    principalType: 'User'
+    roleDefinitionId: keyVaultSecretsUserRoleDefinition.id
+  }
+}
+
+
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
   name: containerAppEnvName
