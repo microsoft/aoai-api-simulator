@@ -2,6 +2,10 @@
 
 ## vNext
 
+ - add notes here for the next release
+
+# v0.5 - 2024-08-27
+
 - Migrate to current repo
   - **BREAKING CHANGE:**: rename `aoai-simulated-api` to `aoai-api-simulator` in code (also for `aoai_simulated_api` package)
   - **BREAKING CHANGE:**: update metric prefix from `aoai-api-simulator.` to `aoai-api-simulator.`
