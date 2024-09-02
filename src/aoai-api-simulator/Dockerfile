@@ -4,7 +4,7 @@ ARG TIKTOKEN_CACHE_PATH=/app/tiktoken_cache
 FROM python:3.12.1-slim-bullseye AS base
 WORKDIR /app
 
-FROM base as simulator-unrestricted-network
+FROM base AS simulator-unrestricted-network
 
 COPY ./requirements.txt ./
 RUN pip install -r requirements.txt
@@ -26,5 +26,5 @@ RUN echo "Running restricted network build steps."
 COPY tiktoken_cache ${TIKTOKEN_CACHE_PATH}
 ENV TIKTOKEN_CACHE_DIR=${TIKTOKEN_CACHE_PATH}
 
-FROM simulator-${network_type}-network as final
+FROM simulator-${network_type}-network AS final
 CMD [ "gunicorn", "aoai_api_simulator.main:app", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
