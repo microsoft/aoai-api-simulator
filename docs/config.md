@@ -1,21 +1,22 @@
-# Configuring the simulator
+# Configuring the Azure OpenAI API Simulator
 
-- [Configuring the simulator](#configuring-the-simulator)
-  - [Environment variables](#environment-variables)
-  - [Latency](#latency)
-  - [Rate Limiting](#rate-limiting)
-  - [Large recordings](#large-recordings)
+- [Configuring the Azure OpenAI API Simulator](#configuring-the-azure-openai-api-simulator)
+  - [Environment Variables](#environment-variables)
+    - [Setting Environment Variables via the `.env` File](#setting-environment-variables-via-the-env-file)
+  - [Configuring Latency](#configuring-latency)
+  - [Configuring Rate Limiting](#configuring-rate-limiting)
+  - [Open Telemetry Configuration](#open-telemetry-configuration)
   - [Config API Endpoint](#config-api-endpoint)
-  - [Open Telemetry](#open-telemetry)
 
-There are a number of [environment variables](#environment-variables) that can be used to configure the simulator.
+There are a number of [environment variables](#environment-variables) that can be used to configure the Azure OpenAI API Simulator.
+
 Additionally, some configuration can be changed while the simulator is running using the [config endpoint](#config-endpoint).
 
-## Environment variables
+## Environment Variables
 
-When running the simulated API, there are a number of environment variables to configure:
+When running the Azure OpenAI API Simulator, there are a number of environment variables to configure:
 
-| Variable                        | Description                                                                                                                                                                       |
+| Variable                        | Description |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `SIMULATOR_MODE`                | The mode the simulator should run in. Current options are `record`, `replay`, and `generate`.                                                                                     |
 | `SIMULATOR_API_KEY`             | The API key used by the simulator to authenticate requests. If not specified a key is auto-generated (see the logs). It is recommended to set a deterministic key value in `.env` |
@@ -30,31 +31,21 @@ When running the simulated API, there are a number of environment variables to c
 | `EXTENSION_PATH`                | The path to a Python file that contains the extension configuration. This can be a single python file or a package folder - see [Extending the simulator](./extending.md)         |
 | `AZURE_OPENAI_DEPLOYMENT`       | Used by the test app to set the name of the deployed model in your Azure OpenAI service. Use a gpt-35-turbo-instruct deployment.                                                  |
 
-The examples below show passing environment variables to the API directly on the command line, but when running locally you can also set them via a `.env` file in the root directory for convenience (see the `sample.env` for a starting point).
+
+### Setting Environment Variables via the `.env` File
+
+You can set the environment variables in the shell before running the simulator, or on the command line before running commands. 
+
+However, when running the Azure OpenAI API Simulator locally you may find it more convinient to set them via a `.env` file in the root directory.
+
+The file `sample.env` lives in the root of this repository, and provides a starting point for the environment variables you may want to set. Copy this file, rename the copy to `.env`, and update the values as needed.
+
 The `.http` files for testing the endpoints also use the `.env` file to set the environment variables for calling the API.
 
 > Note: when running the simulator it will auto-generate an API Key. This needs to be passed to the API when making requests. To avoid the API Key changing each time the simulator is run, set the `SIMULATOR_API_KEY` environment variable to a fixed value.
 
-To run the simulated API, run `make run-simulated-api` from the repo root directory using the environment variables above to configure.
 
-For example, to use the API in record/replay mode:
-
-```bash
-# Run the API in record mode
-SIMULATOR_MODE=record AZURE_OPENAI_ENDPOINT=https://mysvc.openai.azure.com/ AZURE_OPENAI_KEY=your-api-key make run-simulated-api
-
-# Run the API in replay mode
-SIMULATOR_MODE=replay make run-simulated-api
-```
-
-To run the API in generator mode, you can set the `SIMULATOR_MODE` environment variable to `generate` and run the API as above.
-
-```bash
-# Run the API in generator mode
-SIMULATOR_MODE=generate make run-simulated-api
-```
-
-## Latency
+## Configuring Latency
 
 When running in `record` mode, the simulator captures the duration of the forwarded response.
 This is stored in the recording file and used to add latency to requests in `replay` mode.
@@ -76,9 +67,10 @@ The default values are:
 | `LATENCY_OPENAI_COMPLETIONS`      | 15   | 2       |
 | `LATENCY_OPENAI_CHAT_COMPLETIONS` | 19   | 6       |
 
-## Rate Limiting
+## Configuring Rate Limiting
 
 The simulator contains built-in rate limiting for OpenAI endpoints but this is still being refined.
+
 The current implementation is a combination of token- and request-based rate-limiting.
 
 To control the rate-limiting, set the `OPENAI_DEPLOYMENT_CONFIG_PATH` environment variable to the path to a JSON config file that defines the deployments and associated models and token limits. An example config file is shown below.
@@ -100,13 +92,14 @@ To control the rate-limiting, set the `OPENAI_DEPLOYMENT_CONFIG_PATH` environmen
 }
 ```
 
-## Large recordings
+## Open Telemetry Configuration
 
-By default, the simulator saves the recording file after each new recorded request in `record` mode.
-If you need to create a large recording, you may want to turn off the autosave feature to improve performance.
+The simulator supports a set of basic Open Telemetry configuration options. These are:
 
-With autosave off, you can save the recording manually by sending a `POST` request to `/++/save-recordings` to save the recordings files once you have made all the requests you want to capture. You can do this using ` curl localhost:8000/++/save-recordings -X POST`. 
-
+| Variable| Description |
+| ------- | ----------- |
+| `OTEL_SERVICE_NAME`| Sets the value of the service name reported to Open Telemetry. Defaults to `aoai-api-simulator`|
+| `OTEL_METRIC_EXPORT_INTERVAL`| The time interval (in milliseconds) between the start of two export attempts..|
 
 ## Config API Endpoint
 
@@ -127,11 +120,3 @@ For example, the following request will update the mean latency for OpenAI embed
 ```json
 {"latency": {"open_ai_embeddings": {"mean": 1000}}}
 ```
-## Open Telemetry
-
-The simulator supports a set of basic Open Telemetry configuration options. These are:
-
-| Variable| Description |
-| ------- | ----------- |
-| `OTEL_SERVICE_NAME`| Sets the value of the service name reported to Open Telemetry. Defaults to `aoai-api-simulator`|
-| `OTEL_METRIC_EXPORT_INTERVAL`| The time interval (in milliseconds) between the start of two export attempts..|

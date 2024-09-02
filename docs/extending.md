@@ -1,6 +1,6 @@
-# Extending the simulator
+# Extending the Azure OpenAI API Simulator
 
-- [Extending the simulator](#extending-the-simulator)
+- [Extending the Azure OpenAI API Simulator](#extending-the-azure-openai-api-simulator)
   - [Running with an extension](#running-with-an-extension)
   - [Creating a custom forwarder extension](#creating-a-custom-forwarder-extension)
     - [Creating a custom generator extension](#creating-a-custom-generator-extension)
