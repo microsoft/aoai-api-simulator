@@ -170,5 +170,7 @@ cython_debug/
 azuredeploy.parameters.json
 infra/output.json
 __azurite_db_table__.json
+infra/.openai_deployment_config.json
 
 *.dtmp
+

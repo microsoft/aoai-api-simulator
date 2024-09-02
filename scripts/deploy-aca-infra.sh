@@ -29,6 +29,16 @@ if [[ ${#RECORDING_DIR} -eq 0 ]]; then
   RECORDING_DIR="/mnt/simulator/recording"
 fi
 
+# Deployment uses .openai_deployment_config.json as the config
+# So copy OPENAI_DEPLOYMENT_CONFIG_PATH to .openai_deployment_config.json
+if [[ ${#OPENAI_DEPLOYMENT_CONFIG_PATH} -eq 0 ]]; then
+  echo 'ERROR: Missing environment variable OPENAI_DEPLOYMENT_CONFIG_PATH' 1>&2
+  exit 6
+fi
+cp "$OPENAI_DEPLOYMENT_CONFIG_PATH" "$script_dir/../infra/.openai_deployment_config.json"
+
+
+
 image_tag=${SIMULATOR_IMAGE_TAG:-latest}
 
 user_id=$(az ad signed-in-user show --output tsv --query id)
@@ -66,9 +76,6 @@ cat << EOF > "$script_dir/../infra/azuredeploy.parameters.json"
 	},
 	"azureOpenAIKey": {
 	  "value": "${AZURE_OPENAI_KEY}"
-	},
-	"openAIDeploymentConfigPath": {
-	  "value": "${OPENAI_DEPLOYMENT_CONFIG_PATH}"
 	},
 	"logLevel": {
 	  "value": "${LOG_LEVEL}"
