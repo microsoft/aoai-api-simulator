@@ -1,20 +1,18 @@
-# API Metrics
+# Azure OpenAI API Simulator Metrics
 
 To help you understand how the API Simulator is performing, we provide a number of metrics that you can use to monitor the simulator.
 
-- [API Metrics](#api-metrics)
-	- [aoai-api-simulator.latency.base](#aoai-api-simulatorlatencybase)
-	- [aoai-api-simulator.latency.full](#aoai-api-simulatorlatencyfull)
-	- [aoai-api-simulator.tokens.used](#aoai-api-simulatortokensused)
-	- [aoai-api-simulator.tokens.requested](#aoai-api-simulatortokensrequested)
-	- [aoai-api-simulator.tokens.rate-limit](#aoai-api-simulatortokensrate-limit)
-	- [aoai-api-simulator.limits](#aoai-api-simulatorlimits)
-
+- [Azure OpenAI API Simulator Metrics](#azure-openai-api-simulator-metrics)
+  - [aoai-api-simulator.latency.base](#aoai-api-simulatorlatencybase)
+  - [aoai-api-simulator.latency.full](#aoai-api-simulatorlatencyfull)
+  - [aoai-api-simulator.tokens.used](#aoai-api-simulatortokensused)
+  - [aoai-api-simulator.tokens.requested](#aoai-api-simulatortokensrequested)
+  - [aoai-api-simulator.tokens.rate-limit](#aoai-api-simulatortokensrate-limit)
+  - [aoai-api-simulator.limits](#aoai-api-simulatorlimits)
 
 ## aoai-api-simulator.latency.base
 
 Units: `seconds`
-
 
 The `aoai-api-simulator.latency.base` metric measures the base latency of the simulator. This is the time taken to process a request _excluding_ any added latency.
 

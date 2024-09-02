@@ -1,41 +1,66 @@
-# Developing the API Simulator
+# Contributing to the Azure OpenAI API Simulator
 
-This file contains some notes about developing the API simulator.
+This file contains notes for anyone contributing and developing the Azure OpenAI API Simulator.
 
-The simplest way to work with the simulator code is with [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) in VS Code.
-The repo contains a Dev Container configuration that sets up a container with all the dependencies needed to develop the simulator.
+The simplest way to work with and develop the simulator code is within a [Dev Container](https://code.visualstudio.com/docs/devcontainers/containers) in VS Code.
+
+The repo contains Dev Container configuration that will sets up a container and install all of the dependencies needed to develop the simulator.
+
+The rest of this document assumes that you are working within a Dev Container, though many of the instructions will work outside of a container too.
 
 ## Repo Contents
 
-- `infra` contains the bicep files to deploy the simulator to Azure Container Apps
-- `src` contains the simulator code and tests
-- `scripts` contains scripts to help with development/deployment
-- `test-aoai.http` contains a collection of HTTP requests that can be run in VS Code using the REST Client extension
+The top level repo is structured as follows:
+```
+.
+├── docs            # Markdown documentation (such as this file)
+├── examples        # contains examples of how the similator might be used
+├── infra           # contains the bicep files to deploy the simulator to Azure Container Apps
+├── loadtest        # locust-based load tests for validating the simulator performance
+├── scripts         # scripts to help with development/deployment (mostly bash scripts, called from `Makefile`)
+├── src             # the Azure OpenAI API Simulator code
+├── tests           # tests for the Azure OpenAI API Simulator
+└── tools           # test client and other tools
+```
+The `src` directory contains the main code for the simulator.
 
-Under the `src` folder ther are the following subfolders:
-- `aoai_api_simulator` - the simulator code
-- `examples` - example code showing how to extend the simulator
-- `loadtest` - locust-based load tests for validating the simulator performance
-- `test-client` -  a simple client that can be used to test the simulator interactively
-- `test-client-web` -  a simple web client that can be used to demo the chat completions
-- `tests` - integration tests for validating the simulator
+## The Makefile
 
-## Running the linter/tests
+Almost all of the common tasks for running or testing the simulator are available via the `Makefile`.
 
-There is a `Makefile` in the root of the repo that contains some useful commands.
+The following section of this document describes some of the more commonly used rules:
 
-To run the linter run `make lint`.
+Make command                     | Description
+---------------------------------|-----------------------------------------
+`make help`                      | Show the help message with a full set of available rules
+`make install-requirements`      | Installs the PyPI requirements
+`make run-simulated-api`         | Launches the AOAI Simulated API locally
+`make test`                      | Run the suite of PyTest tests (in verbose mode)
+`make lint`                      | Lints the aoai-api-simulator source code
+`make deploy-aca`                | Runs the deployment scripts for Azure Container Apps
 
-To run the tests run `make test`.
+For a full set of rules, type `make help` from the command line and you will be presented with a list of available rules.
 
-## Pre-release checklist
+## Creating Pull Requests against the Azure OpenAI API Simulator
+    
+When creating a pull request, please ensure that you have run the linter and tests locally before pushing your changes.
 
-- Ensure that the tests run
-- Compare the linter output to the last release - this helps to avoid accumulating a build-up of linting issues
+To run the linter run `make lint`. Ensure that you are not adding additional linting issues.
+
+To run the tests run `make test`. Make sure that the test suite runs successfully.
+
+## Creating a Release of the Azure OpenAI API Simulator
+
+### Pre-release checklist
+
+Before creating a new release, please ensure you have run through the following steps:
+
+- Ensure that the tests run successfully
+- Compare the linter output to the last release, and ensure that no additional linting issues have been created - this helps to avoid accumulating a build-up of linting issues
 - Deploy the simulator to Container Apps
 - Run load tests against the deployed simulator (see [Load tests](#load-tests))
 
-### Load tests
+### Load Tests
 
 The following load tests should be run against the simulator before a release:
 
@@ -45,7 +70,6 @@ To run this test, run `./scripts/run-load-test-base-latency.sh`.
 
 The test sends requests to the simulator as fast as possible with no latency and no rate limiting.
 This test is useful for validating the base latency and understanding the maximum throughput of the simulator.
-
 
 #### Load test: Added latency (1s latency, no limits)
 
@@ -63,7 +87,6 @@ This equates to 600 requests per minute or 10 requests per second.
 
 This test uses 30 test users (i.e. ~30RPS) with a `max_tokens` value of 10 for each request.
 By keeping the `max_tokens` value low, we should trigger the request-based rate limiting rather than the token-based limiting.
-
 
 #### Load test: Token limiting (no added latency, 100,000 tokens per minute)
 
