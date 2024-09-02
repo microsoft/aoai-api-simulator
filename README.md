@@ -88,7 +88,7 @@ The document [Running and Deploying the Azure OpenAI API Simulator](./docs/runni
 The behaviour of the Azure OpenAI API Simulator is controlled via a range of [Azure OpenAI API Simulator Configuration Options](./docs/config.md).
 
 ### Extending the Azure OpenAI API Simulator
-There are also a number of [Azure OpenAI API Simulator Extensions](./docs/extensions.md) that allow you to customise the behaviour of the Azure OpenAI API Simulator. Extensions can be used to modify the request/response, add latency, or even generate responses.
+There are also a number of [Azure OpenAI API Simulator Extension points](./docs/extensions.md) that allow you to customise the behaviour of the Azure OpenAI API Simulator. Extensions can be used to modify the request/response, add latency, or even generate responses.
 
 ### Contributing to the Azure OpenAI API Simulator
 
