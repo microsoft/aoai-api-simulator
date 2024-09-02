@@ -15,7 +15,7 @@
 
 ## Getting Started
 
-The simplest way to work with and the simulator code is within a [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) in VS Code.
+The simplest way to work with and the simulator code is within a [Dev Container](https://code.visualstudio.com/docs/devcontainers/containers) in VS Code.
 
 The repo contains Dev Container configuration that will sets up a container and install all of the dependencies needed to develop the simulator.
 
