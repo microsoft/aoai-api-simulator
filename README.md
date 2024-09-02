@@ -82,7 +82,7 @@ The Azure OpenAI API Simulator is not a replacement for testing against the real
 ## How to Get Started with the Azure OpenAI API Simulator
 
 ### Running and Deploying the Azure OpenAI API Simulator
-To document [Running and Deploying the Azure OpenAI API Simulator](./docs/running-deploying.md) includes instructions on running the Azure OpenAI API Simulator locally, packaging and deploying it in a Docker container, and also deploying the Azure OpenAI API Simulator to Azure Container Apps.
+The document [Running and Deploying the Azure OpenAI API Simulator](./docs/running-deploying.md) includes instructions on running the Azure OpenAI API Simulator locally, packaging and deploying it in a Docker container, and also deploying the Azure OpenAI API Simulator to Azure Container Apps.
 
 ### Configuring the Azure OpenAI API Simulator
 The behavious of the Azure OpenAI API Simulator is controlled via a range of [Azure OpenAI API Simulator Configuration Options](./docs/config.md).
