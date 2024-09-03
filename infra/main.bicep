@@ -166,7 +166,8 @@ resource azureOpenAIKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: vault
   name: 'azure-openai-key'
   properties: {
-    value: azureOpenAIKey
+    // workaround to deployment issue https://github.com/microsoft/aoai-api-simulator/issues/28
+    value: empty(azureOpenAIKey) ? 'place-holder-API-key' : azureOpenAIKey
   }
 }
 resource appInsightsConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
