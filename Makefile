@@ -18,9 +18,6 @@ install-requirements: ## Install PyPI requirements for all projects
 	pip install -r tools/test-client/requirements.txt
 	pip install -r tools/test-client-web/requirements.txt
 
-erase-recording: ## Erase all *.recording files
-	rm -rf "${makefile_dir}.recording"
-
 run-simulated-api: ## Launch the AOAI Simulated API locally
 	gunicorn \
 		aoai_api_simulator.main:app \
@@ -28,6 +25,21 @@ run-simulated-api: ## Launch the AOAI Simulated API locally
 		--workers 1 \
 		--bind 0.0.0.0:8000 \
 		--timeout 3600
+
+deploy-aca: ## Run deployment script for Azure Container Apps
+	./scripts/deploy-aca.sh
+
+test: ## Run PyTest (verbose)
+	pytest ./tests -v
+	
+test-not-slow: ## Run PyTest (verbose, skip slow tests)
+	pytest ./tests -v -m "not slow"
+
+test-watch: ## Start PyTest Watch
+	ptw --clear ./tests
+
+lint: ## Lint aoai-api-simulator source code
+	pylint ./src/aoai-api-simulator/
 
 run-test-client: ## Run the test client
 	cd tools/test-client && \
@@ -67,22 +79,10 @@ docker-run-simulated-api: ## Run the AOAI Simulated API docker container
 		-e AZURE_OPENAI_DEPLOYMENT \
 		aoai-api-simulator
 
-test: ## Run PyTest (verbose)
-	pytest ./tests -v
-
-test-not-slow: ## Run PyTest (verbose, skip slow tests)
-	pytest ./tests -v -m "not slow"
-
-test-watch: ## Start PyTest Watch
-	ptw --clear ./tests
-
-lint: ## Lint aoai-api-simulator source code
-	pylint ./src/aoai-api-simulator/
-
-deploy-aca: ## Run deployment script for Azure Container Apps
-	./scripts/deploy-aca.sh
-
 docker-build-load-test: ## Build the AOAI Simulated API Load Test as a docker image
 	# TODO should set a tag!
 	cd loadtest && \
 	docker build -t aoai-api-simulator-load-test .
+
+erase-recording: ## Erase all *.recording files
+	rm -rf "${makefile_dir}.recording"
