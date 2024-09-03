@@ -56,7 +56,7 @@ run-test-client-simulator-local: ## Run the test client against local AOAI Simul
 run-test-client-simulator-aca: ## Run the test client against an Azure Container Apps deployment
 	./scripts/run-test-client-aca.sh
 
-run-test-client-web: ## Launch the test client web app locally
+run-test-client-web: ## Launch the test client web app locally
 	cd tools/test-client-web && \
 	flask run --host 0.0.0.0
 
