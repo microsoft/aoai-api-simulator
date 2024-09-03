@@ -24,8 +24,6 @@ param azureOpenAIEndpoint string
 @secure()
 param azureOpenAIKey string
 
-param openAIDeploymentConfigPath string
-
 param logLevel string
 
 param simulatorImageTag string
@@ -213,6 +211,10 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
           keyVaultUrl: '${keyVaultUri}secrets/app-insights-connection-string'
           identity: managedIdentity.id
         }
+        {
+          name: 'deployment-config'
+          value: loadTextContent('./.openai_deployment_config.json')
+        }
       ]
       registries: [
         {
@@ -238,7 +240,7 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
             { name: 'EXTENSION_PATH', value: extensionPath }
             { name: 'AZURE_OPENAI_ENDPOINT', value: azureOpenAIEndpoint }
             { name: 'AZURE_OPENAI_KEY', secretRef: 'azure-openai-key' }
-            { name: 'OPENAI_DEPLOYMENT_CONFIG_PATH', value: openAIDeploymentConfigPath }
+            { name: 'OPENAI_DEPLOYMENT_CONFIG_PATH', value: '/mnt/deployment-config/simulator_deployment_config.json' }
             { name: 'LOG_LEVEL', value: logLevel }
             { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'app-insights-connection-string' }
             // Ensure cloudRoleName is set in telemetry
@@ -248,6 +250,10 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
           ]
           volumeMounts: [
             {
+              volumeName: 'deployment-config'
+              mountPath: '/mnt/deployment-config'
+            }
+            {
               volumeName: 'simulator-storage'
               mountPath: '/mnt/simulator'
             }
@@ -255,6 +261,16 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
         }
       ]
       volumes: [
+        {
+          name: 'deployment-config'
+          storageType: 'Secret'
+          secrets:[
+            {
+              secretRef:'deployment-config'
+              path:'simulator_deployment_config.json'
+            }
+          ]
+        }
         {
           name: 'simulator-storage'
           storageName: containerAppStorage.name
