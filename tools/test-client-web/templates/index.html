@@ -44,14 +44,13 @@
 			const input = document.getElementById('input');
 			const output = document.getElementById('output');
 			const targetEndpoint = document.querySelector('select').value;
-			const targetEndpointText = document.getElementById('endpoint').selectedOptions[0].text
 
 			const inputText = input.value;
 			messages.push({ "role": "user", "content": inputText });
 			if (messages.length > 1) { // 1 because we just pushed the user message
 				output.textContent += `\n---\n`;
 			}
-			output.textContent += `Endpoint: ${targetEndpointText}\n`;
+
 			output.textContent += `You: ${inputText}\n`;
 			input.value = '';
 
