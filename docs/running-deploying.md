@@ -94,7 +94,7 @@ Once the image is built, you can run this container using the following command:
 make docker-run-simulated-api
 ```
 
-This make rule will pick up the .env file and pass the environment variables to the container. It will also mount a volume such that recordings from the simulator are written to a `.recording` folde off of the repository root. Review the `Makefile` for more details.
+This make rule will pick up the .env file and pass the environment variables to the container. It will also mount a volume such that recordings from the simulator are written to a `.recording` folder off of the repository root. Review the `Makefile` for more details.
 
 If you want to run the docker container with different environment variables, you can do so. Some examples of this are given below:
 
