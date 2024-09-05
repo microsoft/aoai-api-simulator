@@ -16,6 +16,8 @@ mode = os.getenv("MODE")
 if mode is None:
     print(f"MODE is not set - defaulting to completion. Options are {mode_options}")
     mode = "completion"
+else:
+    print(f"MODE is set to {mode}")
 
 
 if mode in aoai_modes:
