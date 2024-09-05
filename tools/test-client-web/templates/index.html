@@ -42,8 +42,7 @@
 		}
 		function sendMessage() {
 			const input = document.getElementById('input');
-			const output = document.getElementById('output');
-			const targetEndpoint = document.querySelector('select').value;
+			const output = document.getElementById('output');			
 
 			const inputText = input.value;
 			messages.push({ "role": "user", "content": inputText });
@@ -61,8 +60,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					"messages": messages,
-					"target_endpoint": targetEndpoint
+					"messages": messages
 				})
 			})
 				.then(response => response.json())
@@ -79,24 +77,16 @@
 
 <body>
 	<h1>Chat completion test app 🤖</h1>
-	<form onsubmit="sendMessage(); return false">
-		<div class="section">
-			Target endpoint:
-			<select id="endpoint">
-				<option value="live">Azure OpenAI</option>
-				<option value="simulator">OpenAI Simulator</option>
-			</select>
-			<button id="clear" type="button" onclick="clearMessages(); return false">Clear</button>
-		</div>
-		<div class="section">
-			<textarea id="output" readonly></textarea>
-		</div>
-		<div class="section">
-			<label for="input">Enter your message:</label>
-			<input id="input" type="text" autofocus required>
-			<button id="send-message" type="submit">Send</button>
-		</div>
-	<form>
+	<div class="section">
+		<button id="clear" onclick="clearMessages()">Clear</button>
+	</div>
+	<div class="section">
+		<textarea id="output" readonly></textarea>
+	</div>
+	<div class="section">
+		Enter your message:<input id="input" type="text">
+		<button id="send-message" onclick="sendMessage()">Send</button>
+	</div>
 </body>
 
 </html>

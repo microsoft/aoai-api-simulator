@@ -21,14 +21,14 @@ else:
 
 
 if mode in aoai_modes:
-    api_key = os.getenv("AZURE_OPENAI_KEY")
-    api_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+    api_key = os.getenv("TEST_OPENAI_KEY")
+    api_endpoint = os.getenv("TEST_OPENAI_ENDPOINT")
 
     if api_key is None:
-        print("AZURE_OPENAI_KEY is not set")
+        print("TEST_OPENAI_KEY is not set")
         exit(1)
     if api_endpoint is None:
-        print("AZURE_OPENAI_ENDPOINT is not set")
+        print("TEST_OPENAI_ENDPOINT is not set")
         exit(1)
     print("Connecting to: " + api_endpoint)
     aoai_client = AzureOpenAI(
@@ -37,8 +37,8 @@ if mode in aoai_modes:
     print("")
 
 if mode == "doc-intelligence":
-    api_endpoint = os.environ["AZURE_FORM_RECOGNIZER_ENDPOINT"]
-    api_key = os.environ["AZURE_FORM_RECOGNIZER_KEY"]
+    api_endpoint = os.environ["TEST_FORM_RECOGNIZER_ENDPOINT"]
+    api_key = os.environ["TEST_FORM_RECOGNIZER_KEY"]
 
     credential = AzureKeyCredential(api_key)
     document_analysis_client = DocumentAnalysisClient(api_endpoint, credential)
@@ -46,18 +46,18 @@ if mode == "doc-intelligence":
 
 def get_deployment_name():
     # This will correspond to the custom name you chose for your deployment when you deployed a model. Use a gpt-35-turbo-instruct deployment.
-    deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+    deployment_name = os.getenv("TEST_OPENAI_DEPLOYMENT")
     if deployment_name is None:
-        print("AZURE_OPENAI_DEPLOYMENT is not set")
+        print("TEST_OPENAI_DEPLOYMENT is not set")
         exit(1)
     return deployment_name
 
 
 def get_embedding_deployment_name():
     # This will correspond to the custom name you chose for your deployment when you deployed a model. Use a gpt-35-turbo-instruct deployment.
-    deployment_name = os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT")
+    deployment_name = os.getenv("TEST_OPENAI_EMBEDDING_DEPLOYMENT")
     if deployment_name is None:
-        print("AZURE_OPENAI_EMBEDDING_DEPLOYMENT is not set")
+        print("TEST_OPENAI_EMBEDDING_DEPLOYMENT is not set")
         exit(1)
     return deployment_name
 
