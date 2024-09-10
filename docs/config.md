@@ -10,7 +10,7 @@
 
 There are a number of [environment variables](#environment-variables) that can be used to configure the Azure OpenAI API Simulator.
 
-Additionally, some configuration can be changed while the simulator is running using the [config endpoint](#config-endpoint).
+Additionally, some configuration can be changed while the simulator is running using the [config endpoint](#config-api-endpoint).
 
 ## Environment Variables
 
@@ -43,7 +43,7 @@ There are also a set of environment variables that the test clients and tests wi
 
 ### Setting Environment Variables via the `.env` File
 
-You can set the environment variables in the shell before running the simulator, or on the command line before running commands. 
+You can set the environment variables in the shell before running the simulator, or on the command line before running commands.
 
 However, when running the Azure OpenAI API Simulator locally you may find it more convinient to set them via a `.env` file in the root directory.
 
@@ -52,7 +52,6 @@ The file `sample.env` lives in the root of this repository, and provides a start
 The `.http` files for testing the endpoints also use the `.env` file to set the environment variables for calling the API.
 
 > Note: when running the simulator it will auto-generate an API Key. This needs to be passed to the API when making requests. To avoid the API Key changing each time the simulator is run, set the `SIMULATOR_API_KEY` environment variable to a fixed value.
-
 
 ## Configuring Latency
 
@@ -66,7 +65,6 @@ When running in `generate` mode, the simulator can add latency to the response b
 | `LATENCY_OPENAI_EMBEDDINGS`       | Speficy the latency to add to embeddings requests in milliseconds using `LATENCY_OPENAI_EMBEDDINGS_MEAN` and `LATENCY_OPENAI_EMBEDDINGS_STD_DEV`                                   |
 | `LATENCY_OPENAI_COMPLETIONS`      | Specify the latency to add to completions _per completion token_ in milliseconds using `LATENCY_OPEN_AI_COMPLETIONS_MEAN` and `LATENCY_OPEN_AI_COMPLETIONS_STD_DEV`                |
 | `LATENCY_OPENAI_CHAT_COMPLETIONS` | Specify the latency to add to chat completions _per completion token_ in milliseconds using `LATENCY_OPEN_AI_CHAT_COMPLETIONS_MEAN` and `LATENCY_OPEN_AI_CHAT_COMPLETIONS_STD_DEV` |
-
 
 The default values are:
 
@@ -86,18 +84,18 @@ To control the rate-limiting, set the `OPENAI_DEPLOYMENT_CONFIG_PATH` environmen
 
 ```json
 {
-    "deployment1" : {
-        "model": "gpt-3.5-turbo",
-        "tokensPerMinute" : 60000
-    },
-    "gpt-35-turbo-2k-token" : {
-        "model": "gpt-3.5-turbo",
-        "tokensPerMinute" : 2000
-    },
-    "gpt-35-turbo-1k-token" : {
-        "model": "gpt-3.5-turbo",
-        "tokensPerMinute" : 1000
-    }
+  "deployment1": {
+    "model": "gpt-3.5-turbo",
+    "tokensPerMinute": 60000
+  },
+  "gpt-35-turbo-2k-token": {
+    "model": "gpt-3.5-turbo",
+    "tokensPerMinute": 2000
+  },
+  "gpt-35-turbo-1k-token": {
+    "model": "gpt-3.5-turbo",
+    "tokensPerMinute": 1000
+  }
 }
 ```
 
@@ -105,10 +103,10 @@ To control the rate-limiting, set the `OPENAI_DEPLOYMENT_CONFIG_PATH` environmen
 
 The simulator supports a set of basic Open Telemetry configuration options. These are:
 
-| Variable| Description |
-| ------- | ----------- |
-| `OTEL_SERVICE_NAME`| Sets the value of the service name reported to Open Telemetry. Defaults to `aoai-api-simulator`|
-| `OTEL_METRIC_EXPORT_INTERVAL`| The time interval (in milliseconds) between the start of two export attempts..|
+| Variable                      | Description                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| `OTEL_SERVICE_NAME`           | Sets the value of the service name reported to Open Telemetry. Defaults to `aoai-api-simulator` |
+| `OTEL_METRIC_EXPORT_INTERVAL` | The time interval (in milliseconds) between the start of two export attempts..                  |
 
 ## Config API Endpoint
 
@@ -118,7 +116,21 @@ This can be useful when you want to test how your application adapts to changing
 A `GET` request to this endpoint will return a JSON object with the current configuration:
 
 ```json
-{"simulator_mode":"generate","latency":{"open_ai_embeddings":{"mean":100.0,"std_dev":30.0},"open_ai_completions":{"mean":15.0,"std_dev":2.0},"open_ai_chat_completions":{"mean":19.0,"std_dev":6.0}},"openai_deployments":{"deployment1":{"tokens_per_minute":60000,"model":"gpt-3.5-turbo"},"gpt-35-turbo-1k-token":{"tokens_per_minute":1000,"model":"gpt-3.5-turbo"}}}
+{
+  "simulator_mode": "generate",
+  "latency": {
+    "open_ai_embeddings": { "mean": 100.0, "std_dev": 30.0 },
+    "open_ai_completions": { "mean": 15.0, "std_dev": 2.0 },
+    "open_ai_chat_completions": { "mean": 19.0, "std_dev": 6.0 }
+  },
+  "openai_deployments": {
+    "deployment1": { "tokens_per_minute": 60000, "model": "gpt-3.5-turbo" },
+    "gpt-35-turbo-1k-token": {
+      "tokens_per_minute": 1000,
+      "model": "gpt-3.5-turbo"
+    }
+  }
+}
 ```
 
 A `PATCH` request can be used to update the configuration
@@ -127,5 +139,5 @@ The body of the request should be a JSON object with the configuration values to
 For example, the following request will update the mean latency for OpenAI embeddings to 1 second (1000ms):
 
 ```json
-{"latency": {"open_ai_embeddings": {"mean": 1000}}}
+{ "latency": { "open_ai_embeddings": { "mean": 1000 } } }
 ```

@@ -4,7 +4,7 @@
 
 The Azure OpenAI API Simulator is designed to sit between an app that uses Azure OpenAI, and the Azure OpenAI API itself.
 
-However, if you're helping to develop the simulator, testing its functionality, or you're just curious about how it works, you may not have an app that uses Azure OpenAI API. 
+However, if you're helping to develop the simulator, testing its functionality, or you're just curious about how it works, you may not have an app that uses Azure OpenAI API.
 
 For this reason there are a set of sample test clients within this repo that you can use to test the simulator, or simply use to call the Azure OpenAI API directly.
 
@@ -40,9 +40,9 @@ chatbot-stream | Allows you to interact the streaming chat completion API, using
 embedding | Tests the embedding API
 doc-intelligence | Tests the document intelligence API
 
-If you don't specify `MODE` then script will assume `completion`. 
+If you don't specify `MODE` then script will assume `completion`.
 
-You can set this `MODE` environment variable via the command line. 
+You can set this `MODE` environment variable via the command line.
 
 ``` console
 MODE=chat make run-test-client

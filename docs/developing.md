@@ -11,7 +11,8 @@ The rest of this document assumes that you are working within a Dev Container, t
 ## Repo Contents
 
 The top level repo is structured as follows:
-```
+
+```tree
 .
 ├── docs            # Markdown documentation (such as this file)
 ├── examples        # contains examples of how the similator might be used
@@ -22,6 +23,7 @@ The top level repo is structured as follows:
 ├── tests           # tests for the Azure OpenAI API Simulator
 └── tools           # test client and other tools
 ```
+
 The `src` directory contains the main code for the simulator.
 
 ## The Makefile
@@ -30,19 +32,20 @@ Almost all of the common tasks for running or testing the simulator are availabl
 
 The following section of this document describes some of the more commonly used rules:
 
-Make command                     | Description
----------------------------------|-----------------------------------------
-`make help`                      | Show the help message with a full set of available rules
-`make install-requirements`      | Installs the PyPI requirements
-`make run-simulated-api`         | Launches the AOAI Simulated API locally
-`make test`                      | Run the suite of PyTest tests (in verbose mode)
-`make lint`                      | Lints the aoai-api-simulator source code
-`make deploy-aca`                | Runs the deployment scripts for Azure Container Apps
+| Make command                | Description                                              |
+| --------------------------- | -------------------------------------------------------- |
+| `make help`                 | Show the help message with a full set of available rules |
+| `make install-requirements` | Installs the PyPI requirements                           |
+| `make run-simulated-api`    | Launches the AOAI Simulated API locally                  |
+| `make test`                 | Run the suite of PyTest tests (in verbose mode)          |
+| `make lint`                 | Lints the aoai-api-simulator source code                 |
+| `make lint-docs`            | Lints Markdown docs                                      |
+| `make deploy-aca`           | Runs the deployment scripts for Azure Container Apps     |
 
 For a full set of rules, type `make help` from the command line and you will be presented with a list of available rules.
 
 ## Creating Pull Requests against the Azure OpenAI API Simulator
-    
+
 When creating a pull request, please ensure that you have run the linter and tests locally before pushing your changes.
 
 To run the linter run `make lint`. Ensure that you are not adding additional linting issues.

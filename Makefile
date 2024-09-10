@@ -41,6 +41,9 @@ test-watch: ## Start PyTest Watch
 lint: ## Lint aoai-api-simulator source code
 	pylint ./src/aoai-api-simulator/
 
+lint-docs: ## Lint Markdown docs
+	docker run -v $$PWD:/workdir ghcr.io/igorshubovych/markdownlint-cli:latest "**/*.md"
+
 run-test-client: ## Run the test client
 	cd tools/test-client && \
 	python app.py
@@ -86,3 +89,4 @@ docker-build-load-test: ## Build the AOAI Simulated API Load Test as a docker im
 
 erase-recording: ## Erase all *.recording files
 	rm -rf "${makefile_dir}.recording"
+

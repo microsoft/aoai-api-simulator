@@ -1,6 +1,6 @@
-# Azure OpenAI API Simulator 
+# Azure OpenAI API Simulator
 
-This repo is an exploration into creating a simulated API implementation for Azure OpenAI (AOAI). 
+This repo is an exploration into creating a simulated API implementation for Azure OpenAI (AOAI).
 
 WARNING: This is a work in progress!
 
@@ -11,6 +11,8 @@ WARNING: This is a work in progress!
   - [Overview](#overview)
     - [What is the Azure OpenAI API Simulator?](#what-is-the-azure-openai-api-simulator)
     - [Simulator Modes](#simulator-modes)
+      - [Generator Mode](#generator-mode)
+      - [Record/Replay Mode](#recordreplay-mode)
   - [When to use the Azure OpenAI API Simulator](#when-to-use-the-azure-openai-api-simulator)
   - [How to Get Started with the Azure OpenAI API Simulator](#how-to-get-started-with-the-azure-openai-api-simulator)
     - [Running and Deploying the Azure OpenAI API Simulator](#running-and-deploying-the-azure-openai-api-simulator)
@@ -26,7 +28,7 @@ WARNING: This is a work in progress!
 ### What is the Azure OpenAI API Simulator?
 
 The Azure OpenAI API Simulator is a tool that allows you to easily deploy endpoints that simulate the OpenAI API.
-A common use-case for the simulator is to test the behaviour your application under load, without making calls to the live OpenAI API endpoints. 
+A common use-case for the simulator is to test the behaviour your application under load, without making calls to the live OpenAI API endpoints.
 
 Let's illustrate this with an example...
 
@@ -47,7 +49,7 @@ The `Azure OpenAI API Simulator presents the same interface as the live OpenAI A
 
 ### Simulator Modes
 
-The Azure OpenAI API Simulator has two approaches to simulating API responses: 
+The Azure OpenAI API Simulator has two approaches to simulating API responses:
 
 1. **Generator Mode** - If you don't have any requirements around the content of the responses, the **Generator** approach is probably the easiest for you to use.
 2. **Record/Replay Mode** - If you need to simulate specific responses, then the **Record/Replay** approach is likely the best fit for you.
@@ -60,11 +62,11 @@ When run in Generator mode the Azure OpenAI API Simulator will create responses 
 
 #### Record/Replay Mode
 
-With record/replay, the Azure OpenAI API Simulator is set up to act as a proxy between your application and Azure OpenAI. The Azure OpenAI API Simulator will then record requests that are sent to it along with the corresponding response from OpenAI API. 
+With record/replay, the Azure OpenAI API Simulator is set up to act as a proxy between your application and Azure OpenAI. The Azure OpenAI API Simulator will then record requests that are sent to it along with the corresponding response from OpenAI API.
 
 ![Simulator in record mode](./docs/images/mode-record.drawio.png "The Simulator in record mode proxying requests to Azure OpenAI and persisting the responses to disk")
 
-Once a set of recordings have been made, the Azure OpenAI API Simulator can then be run in replay mode where it uses these saved responses without forwarding anything to the OpenAI API. 
+Once a set of recordings have been made, the Azure OpenAI API Simulator can then be run in replay mode where it uses these saved responses without forwarding anything to the OpenAI API.
 
 Recordings are stored in YAML files which can be edited if you want to customise the responses.
 
@@ -82,12 +84,15 @@ The Azure OpenAI API Simulator is not a replacement for testing against the real
 ## How to Get Started with the Azure OpenAI API Simulator
 
 ### Running and Deploying the Azure OpenAI API Simulator
+
 The document [Running and Deploying the Azure OpenAI API Simulator](./docs/running-deploying.md) includes instructions on running the Azure OpenAI API Simulator locally, packaging and deploying it in a Docker container, and also deploying the Azure OpenAI API Simulator to Azure Container Apps.
 
 ### Configuring the Azure OpenAI API Simulator
+
 The behaviour of the Azure OpenAI API Simulator is controlled via a range of [Azure OpenAI API Simulator Configuration Options](./docs/config.md).
 
 ### Extending the Azure OpenAI API Simulator
+
 There are also a number of [Azure OpenAI API Simulator Extension points](./docs/extensions.md) that allow you to customise the behaviour of the Azure OpenAI API Simulator. Extensions can be used to modify the request/response, add latency, or even generate responses.
 
 ### Contributing to the Azure OpenAI API Simulator
@@ -100,9 +105,9 @@ For a list of tagged versions and changes, see the [CHANGELOG.md](./CHANGELOG.md
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
@@ -114,8 +119,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
