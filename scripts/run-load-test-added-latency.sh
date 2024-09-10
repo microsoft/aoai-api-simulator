@@ -18,7 +18,7 @@ result=$(\
   LOCUST_USERS=100 \
   LOCUST_RUN_TIME=3m \
   LOCUST_SPAWN_RATE=1 \
-  TEST_FILE=./test_chat_completions_1s_latency.py \
+  TEST_FILE=./loadtest_chat_completions_1s_latency.py \
   DEPLOYMENT_NAME=$deployment_name \
   ALLOW_429_RESPONSES=true \
   ./scripts/_run-load-test-aca.sh)
