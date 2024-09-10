@@ -9,7 +9,6 @@
     - [Document Intelligence generator](#document-intelligence-generator)
   - [Customising rate limiting](#customising-rate-limiting)
 
-
 The simulator allows extending some aspects of the behavior without modifying the original source code.
 
 An extension can be either a single python file or a package folder.
@@ -155,7 +154,7 @@ The repo includes a couple of example extensions for Document Intelligence that 
 ### Document Intelligence forwarder
 
 The document intelligence forwarder extension is in the `examples/forwarder_doc_intelligence` folder.
-This extension allows you to forward requests to the Document Intelligence service and record the responses for later replay. 
+This extension allows you to forward requests to the Document Intelligence service and record the responses for later replay.
 
 ### Document Intelligence generator
 
@@ -166,7 +165,7 @@ The generator will return the right shape of response using lorem ipsum text.
 You will likely want to make some tweaks to the example generator depending on the model that you use in your application and the aspects of the response that you use in your application.
 
 Rate-limiting for Document Intelligence endpoints is a standard requests per second (RPS) limit.
-The default limit for the simulator is 15 RPS based on the default for an S0 tier service (see https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/service-limits?view=doc-intel-4.0.0).
+The default limit for the simulator is 15 RPS based on the default for an S0 tier service (see <https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/service-limits?view=doc-intel-4.0.0>).
 
 This rate-limit only applies to the request submission endpoint and not to the results endpoint.
 
@@ -182,4 +181,3 @@ An example of a custom generator can be found in the `examples/generator_doc_int
 The simulator configuration stores a dictionary of rate limiters.
 The `RequestContext` associated with a request contains a `values` dictionary used to store information about the request.
 The value of the `Limiter` key in the `RequestContext.values` dictionary is used to look up the rate limiter in the rate limiters dictionary.
-
