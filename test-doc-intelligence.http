@@ -1,9 +1,6 @@
 # Comment/uncomment to switch between Azure and local deployment
-@doc_intelligence_endpoint={{$dotenv AZURE_FORM_RECOGNIZER_ENDPOINT}}
-@doc_intelligence_key={{$dotenv AZURE_FORM_RECOGNIZER_KEY}}
-
-# @doc_intelligence_endpoint=http://localhost:8000/
-# @doc_intelligence_key={{$dotenv SIMULATOR_API_KEY}}
+@doc_intelligence_endpoint={{$dotenv TEST_FORM_RECOGNIZER_ENDPOINT}}
+@doc_intelligence_key={{$dotenv TEST_FORM_RECOGNIZER_KEY}}
 
 # https://learn.microsoft.com/en-gb/azure/ai-services/document-intelligence/quickstarts/get-started-sdks-rest-api?view=doc-intel-3.1.0&viewFallbackFrom=form-recog-3.0.0&preserve-view=true&pivots=programming-language-rest-api
 

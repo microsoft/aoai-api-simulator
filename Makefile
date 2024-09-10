@@ -50,10 +50,10 @@ run-test-client: ## Run the test client
 
 run-test-client-simulator-local: ## Run the test client against local AOAI Simulated API 
 	cd tools/test-client && \
-	AZURE_OPENAI_KEY=${SIMULATOR_API_KEY} \
-	AZURE_OPENAI_ENDPOINT=http://localhost:8000 \
-	AZURE_FORM_RECOGNIZER_ENDPOINT=http://localhost:8000 \
-	AZURE_FORM_RECOGNIZER_KEY=${SIMULATOR_API_KEY} \
+	TEST_OPENAI_KEY=${SIMULATOR_API_KEY} \
+	TEST_OPENAI_ENDPOINT=http://localhost:8000 \
+	TEST_FORM_RECOGNIZER_ENDPOINT=http://localhost:8000 \
+	TEST_FORM_RECOGNIZER_KEY=${SIMULATOR_API_KEY} \
 	python app.py
 
 run-test-client-simulator-aca: ## Run the test client against an Azure Container Apps deployment

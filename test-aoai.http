@@ -1,12 +1,8 @@
-# Comment/uncomment to switch between Azure and local deployment
-# @aoai_endpoint={{$dotenv AZURE_OPENAI_ENDPOINT}}
-# @aoai_key={{$dotenv AZURE_OPENAI_KEY}}
 
-@aoai_endpoint=http://localhost:8000/
-@aoai_key={{$dotenv SIMULATOR_API_KEY}}
-
-@aoai_deployment={{$dotenv AZURE_OPENAI_DEPLOYMENT}}
-@aoai_embedding_deployment={{$dotenv AZURE_OPENAI_EMBEDDING_DEPLOYMENT}}
+@aoai_endpoint={{$dotenv TEST_OPENAI_ENDPOINT}}
+@aoai_key={{$dotenv TEST_OPENAI_KEY}}
+@aoai_deployment={{$dotenv TEST_OPENAI_DEPLOYMENT}}
+@aoai_embedding_deployment={{$dotenv TEST_OPENAI_EMBEDDING_DEPLOYMENT}}
 
 # https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 

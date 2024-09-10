@@ -16,20 +16,30 @@ Additionally, some configuration can be changed while the simulator is running u
 
 When running the Azure OpenAI API Simulator, there are a number of environment variables to configure:
 
-| Variable                             | Description                                                                                                                                                                       |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SIMULATOR_MODE`                     | The mode the simulator should run in. Current options are `record`, `replay`, and `generate`.                                                                                     |
-| `SIMULATOR_API_KEY`                  | The API key used by the simulator to authenticate requests. If not specified a key is auto-generated (see the logs). It is recommended to set a deterministic key value in `.env` |
-| `RECORDING_DIR`                      | The directory to store the recorded requests and responses (defaults to `.recording`).                                                                                            |
-| `OPENAI_DEPLOYMENT_CONFIG_PATH`      | The path to a JSON file that contains the deployment configuration. See [OpenAI Rate-Limiting](#configuring-rate-limiting)                                                        |
-| `ALLOW_UNDEFINED_OPENAI_DEPLOYMENTS` | If set to `True` (default), the simulator will generate OpenAI responses for any deployment. If set to `False`, the simulator will only generate responses for known deployments. |
-| `AZURE_OPENAI_ENDPOINT`              | The endpoint for the Azure OpenAI service, e.g. `https://mysvc.openai.azure.com/`. Used when forwarding requests.                                                                 |
-| `AZURE_OPENAI_KEY`                   | The API key for the Azure OpenAI service. Used when forwarding requests                                                                                                           |
-| `LOG_LEVEL`                          | The log level for the simulator. Defaults to `INFO`.                                                                                                                              |
-| `LATENCY_OPENAI_*`                   | The latency to add to the OpenAI service when using generated output. See [Latency](#configuring-latency) for more details.                                                       |
-| `RECORDING_AUTOSAVE`                 | If set to `True` (default), the simulator will save the recording after each request (see [Large Recordings](./running-deploying.md#managing-large-recordings)).                  |
-| `EXTENSION_PATH`                     | The path to a Python file that contains the extension configuration. This can be a single python file or a package folder - see [Extending the simulator](./extending.md)         |
-| `AZURE_OPENAI_DEPLOYMENT`            | Used by the test app to set the name of the deployed model in your Azure OpenAI service. Use a gpt-35-turbo-instruct deployment.                                                  |
+| Variable                        | Description |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SIMULATOR_MODE`                | The mode the simulator should run in. Current options are `record`, `replay`, and `generate`.                                                                                     |
+| `SIMULATOR_API_KEY`             | The API key used by the simulator to authenticate requests. If not specified a key is auto-generated (see the logs). It is recommended to set a deterministic key value in `.env` |
+| `RECORDING_DIR`                 | The directory to store the recorded requests and responses (defaults to `.recording`).                                                                                            |
+| `OPENAI_DEPLOYMENT_CONFIG_PATH` | The path to a JSON file that contains the deployment configuration. See [OpenAI Rate-Limiting](#configuring-rate-limiting)                                                             |
+| `ALLOW_UNDEFINED_OPENAI_DEPLOYMENTS`| If set to `True` (default), the simulator will generate OpenAI responses for any deployment. If set to `False`, the simulator will only generate responses for known deployments. |
+| `AZURE_OPENAI_ENDPOINT`         | The endpoint for the Azure OpenAI service, e.g. `https://mysvc.openai.azure.com/`. Used by the simulator when forwarding requests.                                                                 |
+| `AZURE_OPENAI_KEY`              | The API key for the Azure OpenAI service. Used by the simulator when forwarding requests                                                                                                           |
+| `AZURE_OPENAI_DEPLOYMENT`       | The deployment name for your GPT model. Used by the simulator when forwarding requests.                                                  |
+| `AZURE_OPENAI_EMBEDDING_DEPLOYMENT`       | The deployment name for your embedding model. Used by the simulator when forwarding requests.                                                  |
+| `LOG_LEVEL`                     | The log level for the simulator. Defaults to `INFO`.                                                                                                                              |
+| `LATENCY_OPENAI_*`              | The latency to add to the OpenAI service when using generated output. See [Latency](#configuring-latency) for more details.                                                                   |
+| `RECORDING_AUTOSAVE`            | If set to `True` (default), the simulator will save the recording after each request (see [Large Recordings](./running-deploying.md#managing-large-recordings)).                                                 |
+| `EXTENSION_PATH`                | The path to a Python file that contains the extension configuration. This can be a single python file or a package folder - see [Extending the simulator](./extending.md)         |
+
+There are also a set of environment variables that the test clients and tests will use. These are used to "point" the test clients at the a deployment of the simulator (local, or in Azure).
+
+| Variable                        | Description |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TEST_OPENAI_ENDPOINT` | **Used by test client code only**. Defines the OpenAI-like endpoint that the test client will call. Most likely set to the location of your similator deployment.|
+| `TEST_OPENAI_KEY` | **Used by test client code. only**. Defines the key that will be set to the `TEST_OPENAI_ENDPOINT` when making requests. Most likely set to the value of `SIMULATOR_API_KEY`.|
+| `TEST_OPENAI_DEPLOYMENT` | **Used by test client code only**. Defines the GPT model deployment that the test client will request.|
+| `TEST_OPENAI_EMBEDDING_DEPLOYMENT` | **Used by test client code only**. Defines the embeddking model deployment that the test client will request.|
 
 ### Setting Environment Variables via the `.env` File
 
