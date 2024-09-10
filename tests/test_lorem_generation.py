@@ -63,8 +63,10 @@ def run_test(max_tokens, expected_min, expected_max, max_duration, iteration_cou
         count += 1
 
         token_count = num_tokens_from_string(text, "gpt-3.5-turbo-0613")
-        assert token_count <= expected_max
-        assert token_count >= expected_min
+
+        assert token_count <= expected_max, f"{token_count=} exceeds {expected_max=}"
+        assert token_count >= expected_min, f"{token_count=} is less than {expected_min=}"
 
     avg_duration = total_time / count
-    assert avg_duration < max_duration
+
+    assert avg_duration < max_duration, f"{avg_duration=} exceeded {max_duration=}"
