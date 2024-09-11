@@ -28,13 +28,22 @@ make install-requirements
 
 ## Running the Simulator Locally
 
-Before running the Azure OpenAI API Simulator you should ensure that you have set up your local config. See [Azure OpenAI API Simulator Configuration Options](./docs/config.md) for details on how to do this.
+1. Before running the Azure OpenAI API Simulator you should ensure that you have set up your local config. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this. The first time you run this, you should be sure to set at least the following environment variables.
 
-To run the simulated API, use the following command from the repository root directory:
+    ```python
+    SIMULATOR_API_KEY=my-test-key
+    TEST_OPENAI_ENDPOINT=http://localhost:8000/
+    TEST_OPENAI_KEY=my-test-key
+    ```  
 
-```console
-make run-simulated-api
-```
+2. Start (or restart) the simulator by running the following command in your terminal from the repository root directory:
+  
+    ```console
+    make run-simulated-api
+    ```
+
+3. Now open the [test-aoai.http](test-aoai.http) file, and send the first POST request.  
+4. You should receive an http `200` response with some generated completions. Check the terminal for any warnings or errors.  
 
 ## Changing the Simulator Mode
 
