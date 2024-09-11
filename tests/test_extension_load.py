@@ -2,6 +2,7 @@
 Test extension loading
 """
 
+from aoai_api_simulator.record_replay.handler import get_default_forwarders
 from aoai_api_simulator.config_loader import initialize_config
 from aoai_api_simulator.generator.manager import get_default_generators
 from aoai_api_simulator.models import (
@@ -11,12 +12,12 @@ from aoai_api_simulator.models import (
     CompletionLatency,
     EmbeddingLatency,
 )
+
 import pytest
 import requests
 
 from .test_uvicorn_server import UvicornTestServer
 
-from aoai_api_simulator.record_replay.handler import get_default_forwarders
 
 API_KEY = "123456789"
 
