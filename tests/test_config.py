@@ -168,9 +168,8 @@ async def test_openai_record_replay_completion_via_config_endpoint(httpserver: H
             assert response.choices[0].text == "This is a test"
 
             # this call should fail
-            try:
+            with pytest.raises(InternalServerError) as e:
                 prompt = "This is a different prompt value and should fail as it isn't in the recording file"
                 response = aoai_client.completions.create(model="deployment1", prompt=prompt, max_tokens=50)
-                assert False, "Expected request to fail for non-recorded prompt"
-            except InternalServerError as e:
-                assert e.status_code == 500
+
+            assert e.value.status_code == 500

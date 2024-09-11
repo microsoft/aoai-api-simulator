@@ -61,12 +61,11 @@ async def test_requires_auth():
         )
         messages = [{"role": "user", "content": "What is the meaning of life?"}]
 
-        try:
+        with pytest.raises(AuthenticationError) as e:
             aoai_client.chat.completions.create(model="deployment1", messages=messages, max_tokens=50)
-            assert False, "Expected an exception"
-        except AuthenticationError as e:
-            assert e.status_code == 401
-            assert e.message == "Error code: 401 - {'detail': 'Missing or incorrect API Key'}"
+
+        assert e.value.status_code == 401
+        assert e.value.message == "Error code: 401 - {'detail': 'Missing or incorrect API Key'}"
 
 
 @pytest.mark.asyncio
@@ -111,12 +110,12 @@ async def test_requires_known_deployment_when_config_set():
         )
         messages = [{"role": "user", "content": "What is the meaning of life?"}]
         max_tokens = 50
-        try:
+
+        with pytest.raises(NotFoundError) as e:
             aoai_client.chat.completions.create(model="_unknown_deployment_", messages=messages, max_tokens=max_tokens)
-            assert False, "Expected 404 error"
-        except NotFoundError as e:
-            assert e.status_code == 404
-            assert e.message == "Error code: 404 - {'error': 'Deployment _unknown_deployment_ not found'}"
+
+        assert e.value.status_code == 404
+        assert e.value.message == "Error code: 404 - {'error': 'Deployment _unknown_deployment_ not found'}"
 
 
 @pytest.mark.asyncio
