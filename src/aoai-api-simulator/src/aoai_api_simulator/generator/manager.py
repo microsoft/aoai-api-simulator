@@ -1,11 +1,11 @@
 import inspect
 import logging
-from typing import Callable, Awaitable
-
-from fastapi import HTTPException, Response
+from typing import Awaitable, Callable
 
 from aoai_api_simulator.models import RequestContext
-from .openai import azure_openai_embedding, azure_openai_completion, azure_openai_chat_completion
+from fastapi import HTTPException, Response
+
+from .openai import azure_openai_chat_completion, azure_openai_completion, azure_openai_embedding
 
 logger = logging.getLogger(__name__)
 

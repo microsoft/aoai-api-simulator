@@ -2,13 +2,15 @@
 	"[python]": {
 		"editor.formatOnSave": true,
 		"editor.formatOnSaveMode": "file",
-		"editor.formatOnPaste": true,
-		"editor.formatOnType": true,
-		"editor.defaultFormatter": "ms-python.black-formatter"
+		"editor.defaultFormatter": "charliermarsh.ruff",
+		"editor.codeActionsOnSave": {
+			"source.fixAll": "explicit",
+			"source.organizeImports": "explicit"
+		}
 	},
 	"python.testing.pytestArgs": [
-        "tests"
-    ],
+		"tests"
+	],
 	"python.testing.unittestEnabled": false,
 	"python.testing.pytestEnabled": true
 }
