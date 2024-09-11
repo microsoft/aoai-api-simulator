@@ -34,7 +34,7 @@ echo "=="
 
 src_path=$(realpath "$script_dir/../src/aoai-api-simulator")
 
-docker build -t "${acr_login_server}/aoai-api-simulator:$image_tag" "$src_path" -f "$src_path/Dockerfile"
+docker build --platform linux/amd64 -t "${acr_login_server}/aoai-api-simulator:$image_tag" "$src_path" -f "$src_path/Dockerfile"
 
 az acr login --name "$acr_name"
 docker push "${acr_login_server}/aoai-api-simulator:$image_tag"
