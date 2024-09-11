@@ -27,6 +27,7 @@ When running the Azure OpenAI API Simulator, there are a number of environment v
 | `AZURE_OPENAI_KEY`              | The API key for the Azure OpenAI service. Used by the simulator when forwarding requests                                                                                                           |
 | `AZURE_OPENAI_DEPLOYMENT`       | The deployment name for your GPT model. Used by the simulator when forwarding requests.                                                  |
 | `AZURE_OPENAI_EMBEDDING_DEPLOYMENT`       | The deployment name for your embedding model. Used by the simulator when forwarding requests.                                                  |
+| `AZURE_OPENAI_IMAGE_DEPLOYMENT`       | The deployment name for your image generation model. Used by the simulator when forwarding requests.                                                  |
 | `LOG_LEVEL`                     | The log level for the simulator. Defaults to `INFO`.                                                                                                                              |
 | `LATENCY_OPENAI_*`              | The latency to add to the OpenAI service when using generated output. See [Latency](#configuring-latency) for more details.                                                                   |
 | `RECORDING_AUTOSAVE`            | If set to `True` (default), the simulator will save the recording after each request (see [Large Recordings](./running-deploying.md#managing-large-recordings)).                                                 |
@@ -39,7 +40,9 @@ There are also a set of environment variables that the test clients and tests wi
 | `TEST_OPENAI_ENDPOINT` | **Used by test client code only**. Defines the OpenAI-like endpoint that the test client will call. Most likely set to the location of your similator deployment.|
 | `TEST_OPENAI_KEY` | **Used by test client code. only**. Defines the key that will be set to the `TEST_OPENAI_ENDPOINT` when making requests. Most likely set to the value of `SIMULATOR_API_KEY`.|
 | `TEST_OPENAI_DEPLOYMENT` | **Used by test client code only**. Defines the GPT model deployment that the test client will request.|
-| `TEST_OPENAI_EMBEDDING_DEPLOYMENT` | **Used by test client code only**. Defines the embeddking model deployment that the test client will request.|
+| `TEST_OPENAI_EMBEDDING_DEPLOYMENT` | **Used by test client code only**. Defines the embedding model deployment that the test client will request.|
+| `TEST_OPENAI_IMAGE_DEPLOYMENT`       | **Used by test client code only**. Defines the image generation model deployment that the test client will request.|
+
 
 ### Setting Environment Variables via the `.env` File
 
