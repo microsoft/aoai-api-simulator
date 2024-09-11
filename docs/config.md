@@ -43,7 +43,6 @@ There are also a set of environment variables that the test clients and tests wi
 | `TEST_OPENAI_EMBEDDING_DEPLOYMENT` | **Used by test client code only**. Defines the embedding model deployment that the test client will request.|
 | `TEST_OPENAI_IMAGE_DEPLOYMENT`       | **Used by test client code only**. Defines the image generation model deployment that the test client will request.|
 
-
 ### Setting Environment Variables via the `.env` File
 
 You can set the environment variables in the shell before running the simulator, or on the command line before running commands.
