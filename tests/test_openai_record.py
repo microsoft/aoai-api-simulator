@@ -218,13 +218,12 @@ async def test_openai_record_replay_completion_limit_reached(httpserver: HTTPSer
             assert len(response.choices) == 1
             assert response.choices[0].text == "This is a test"
 
-            try:
+            with pytest.raises(RateLimitError) as e:
                 aoai_client.completions.create(model="low_limit", prompt=prompt, max_tokens=50)
-                assert False, "Expect to be rate-limited"
-            except RateLimitError as e:
-                assert e.status_code == 429
-                # limit should be enforced based on requests (not tokens), so reset in 10s
-                assert (
-                    e.message
-                    == "Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after 10 seconds.'}}"
-                )
+
+            assert e.value.status_code == 429
+            # limit should be enforced based on requests (not tokens), so reset in 10s
+            assert (
+                e.value.message
+                == "Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after 10 seconds.'}}"
+            )
