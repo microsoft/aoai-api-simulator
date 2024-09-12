@@ -1,0 +1,39 @@
+
+@aoai_endpoint={{$dotenv %endpoint_env_var}}
+@aoai_key={{$dotenv %key_env_var}}
+@aoai_image_deployment={{$dotenv %image_deployment_env_var}}
+
+################################################################
+#
+# Image Generation
+# https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#image-generation
+
+### Request 1 image URL
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_image_deployment}}/images/generations?api-version=2024-06-01
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "prompt": "An image of a software engineer writing code on a laptop at a hackathon.",
+  "response_format": "url",
+  "n": 1,
+  "size": "1024x1024",
+  "quality": "standard",
+  "style": "vivid"
+}
+
+### Request 1 image returned as Base64
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_image_deployment}}/images/generations?api-version=2024-06-01
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "prompt": "An image of a software engineer writing code on a laptop at a hackathon.",
+  "response_format": "b64_json",
+  "n": 1,
+  "size": "1024x1024",
+  "quality": "standard",
+  "style": "vivid"
+}
+
+###
