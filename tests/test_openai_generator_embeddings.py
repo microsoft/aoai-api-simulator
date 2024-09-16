@@ -2,18 +2,20 @@
 Test the OpenAI generator endpoints
 """
 
+import logging
+
+import pytest
+from aoai_api_simulator.generator.manager import get_default_generators
+from aoai_api_simulator.generator.model_catalogue import model_catalogue
 from aoai_api_simulator.models import (
-    Config,
-    LatencyConfig,
     ChatCompletionLatency,
     CompletionLatency,
+    Config,
     EmbeddingLatency,
+    LatencyConfig,
     OpenAIDeployment,
 )
-from aoai_api_simulator.generator.manager import get_default_generators
-from openai import AzureOpenAI, AuthenticationError, NotFoundError, RateLimitError, Stream
-from openai.types.chat import ChatCompletionChunk
-import pytest
+from openai import AuthenticationError, AzureOpenAI, NotFoundError, RateLimitError
 
 from .test_uvicorn_server import UvicornTestServer
 
@@ -39,12 +41,26 @@ def _get_generator_config(extension_path: str | None = None) -> Config:
         ),
     )
     config.openai_deployments = {
-        "low_limit": OpenAIDeployment(name="low_limit", model="gpt-3.5-turbo", tokens_per_minute=64 * 6),
+        "low_limit": OpenAIDeployment(
+            name="low_limit", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=64 * 6
+        ),
         "deployment1": OpenAIDeployment(
-            name="text-embedding-ada-002", model="text-embedding-ada-002", embedding_size=1536, tokens_per_minute=10000
+            name="deployment1",
+            model=model_catalogue["text-embedding-ada-002"],
+            embedding_size=1536,
+            tokens_per_minute=10000,
         ),
         "deployment2": OpenAIDeployment(
-            name="text-embedding-ada-001", model="text-embedding-ada-001", embedding_size=768, tokens_per_minute=10000
+            name="deployment2",
+            model=model_catalogue["text-embedding-ada-001"],
+            embedding_size=768,
+            tokens_per_minute=10000,
+        ),
+        "deployment3": OpenAIDeployment(
+            name="deployment3",
+            model=model_catalogue["text-embedding-3-small"],
+            embedding_size=1536,
+            tokens_per_minute=10000,
         ),
     }
     config.extension_path = extension_path
@@ -184,3 +200,50 @@ async def test_allows_unknown_deployment_when_config_not_set():
         response = aoai_client.embeddings.create(model="_unknown_deployment_", input=content)
 
         assert len(response.data) == 1
+
+
+@pytest.mark.asyncio
+async def test_pass_in_dimension_param_for_supported_model():
+    """
+    Test that the dimension parameter is passed in to embeddings generation
+    and overrides the embedding size set in a deployment
+    """
+    config = _get_generator_config()
+    server = UvicornTestServer(config)
+    with server.run_in_thread():
+        aoai_client = AzureOpenAI(
+            api_key=API_KEY,
+            api_version="2023-12-01-preview",
+            azure_endpoint="http://localhost:8001",
+            max_retries=0,
+        )
+        content = "This is some text to generate embeddings for"
+        response = aoai_client.embeddings.create(model="deployment3", input=content, dimensions=10)
+
+        assert len(response.data[0].embedding) == 10
+
+
+@pytest.mark.asyncio
+async def test_pass_in_dimension_param_for_unsupported_model_ignored():
+    """
+    Test that passing in dimension parameter to embeddings generation
+    fails when the model does not support overriding embedding size
+    """
+    config = _get_generator_config()
+    server = UvicornTestServer(config)
+    with server.run_in_thread():
+        aoai_client = AzureOpenAI(
+            api_key=API_KEY,
+            api_version="2023-12-01-preview",
+            azure_endpoint="http://localhost:8001",
+            max_retries=0,
+        )
+        content = "This is some text to generate embeddings for"
+        # deployment1 will ignore the dimensions parameter
+        response = aoai_client.embeddings.create(model="deployment1", input=content, dimensions=10)
+
+        logger = logging.getLogger(__name__)
+        logger.error(response)
+
+        # Dimension parameter is ignored and the default embeddingSize is used
+        assert len(response.data[0].embedding) == 1536

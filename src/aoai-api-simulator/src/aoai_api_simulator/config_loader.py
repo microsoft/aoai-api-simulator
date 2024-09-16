@@ -2,13 +2,13 @@ import importlib
 import json
 import logging
 import os
-
 import sys
 
+from aoai_api_simulator.generator.manager import get_default_generators
+from aoai_api_simulator.generator.model_catalogue import model_catalogue
 from aoai_api_simulator.limiters import get_default_limiters
 from aoai_api_simulator.models import Config, OpenAIDeployment
 from aoai_api_simulator.record_replay.handler import get_default_forwarders
-from aoai_api_simulator.generator.manager import get_default_generators
 
 
 def get_config_from_env_vars(logger: logging.Logger) -> Config:
@@ -45,16 +45,25 @@ def _load_openai_deployments(logger: logging.Logger) -> dict[str, OpenAIDeployme
         openai_deployment_config_path = os.path.abspath(openai_deployment_config_path)
 
     if not os.path.exists(openai_deployment_config_path):
-        logger.error("OpenAI deployment configuration file not found: %s", openai_deployment_config_path)
+        logger.error(f"OpenAI deployment configuration file not found: {openai_deployment_config_path}")
         return None
 
     with open(openai_deployment_config_path, encoding="utf-8") as f:
         config_json = json.load(f)
     deployments = {}
     for deployment_name, deployment in config_json.items():
+        model_name = deployment["model"]
+
+        if model_name not in model_catalogue:
+            logger.error(
+                f"Model {model_name} from deployment {deployment_name} not supported in the simulator."
+                + "Please raise an issue in the aoai_api_simulator repo."
+            )
+
+        model = model_catalogue[model_name]
         deployments[deployment_name] = OpenAIDeployment(
             name=deployment_name,
-            model=deployment["model"],
+            model=model,
             tokens_per_minute=deployment["tokensPerMinute"],
             embedding_size=deployment.get("embeddingSize", 1536),
         )
@@ -95,7 +104,6 @@ def _default_openai_deployments() -> dict[str, OpenAIDeployment]:
 
 
 def load_extension(config: Config):
-
     extension_path = config.extension_path
     if not extension_path:
         return

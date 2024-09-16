@@ -18,12 +18,13 @@ from aoai_api_simulator.constants import (
     SIMULATOR_KEY_OPERATION_NAME,
 )
 from aoai_api_simulator.generator.lorem import generate_lorem_text
+from aoai_api_simulator.generator.model_catalogue import model_catalogue
 from aoai_api_simulator.generator.openai_tokens import (
     get_max_completion_tokens,
     num_tokens_from_messages,
     num_tokens_from_string,
 )
-from aoai_api_simulator.models import OpenAIDeployment, RequestContext
+from aoai_api_simulator.models import OpenAIDeployment, OpenAIEmbeddingModel, RequestContext
 from fastapi import Response
 from fastapi.responses import StreamingResponse
 
@@ -36,18 +37,18 @@ logger = logging.getLogger(__name__)
 
 # API docs: https://learn.microsoft.com/en-gb/azure/ai-services/openai/reference
 
-missing_deployment_names = set()
-missing_embedding_deployment_names = set()
+deployment_missing_warning_printed = set()
+embedding_deployment_missing_warning_printed = set()
 default_openai_embedding_model = OpenAIDeployment(
-    name="embedding", model="text-embedding-ada-002", tokens_per_minute=10000, embedding_size=1536
+    name="embedding", model=model_catalogue["text-embedding-ada-002"], tokens_per_minute=10000, embedding_size=1536
 )
 
 
 def get_embedding_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
     """
-    Gets the model name for the specified embedding deployment. If
-    the deployment is not in the configured deployments then the
-    default model is returned and a warning is logged.
+    Gets the embedding model for the specified embedding deployment.
+    If the deployment is not in the configured deployments,
+    then the default model is returned and a warning is logged.
 
     Args:
         context: RequestContext instance
@@ -67,10 +68,9 @@ def get_embedding_model_from_deployment_name(context: RequestContext, deployment
     if context.config.allow_undefined_openai_deployments:
         default_model_name = "embedding"
 
-        # Output warning for missing embedding deployment name (only the
-        # first time we encounter it)
-        if deployment_name not in missing_embedding_deployment_names:
-            missing_embedding_deployment_names.add(default_model_name)
+        # Output warning for missing embedding deployment name
+        if deployment_name not in embedding_deployment_missing_warning_printed:
+            # We only output the warning the first time we encounter the model is missing
             logger.warning(
                 "Deployment %s not found in config and "
                 "allow_undefined_openai_deployments is True. "
@@ -78,15 +78,16 @@ def get_embedding_model_from_deployment_name(context: RequestContext, deployment
                 deployment_name,
                 default_model_name,
             )
+            embedding_deployment_missing_warning_printed.add(default_model_name)
         return default_openai_embedding_model
 
     # Output warning for missing embedding deployment name
     # (only the first time we encounter it)
-    if deployment_name not in missing_deployment_names:
-        missing_deployment_names.add(deployment_name)
+    if deployment_name not in deployment_missing_warning_printed:
         logger.warning(
             "Deployment %s not found in config and allow_undefined_openai_deployments is False", deployment_name
         )
+        deployment_missing_warning_printed.add(deployment_name)
     return None
 
 
@@ -99,28 +100,28 @@ def get_model_name_from_deployment_name(context: RequestContext, deployment_name
     if deployments:
         deployment = deployments.get(deployment_name)
         if deployment:
-            return deployment.model
+            return deployment.model.name
 
     if context.config.allow_undefined_openai_deployments:
         default_model = "gpt-3.5-turbo-0613"
 
         # Output warning for missing deployment name (only the first time we encounter it)
-        if deployment_name not in missing_deployment_names:
-            missing_deployment_names.add(deployment_name)
+        if deployment_name not in deployment_missing_warning_printed:
             logger.warning(
                 "Deployment %s not found in config and allow_undefined_openai_deployments is True."
                 + " Using default model %s",
                 deployment_name,
                 default_model,
             )
+            deployment_missing_warning_printed.add(deployment_name)
         return default_model
 
     # Output warning for missing deployment name (only the first time we encounter it)
-    if deployment_name not in missing_deployment_names:
-        missing_deployment_names.add(deployment_name)
+    if deployment_name not in deployment_missing_warning_printed:
         logger.warning(
             "Deployment %s not found in config and allow_undefined_openai_deployments is False", deployment_name
         )
+        deployment_missing_warning_printed.add(deployment_name)
     return None
 
 
@@ -164,23 +165,30 @@ def create_embeddings_response(
     deployment_name: str,
     deployment: OpenAIDeployment,
     request_input: str | list,
+    dimension: int | None,
 ):
+    embedding_size = deployment.embedding_size
+
+    if dimension is not None:
+        if isinstance(deployment.model, OpenAIEmbeddingModel) and deployment.model.supports_custom_dimensions:
+            embedding_size = dimension
+
     embeddings = []
     if isinstance(request_input, str):
-        tokens = num_tokens_from_string(request_input, deployment.model)
-        embeddings.append(create_embedding_content(0, embedding_size=deployment.embedding_size))
+        tokens = num_tokens_from_string(request_input, deployment.model.name)
+        embeddings.append(create_embedding_content(0, embedding_size=embedding_size))
     else:
         tokens = 0
         index = 0
         for i in request_input:
-            tokens += num_tokens_from_string(i, deployment.model)
-            embeddings.append(create_embedding_content(index, embedding_size=deployment.embedding_size))
+            tokens += num_tokens_from_string(i, deployment.model.name)
+            embeddings.append(create_embedding_content(index, embedding_size=embedding_size))
             index += 1
 
     response_data = {
         "object": "list",
         "data": embeddings,
-        "model": deployment.model,
+        "model": deployment.model.name,
         "usage": {"prompt_tokens": tokens, "total_tokens": tokens},
     }
 
@@ -450,9 +458,9 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
     _validate_api_key_header(context)
     deployment_name = path_params["deployment"]
     request_body = await request.json()
-    model = get_embedding_model_from_deployment_name(context, deployment_name)
+    deployment = get_embedding_model_from_deployment_name(context, deployment_name)
 
-    if model is None:
+    if deployment is None:
         return Response(
             status_code=404,
             content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
@@ -465,8 +473,9 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
     response = create_embeddings_response(
         context=context,
         deployment_name=deployment_name,
-        deployment=model,
+        deployment=deployment,
         request_input=request_input,
+        dimension=request_body["dimensions"] if "dimensions" in request_body else None,
     )
 
     # calculate a simulated latency and store in context.values
