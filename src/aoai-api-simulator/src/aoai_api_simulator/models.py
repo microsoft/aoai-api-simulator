@@ -4,7 +4,7 @@ from typing import Annotated, Awaitable, Callable
 
 # from aoai_api_simulator.pipeline import RequestContext
 from fastapi import Request, Response
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests import Response as requests_Response
 from starlette.routing import Route, Match
@@ -130,6 +130,12 @@ class PatchableConfig(BaseSettings):
     openai_deployments: dict[str, "OpenAIDeployment"] | None = Field(default=None)
     latency: Annotated[LatencyConfig, Field(default=LatencyConfig())]
     allow_undefined_openai_deployments: bool = Field(default=True, alias="ALLOW_UNDEFINED_OPENAI_DEPLOYMENTS")
+
+    @field_validator("simulator_api_key")
+    def simulator_api_key_should_not_be_empty_string(cls, v):
+        if v == "":
+            return nanoid.generate(size=30)
+        return v
 
 
 class Config(PatchableConfig):
