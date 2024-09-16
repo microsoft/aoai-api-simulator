@@ -2,12 +2,11 @@
 set -e
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
+echo "script_dir1: $script_dir"
 if [[ -f "$script_dir/../.env" ]]; then
 	echo "Loading .env"
 	source "$script_dir/../.env"
 fi
-
 
 if [[ ! -f "$script_dir/../infra/output.json" ]]; then
   echo "output.json not found - have you deployed the base infra?"

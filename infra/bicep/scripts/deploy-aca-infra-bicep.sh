@@ -3,9 +3,9 @@ set -e
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-if [[ -f "$script_dir/../.env" ]]; then
+if [[ -f "$script_dir/../../../.env" ]]; then
 	echo "Loading .env"
-	source "$script_dir/../.env"
+	source "$script_dir/../../../.env"
 fi
 
 if [[ ${#BASENAME} -eq 0 ]]; then
@@ -35,9 +35,8 @@ if [[ ${#OPENAI_DEPLOYMENT_CONFIG_PATH} -eq 0 ]]; then
   echo 'ERROR: Missing environment variable OPENAI_DEPLOYMENT_CONFIG_PATH' 1>&2
   exit 6
 fi
-cp "$OPENAI_DEPLOYMENT_CONFIG_PATH" "$script_dir/../infra/.openai_deployment_config.json"
 
-
+cp "$OPENAI_DEPLOYMENT_CONFIG_PATH" "$script_dir/../../.openai_deployment_config.json"
 
 image_tag=${SIMULATOR_IMAGE_TAG:-latest}
 
@@ -45,7 +44,7 @@ user_id=$(az ad signed-in-user show --output tsv --query id)
 
 RESOURCE_GROUP_NAME="aoaisim"
 
-cat << EOF > "$script_dir/../infra/azuredeploy.parameters.json"
+cat << EOF > "$script_dir/azuredeploy.parameters.json"
 {
   "\$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
@@ -91,7 +90,7 @@ cat << EOF > "$script_dir/../infra/azuredeploy.parameters.json"
 EOF
 
 deployment_name="deployment-${BASENAME}-${LOCATION}"
-cd "$script_dir/../infra/"
+cd "$script_dir/../"
 echo "=="
 echo "==Starting main bicep deployment ($deployment_name)"
 echo "=="
@@ -99,7 +98,7 @@ output=$(az deployment group create \
   --resource-group "$RESOURCE_GROUP_NAME" \
   --template-file main.bicep \
   --name "$deployment_name" \
-  --parameters azuredeploy.parameters.json \
+  --parameters "$script_dir/azuredeploy.parameters.json" \
   --output json)
-echo "$output" | jq "[.properties.outputs | to_entries | .[] | {key:.key, value: .value.value}] | from_entries" > "$script_dir/../infra/output.json"
+echo "$output" | jq "[.properties.outputs | to_entries | .[] | {key:.key, value: .value.value}] | from_entries" > "$script_dir/../../output.json"
 echo -e "\n"

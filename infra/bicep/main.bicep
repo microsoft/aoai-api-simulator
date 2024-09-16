@@ -214,7 +214,7 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
         }
         {
           name: 'deployment-config'
-          value: loadTextContent('./.openai_deployment_config.json')
+          value: loadTextContent('../.openai_deployment_config.json')
         }
       ]
       registries: [
