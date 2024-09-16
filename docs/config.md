@@ -107,8 +107,8 @@ The simulator supports a set of basic Open Telemetry configuration options. Thes
 | ----------------------------- | ----------------------------------------------------------------------------------------------- |
 | `OTEL_SERVICE_NAME`           | Sets the value of the service name reported to Open Telemetry. Defaults to `aoai-api-simulator` |
 | `OTEL_METRIC_EXPORT_INTERVAL` | The time interval (in milliseconds) between the start of two export attempts..                  |
-| `APPLICATIONINSIGHTS_CONNECTION_STRING` | sets up the app insights connection string for telemetry |
-`OTEL_EXPORTER_OTLP_ENDPOINT` | sets up the OpenTelemetry OTLP exporter endpoint |
+| `APPLICATIONINSIGHTS_CONNECTION_STRING` | Sets up the app insights connection string for telemetry |
+`OTEL_EXPORTER_OTLP_ENDPOINT` | Sets up the OpenTelemetry OTLP exporter endpoint. This can be further customised using environment variables described [here](https://opentelemetry.io/docs/specs/otel/protocol/exporter/). i.e. `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`, `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` or `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`  |
 
 ## Config API Endpoint
 

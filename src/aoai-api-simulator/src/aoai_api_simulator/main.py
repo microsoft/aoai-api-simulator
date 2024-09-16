@@ -54,7 +54,7 @@ else:
 
         # https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-configuration?tabs=python#enable-the-otlp-exporter
 
-        otlp_exporter = OTLPSpanExporter(endpoint=opentelemetry_exporter_otlp_endpoint)
+        otlp_exporter = OTLPSpanExporter()
 
         # tracing
         tracer = trace.get_tracer(__name__)
@@ -62,7 +62,7 @@ else:
         trace.get_tracer_provider().add_span_processor(span_processor)
 
         # metrics
-        reader = PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=opentelemetry_exporter_otlp_endpoint))
+        reader = PeriodicExportingMetricReader(OTLPMetricExporter())
         meterProvider = MeterProvider(resource=resource, metric_readers=[reader])
         metrics.set_meter_provider(meterProvider)
 
@@ -71,10 +71,10 @@ else:
             resource=resource,
         )
 
-        otlp_exporter = OTLPLogExporter(endpoint=opentelemetry_exporter_otlp_endpoint)
+        otlp_exporter = OTLPLogExporter()
         logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_exporter))
 
-        handler = LoggingHandler(level=logging.NOTSET, logger_provider=logger_provider)
+        handler = LoggingHandler(level=logging.INFO, logger_provider=logger_provider)
         # Attach OTLP handler to root logger
         logging.getLogger().addHandler(handler)
     else:
