@@ -58,7 +58,7 @@ The `.http` files for testing the endpoints also use the `.env` file to set the 
 
 ## Configuring Endpoints
 
-There are a numner of environemt variables that specify API endpoints. Each of these environement variables is named ending `_ENDPOINT`. For all such environment variables the format is `scheme://fqdn` ir `scheme://fqdn:port`. e.g. `http://localhost:5000` or `https://example.openai.azure.com`. You should **not** include a trailing forward slash in the value of the environment variable.
+There are a number of environment variables that specify API endpoints. Each of these environment variables is named ending `_ENDPOINT`. For all such environment variables the format is `scheme://fqdn` or `scheme://fqdn:port`. e.g. `http://localhost:5000` or `https://example.openai.azure.com`. You should **not** include a trailing forward slash in the value of the environment variable.
 
 ## Configuring Latency
 
