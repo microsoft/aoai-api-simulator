@@ -28,7 +28,7 @@ make install-requirements
 
 ## Running the Simulator Locally
 
-Before running the Azure OpenAI API Simulator you should ensure that you have set up your local config. See [Azure OpenAI API Simulator Configuration Options](./docs/config.md) for details on how to do this.
+Before running the Azure OpenAI API Simulator you should ensure that you have set up your local config. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this.
 
 To run the simulated API, use the following command from the repository root directory:
 
@@ -61,7 +61,7 @@ SIMULATOR_MODE=generate make run-simulated-api
 
 The simulated API can be deployed to Azure Container Apps (ACA) to provide a publicly accessible endpoint for testing with the rest of your system.
 
-Before deploying, set up a `.env` file. See [Azure OpenAI API Simulator Configuration Options](./docs/config.md) for details on how to do this.
+Before deploying, set up a `.env` file. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this.
 
 Once you have your `.env` file, you can deploy to Azure using the following command:
 
@@ -156,7 +156,7 @@ The restricted network access scenario applies when both the build machine and t
 
 In this scenario, the simulator can be built using a pre-downloaded TikToken encoding file that must be included in a specific location.
 
-This can be done by running the [setup_tiktoken.py](./scripts/setup_tiktoken.py) script.
+This can be done by running the [setup_tiktoken.py](../scripts/setup_tiktoken.py) script.
 
 Alternatively, you can download the [encoding file](https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken) from the public blob storage account and place it in the `src/aoai-api-simulator/tiktoken_cache` directory. Then rename the file to `9b5ad71b2ce5302211f9c61530b329a4922fc6a4`.
 

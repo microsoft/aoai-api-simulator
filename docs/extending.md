@@ -14,7 +14,7 @@ The simulator allows extending some aspects of the behavior without modifying th
 An extension can be either a single python file or a package folder.
 The extension should contain an `initialize` method that receives the simulator configuration and can modify it.
 
-The `initialize` method in an extension is psased the simulator configuration object.
+The `initialize` method in an extension is passed the simulator configuration object.
 Through this an extension can add/remove forwarders, generators, and limiters, as well as modifying other aspects of the configuration.
 
 NOTE: the `initialize` method may be called multiple times, so ensure that any configuration changes are idempotent.
