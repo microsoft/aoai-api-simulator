@@ -13,12 +13,12 @@
 		"vscode": {
 			"extensions": [
 				"humao.rest-client",
-				"ms-python.black-formatter",
 				"yzhang.markdown-all-in-one",
 				"ms-python.pylint",
 				"ms-azuretools.vscode-bicep",
 				"timonwong.shellcheck",
-				"hediet.vscode-drawio"
+				"hediet.vscode-drawio",
+				"charliermarsh.ruff"
 			]
 		}
 	},

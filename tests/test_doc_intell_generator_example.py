@@ -63,15 +63,13 @@ async def test_requires_auth():
         base_path = os.path.dirname(os.path.realpath(__file__))
         pdf_path = os.path.join(base_path, "../tools/test-client/receipt.png")
 
-        try:
+        with pytest.raises(ClientAuthenticationError) as e:
             print("Making request...")
             with open(pdf_path, "rb") as f:
                 document_analysis_client.begin_analyze_document("prebuilt-receipt", f)
 
-            assert False, "Should get exception"
-        except ClientAuthenticationError as e:
-            assert e.status_code == 401
-            assert e.message == "Operation returned an invalid status 'Unauthorized'"
+        assert e.value.status_code == 401
+        assert e.value.message == "Operation returned an invalid status 'Unauthorized'"
 
 
 @pytest.mark.asyncio

@@ -1,34 +1,31 @@
 import asyncio
 import json
 import logging
-import time
 import random
+import time
 from typing import Tuple
 
 import nanoid
-
-
-from fastapi import Response
-from fastapi.responses import StreamingResponse
-
 from aoai_api_simulator import constants
 from aoai_api_simulator.auth import validate_api_key_header
-from aoai_api_simulator.models import RequestContext, OpenAIDeployment
 from aoai_api_simulator.constants import (
     SIMULATOR_KEY_DEPLOYMENT_NAME,
-    SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
-    SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
-    SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
     SIMULATOR_KEY_LIMITER,
-    SIMULATOR_KEY_OPERATION_NAME,
-    SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED,
+    SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
     SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE,
+    SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED,
+    SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
+    SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
+    SIMULATOR_KEY_OPERATION_NAME,
 )
 from aoai_api_simulator.generator.openai_tokens import (
     get_max_completion_tokens,
-    num_tokens_from_string,
     num_tokens_from_messages,
+    num_tokens_from_string,
 )
+from aoai_api_simulator.models import OpenAIDeployment, RequestContext
+from fastapi import Response
+from fastapi.responses import StreamingResponse
 
 # This file contains a default implementation of the openai generators
 # You can configure your own generators by creating a generator_config.py file and setting the
@@ -212,6 +209,7 @@ def get_lorem_factor(max_tokens: int):
     return 0.5
 
 
+# pylint: disable-next=too-few-public-methods
 class LoremReference:
     """
     Generating large amounts of lorem text can be slow, so we pre-generate a set of reference values.
@@ -438,6 +436,7 @@ def create_completion_response(
     )
 
 
+# pylint: disable-next=too-many-arguments
 def create_lorem_chat_completion_response(
     context: RequestContext,
     deployment_name: str,
@@ -466,6 +465,7 @@ def create_lorem_chat_completion_response(
     )
 
 
+# pylint: disable-next=too-many-arguments
 def create_chat_completion_response(
     context: RequestContext,
     deployment_name: str,

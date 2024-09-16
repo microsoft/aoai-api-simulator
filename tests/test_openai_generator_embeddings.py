@@ -67,12 +67,11 @@ async def test_requires_auth():
         )
         content = "This is some text to generate embeddings for"
 
-        try:
+        with pytest.raises(AuthenticationError) as e:
             aoai_client.embeddings.create(model="deployment1", input=content)
-            assert False, "Expected an exception"
-        except AuthenticationError as e:
-            assert e.status_code == 401
-            assert e.message == "Error code: 401 - {'detail': 'Missing or incorrect API Key'}"
+
+        assert e.value.status_code == 401
+        assert e.value.message == "Error code: 401 - {'detail': 'Missing or incorrect API Key'}"
 
 
 @pytest.mark.asyncio
@@ -132,15 +131,14 @@ async def test_limit_reached():
         # "low_limit" deployment has a rate limit of 600 tokens per minute
         # So we will trigger the limit based on the number of requests (not tokens)
         # and it will reset in 10s
-        try:
+        with pytest.raises(RateLimitError) as e:
             aoai_client.chat.completions.create(model="low_limit", messages=messages, max_tokens=50)
-            assert False, "Expect to be rate-limited"
-        except RateLimitError as e:
-            assert e.status_code == 429
-            assert (
-                e.message
-                == "Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after 10 seconds.'}}"
-            )
+
+        assert e.value.status_code == 429
+        assert (
+            e.value.message
+            == "Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after 10 seconds.'}}"
+        )
 
 
 @pytest.mark.asyncio
@@ -159,12 +157,12 @@ async def test_requires_known_deployment_when_config_set():
             max_retries=0,
         )
         content = "This is some text to generate embeddings for"
-        try:
+
+        with pytest.raises(NotFoundError) as e:
             aoai_client.embeddings.create(model="_unknown_deployment_", input=content)
-            assert False, "Expected 404 error"
-        except NotFoundError as e:
-            assert e.status_code == 404
-            assert e.message == "Error code: 404 - {'error': 'Deployment _unknown_deployment_ not found'}"
+
+        assert e.value.status_code == 404
+        assert e.value.message == "Error code: 404 - {'error': 'Deployment _unknown_deployment_ not found'}"
 
 
 @pytest.mark.asyncio

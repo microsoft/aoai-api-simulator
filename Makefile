@@ -17,6 +17,7 @@ install-requirements: ## Install PyPI requirements for all projects
 	pip install -r tests/requirements.txt
 	pip install -r tools/test-client/requirements.txt
 	pip install -r tools/test-client-web/requirements.txt
+	pip install -r tools/dev-requirements.txt
 
 run-simulated-api: ## Launch the AOAI Simulated API locally
 	gunicorn \

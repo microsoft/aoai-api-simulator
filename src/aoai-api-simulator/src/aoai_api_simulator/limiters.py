@@ -1,16 +1,15 @@
-from dataclasses import dataclass
 import inspect
 import json
 import logging
 import math
 import time
+from dataclasses import dataclass
 from typing import Awaitable, Callable
-
-from fastapi import Response
 
 from aoai_api_simulator import constants
 from aoai_api_simulator.metrics import simulator_metrics
 from aoai_api_simulator.models import Config, RequestContext
+from fastapi import Response
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +95,7 @@ class WindowAddResult:
     retry_reason: str | None  # "tokens" or "requests"
 
 
+# pylint: disable-next=too-few-public-methods
 class SlidingWindow:
     """
     Represents a time window for rate-limiting
@@ -115,7 +115,6 @@ class SlidingWindow:
             self._requests.pop(0)
 
     def _calculate_window_counts_for_request(self, token_cost: int, timestamp: float) -> tuple[int, int, float, float]:
-
         # Iterate the the list in reverse order
         # Track:
         #  - the number of requests in the last 10 seconds (including this request)
@@ -175,7 +174,6 @@ class SlidingWindow:
         # to exceed the tokens_per_minute limit, i.e. we already used the limit for the current 60s window
         # if requests_full_duration < 10 or tokens_full_duration < 60:
         if token_count_in_60s > self._tokens_per_minute or request_count_in_10s > self._requests_per_10_seconds:
-
             # Edge case where we've hit the max tokens and the current request is for max_tokens
             # but haven't hit the request limit
             # in this case, we wait until the last saved request is out of the window
@@ -227,9 +225,8 @@ class SlidingWindow:
 
 
 def create_openai_sliding_window_limiter(
-    deployments: dict[str, int]
+    deployments: dict[str, int],
 ) -> Callable[[RequestContext, Response], Response | None]:
-
     @dataclass
     class OpenAISlidingWindowLimit:
         deployment: str
