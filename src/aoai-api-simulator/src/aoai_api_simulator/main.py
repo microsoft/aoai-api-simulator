@@ -74,7 +74,7 @@ else:
         otlp_exporter = OTLPLogExporter()
         logger_provider.add_log_record_processor(BatchLogRecordProcessor(otlp_exporter))
 
-        handler = LoggingHandler(level=logging.INFO, logger_provider=logger_provider)
+        handler = LoggingHandler(level=os.getenv("OTEL_LOG_LEVEL", "INFO"), logger_provider=logger_provider)
         # Attach OTLP handler to root logger
         logging.getLogger().addHandler(handler)
     else:
