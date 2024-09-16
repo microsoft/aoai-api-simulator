@@ -9,7 +9,7 @@
 # Completions
 # https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#completions
 
-POST {{aoai_endpoint}}openai/deployments/{{aoai_deployment}}/completions?api-version=2023-05-15
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/completions?api-version=2023-05-15
 Content-Type: application/json
 api-key: {{aoai_key}}
 
@@ -21,7 +21,7 @@ api-key: {{aoai_key}}
 
 ###
 
-POST {{aoai_endpoint}}openai/deployments/{{aoai_deployment}}/completions?api-version=2023-05-15
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/completions?api-version=2023-05-15
 Content-Type: application/json
 api-key: {{aoai_key}}
 

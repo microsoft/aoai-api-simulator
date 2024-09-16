@@ -3,6 +3,7 @@
 - [Configuring the Azure OpenAI API Simulator](#configuring-the-azure-openai-api-simulator)
   - [Environment Variables](#environment-variables)
     - [Setting Environment Variables via the `.env` File](#setting-environment-variables-via-the-env-file)
+  - [Configuring Endpoints](#configuring-endpoints)
   - [Configuring Latency](#configuring-latency)
   - [Configuring Rate Limiting](#configuring-rate-limiting)
   - [Open Telemetry Configuration](#open-telemetry-configuration)
@@ -54,6 +55,10 @@ The file `sample.env` lives in the root of this repository, and provides a start
 The `.http` files for testing the endpoints also use the `.env` file to set the environment variables for calling the API.
 
 > Note: when running the simulator it will auto-generate an API Key. This needs to be passed to the API when making requests. To avoid the API Key changing each time the simulator is run, set the `SIMULATOR_API_KEY` environment variable to a fixed value.
+
+## Configuring Endpoints
+
+There are a numner of environemt variables that specify API endpoints. Each of these environement variables is named ending `_ENDPOINT`. For all such environment variables the format is `scheme://fqdn` ir `scheme://fqdn:port`. e.g. `http://localhost:5000` or `https://example.openai.azure.com`. You should **not** include a trailing forward slash in the value of the environment variable.
 
 ## Configuring Latency
 
