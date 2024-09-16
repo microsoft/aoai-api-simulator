@@ -1,0 +1,40 @@
+
+@aoai_endpoint={{$dotenv %endpoint_env_var}}
+@aoai_key={{$dotenv %key_env_var}}
+@aoai_embedding_deployment={{$dotenv %embedding_deployment_env_var}}
+
+
+################################################################
+#
+# Embeddings
+# https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#embeddings
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_embedding_deployment}}/embeddings?api-version=2023-05-15
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{"input": "This is some text to generate embeddings for", "model": "embedding"}
+
+
+
+###
+
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_embedding_deployment}}/embeddings?api-version=2023-05-15
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{"input": ["This is some text to generate embeddings for", "And some more"], "model": "embedding"}
+
+
+
+###
+
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_embedding_deployment}}/embeddings?api-version=2023-05-15
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{"input": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Pellentesque pulvinar pellentesque habitant morbi tristique senectus et netus et. Diam quis enim lobortis scelerisque. Semper risus in hendrerit gravida rutrum quisque. Lobortis feugiat vivamus at augue eget arcu dictum. Pellentesque elit eget gravida cum sociis natoque penatibus et magnis. Massa sapien faucibus et molestie ac feugiat sed lectus vestibulum. Id leo in vitae turpis massa sed. Vitae aliquet nec ullamcorper sit amet. Enim nunc faucibus a pellentesque sit amet porttitor eget dolor. Vitae ultricies leo integer malesuada. Viverra accumsan in nisl nisi. Massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada proin. Mi quis hendrerit dolor magna eget est lorem ipsum.\nConvallis convallis tellus id interdum. Netus et malesuada fames ac turpis egestas sed tempus. Purus gravida quis blandit turpis cursus in hac habitasse. Nunc id cursus metus aliquam. Facilisis leo vel fringilla est ullamcorper eget nulla facilisi. Venenatis lectus magna fringilla urna porttitor rhoncus dolor. Et netus et malesuada fames ac turpis egestas. Donec et odio pellentesque diam volutpat commodo sed. Lacus sed turpis tincidunt id aliquet risus feugiat in ante. Est ullamcorper eget nulla facilisi etiam dignissim. Nisl nunc mi ipsum faucibus vitae. At in tellus integer feugiat. Velit aliquet sagittis id consectetur. Velit sed ullamcorper morbi tincidunt. Consectetur libero id faucibus nisl tincidunt eget nullam non nisi. At imperdiet dui accumsan sit amet nulla facilisi morbi. In est ante in nibh mauris cursus. Dignissim convallis aenean et tortor at. Donec adipiscing tristique risus nec.\nMi in nulla posuere sollicitudin. Dui sapien eget mi proin sed libero enim sed faucibus. Felis eget velit aliquet sagittis id consectetur purus. Ullamcorper malesuada proin libero nunc consequat. Integer malesuada nunc vel risus commodo viverra maecenas. Aliquam ut porttitor leo a diam sollicitudin. Congue quisque egestas diam in. Blandit massa enim nec dui nunc mattis enim ut. Id neque aliquam vestibulum morbi blandit cursus risus at. Nisi scelerisque eu ultrices vitae auctor eu augue ut lectus. Enim nulla aliquet porttitor lacus luctus accumsan tortor. Praesent elementum facilisis leo vel. Arcu dui vivamus arcu felis bibendum ut tristique. Ut tristique et egestas quis ipsum suspendisse ultrices gravida dictum.\nId leo in vitae turpis massa sed. Pretium nibh ipsum consequat nisl vel. Ante in nibh mauris cursus. Viverra justo nec ultrices dui sapien eget mi. Amet massa vitae tortor condimentum lacinia quis vel. Quis imperdiet massa tincidunt nunc. Auctor neque vitae tempus quam pellentesque nec. Convallis posuere morbi leo urna. Ullamcorper morbi tincidunt ornare massa eget egestas. Neque aliquam vestibulum morbi blandit cursus risus at ultrices. Est placerat in egestas erat imperdiet sed euismod nisi porta. Blandit volutpat maecenas volutpat blandit aliquam etiam erat velit. Libero id faucibus nisl tincidunt eget nullam non nisi est. Amet risus nullam eget felis eget. Tristique senectus et netus et malesuada fames ac turpis. Ac orci phasellus egestas tellus rutrum tellus pellentesque eu tincidunt. Turpis nunc eget lorem dolor sed.\nSenectus et netus et malesuada. Sit amet massa vitae tortor condimentum lacinia quis vel eros. Sed egestas egestas fringilla phasellus faucibus scelerisque. Pulvinar neque laoreet suspendisse interdum consectetur. Egestas sed sed risus pretium quam vulputate dignissim suspendisse in. Sed nisi lacus sed viverra tellus in hac habitasse platea. Risus nec feugiat in fermentum posuere. Nisl nisi scelerisque eu ultrices vitae auctor eu augue. Morbi leo urna molestie at elementum eu facilisis sed. Eu consequat ac felis donec et odio. Aliquet bibendum enim facilisis gravida neque. Tristique sollicitudin nibh sit amet.", "model": "embedding"}
+
+###
