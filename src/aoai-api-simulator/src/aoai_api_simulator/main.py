@@ -12,6 +12,7 @@ from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
 #  from opentelemetry.sdk._logs.export import ConsoleLogExporter
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -52,8 +53,6 @@ else:
         trace.set_tracer_provider(TracerProvider(resource=resource))
         tracer = trace.get_tracer(__name__)
 
-        # https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-configuration?tabs=python#enable-the-otlp-exporter
-
         otlp_exporter = OTLPSpanExporter()
 
         # tracing
@@ -88,4 +87,5 @@ apply_config()
 app = builder_app  # expose to gunicorn
 
 if not using_azure_monitor:
+    RequestsInstrumentor().instrument()
     FastAPIInstrumentor.instrument_app(app)
