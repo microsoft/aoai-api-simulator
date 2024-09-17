@@ -36,14 +36,15 @@ The minimum set of environment variables you'll need in your `.env` file to run 
     SIMULATOR_API_KEY=my-test-key
     TEST_OPENAI_ENDPOINT=http://localhost:8000/
     TEST_OPENAI_KEY=my-test-key
+    TEST_OPENAI_DEPLOYMENT=gpt-3.5-turbo-0613
     ```  
 
-2. Start (or restart) the simulator by running the following command in your terminal from the repository root directory:
+2. Start the simulator by running the following command in your terminal from the repository root directory:
   
     ```console
     make run-simulated-api
     ```
-
+    Kill the process and run the command again to restart the simulator whenever you make changes to the config.
 3. Now open the [test-aoai.http](test-aoai.http) file, and send the first POST request.  
 4. You should receive an http `200` response with some generated completions. Check the terminal for any warnings or errors.  
 
