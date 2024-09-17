@@ -1,5 +1,5 @@
 services:
-  grafana-all-in-one:
+  grafana-all-in-one: # https://grafana.com/blog/2024/03/13/an-opentelemetry-backend-in-a-docker-image-introducing-grafana/otel-lgtm/
     image: grafana/otel-lgtm
     container_name: otel-lgtm
     ports:

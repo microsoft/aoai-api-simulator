@@ -47,7 +47,7 @@ else:
         logger.info("🚀 Configuring OTLP telemetry")
 
         # setup the instrumentors
-        resource = Resource(attributes={"service.name": "aoai-api-simulator"})
+        resource = Resource(attributes={"service.name": os.getenv("OTEL_SERVICE_NAME", "aoai-api-simulator")})
 
         trace.set_tracer_provider(TracerProvider(resource=resource))
         tracer = trace.get_tracer(__name__)
