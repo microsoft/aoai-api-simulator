@@ -384,6 +384,33 @@ def raw_generate_lorem_text(max_tokens: int, model_name: str) -> str:
     return full_text
 
 
+def create_translation_response(
+    context: RequestContext, response_format: str, deployment_name: str, model_name: str, max_tokens: int
+):
+    """
+    Creates a Response object for a translation request and sets context values for the rate-limiter etc
+    """
+    text = generate_lorem_text(max_tokens=max_tokens, model_name=model_name)
+
+    completion_tokens = num_tokens_from_string(text, model_name)
+
+    if response_format == "text":
+        return Response(
+            content=text,
+            headers={
+                "Content-Type": "text/plain",
+            },
+            status_code=200,
+        )
+    return Response(
+        content=json.dumps({"text": text}),
+        headers={
+            "Content-Type": "application/json",
+        },
+        status_code=200,
+    )
+
+
 def create_completion_response(
     context: RequestContext,
     deployment_name: str,
@@ -770,19 +797,22 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
                 "Content-Type": "application/json",
             },
         )
-    request_body = await request.json()
-    prompt_tokens = num_tokens_from_string(request_body["prompt"], model_name)
+    request_form = await request.form()
+    audio_file = request_form["file"]
+    response_format = request_form["response_format"]
 
-    requested_max_tokens, max_tokens = get_max_completion_tokens(request_body, model_name, prompt_tokens=prompt_tokens)
+    file_size = len(audio_file.file.read())
 
-    context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
+    max_tokens = 200
+
+    # context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
     context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE] = max_tokens
 
-    response = create_completion_response(
+    response = create_translation_response(
         context=context,
+        response_format=response_format,
         deployment_name=deployment_name,
         model_name=model_name,
-        prompt_tokens=prompt_tokens,
         max_tokens=max_tokens,
     )
 

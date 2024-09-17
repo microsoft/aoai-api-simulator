@@ -1,15 +1,15 @@
-from dataclasses import dataclass
 import random
+from dataclasses import dataclass
 from typing import Annotated, Awaitable, Callable
+
+import nanoid
 
 # from aoai_api_simulator.pipeline import RequestContext
 from fastapi import Request, Response
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests import Response as requests_Response
-from starlette.routing import Route, Match
-
-import nanoid
+from starlette.routing import Match, Route
 
 
 class RequestContext:
@@ -109,6 +109,11 @@ class EmbeddingLatency(BaseSettings):
         return random.normalvariate(self.mean, self.std_dev)
 
 
+class TranslationLatency(BaseSettings):
+    mean: float = Field(default=100, alias="LATENCY_OPENAI_TRANSLATIONS_MEAN")
+    std_dev: float = Field(default=30, alias="LATENCY_OPENAI_TRANSLATIONS_STD_DEV")
+
+
 class LatencyConfig(BaseSettings):
     """
     Defines the latency for different types of requests
@@ -121,6 +126,7 @@ class LatencyConfig(BaseSettings):
     open_ai_completions: CompletionLatency = Field(default=CompletionLatency())
     open_ai_chat_completions: ChatCompletionLatency = Field(default=ChatCompletionLatency())
     open_ai_embeddings: EmbeddingLatency = Field(default=EmbeddingLatency())
+    open_ai_translations: TranslationLatency = Field(default=TranslationLatency())
 
 
 class PatchableConfig(BaseSettings):
