@@ -49,7 +49,6 @@ make install-requirements
 3. Now open the [test-aoai.http](test-aoai.http) file, and send the first POST request.  
 4. You should receive an http `200` response with some generated completions. Check the terminal for any warnings or errors.  
 
-
 ## Changing the Simulator Mode
 
 The `SIMULATOR_MODE` environment variable determines how the simulator behaves. You can either set this environment variable in the shell before running the simulator, or you can set it in the `.env` file.
