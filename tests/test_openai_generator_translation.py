@@ -61,4 +61,33 @@ async def test_success():
 
         file = open("/workspaces/aoai-api-simulator/tests/audio/In-demo-1min-Vietnamese-UN-Speech.mp3", "rb")
         response = aoai_client.audio.translations.create(model="whisper", file=file, response_format="json")
+
+        file.close()
+
         assert len(response.text) > 0
+
+
+@pytest.mark.asyncio
+async def test_returns_413_when_file_too_large():
+    """
+    Ensure we get a 413
+    """
+    file_to_test = "/workspaces/aoai-api-simulator/tests/audio/over-large-audio-file.mp3"
+    config = _get_generator_config()
+    server = UvicornTestServer(config)
+    with server.run_in_thread():
+        aoai_client = AzureOpenAI(
+            api_key=API_KEY,
+            api_version="2023-12-01-preview",
+            azure_endpoint="http://localhost:8001",
+            max_retries=0,
+        )
+
+        file = open(file_to_test, "rb")
+        try:
+            aoai_client.audio.translations.create(model="whisper", file=file, response_format="json")
+
+        except Exception as e:
+            assert e.status_code == 413
+        finally:
+            file.close()
