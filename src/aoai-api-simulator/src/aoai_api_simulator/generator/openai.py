@@ -803,6 +803,24 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
 
     file_size = len(audio_file.file.read())
 
+    if file_size == 0 or file_size > 26214400:
+        return Response(
+            status_code=413,
+            content=json.dumps(
+                {
+                    "error": {
+                        "message": f"Maximum content size limit (26214400) exceeded ({file_size} bytes read)",
+                        "type": "server_error",
+                        "param": "null",
+                        "code": "null",
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
     max_tokens = 200
 
     # context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
