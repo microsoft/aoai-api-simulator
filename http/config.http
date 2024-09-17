@@ -1,0 +1,51 @@
+
+@aoai_endpoint={{$dotenv %endpoint_env_var}}
+@aoai_key={{$dotenv %key_env_var}}
+
+
+################################################################
+#
+# Config
+
+GET  {{aoai_endpoint}}++/config
+api-key: {{aoai_key}}
+
+###
+
+PATCH {{aoai_endpoint}}++/config
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+	"latency": {
+		"open_ai_chat_completions": {
+			"mean": 10,
+			"std_dev": 0.5
+		}
+	}
+}
+
+###
+
+PATCH {{aoai_endpoint}}++/config
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+	"latency": {
+		"open_ai_chat_completions": {
+			"mean": 0,
+			"std_dev": 0
+		},
+		"open_ai_completions": {
+			"mean": 0,
+			"std_dev": 0
+		},
+		"open_ai_embeddings": {
+			"mean": 0,
+			"std_dev": 0
+		}
+	}
+}
+
+###

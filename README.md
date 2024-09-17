@@ -45,7 +45,7 @@ In fact, when considering Rate Limits and Latency, these might be things that yo
 
 By using the Azure OpenAI API Simulator, instead of the live OpenAI API, you can reduce the cost of running load tests against the OpenAI API and ensure that your application behaves as expected under different conditions.
 
-The `Azure OpenAI API Simulator presents the same interface as the live OpenAI API, allowing you to easily switch between the two, and then gives you full control over the responses that are returned.
+The Azure OpenAI API Simulator presents the same interface as the live OpenAI API, allowing you to easily switch between the two, and then gives you full control over the responses that are returned.
 
 ### Simulator Modes
 
@@ -93,7 +93,7 @@ The behaviour of the Azure OpenAI API Simulator is controlled via a range of [Az
 
 ### Extending the Azure OpenAI API Simulator
 
-There are also a number of [Azure OpenAI API Simulator Extension points](./docs/extensions.md) that allow you to customise the behaviour of the Azure OpenAI API Simulator. Extensions can be used to modify the request/response, add latency, or even generate responses.
+There are also a number of [Azure OpenAI API Simulator Extension points](./docs/extending.md) that allow you to customise the behaviour of the Azure OpenAI API Simulator. Extensions can be used to modify the request/response, add latency, or even generate responses.
 
 ### Contributing to the Azure OpenAI API Simulator
 
