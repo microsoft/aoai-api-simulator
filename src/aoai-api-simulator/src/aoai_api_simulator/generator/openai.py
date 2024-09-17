@@ -748,3 +748,46 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
     await calculate_latency(context, 200)
 
     return response
+
+
+async def azure_openai_translation(context: RequestContext) -> Response | None:
+    request = context.request
+    is_match, path_params = context.is_route_match(
+        request=request, path="/openai/deployments/{deployment}/audio/translations", methods=["POST"]
+    )
+    if not is_match:
+        return None
+
+    _validate_api_key_header(context)
+
+    deployment_name = path_params["deployment"]
+    model_name = get_model_name_from_deployment_name(context, deployment_name)
+    if model_name is None:
+        return Response(
+            status_code=404,
+            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+    request_body = await request.json()
+    prompt_tokens = num_tokens_from_string(request_body["prompt"], model_name)
+
+    requested_max_tokens, max_tokens = get_max_completion_tokens(request_body, model_name, prompt_tokens=prompt_tokens)
+
+    context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
+    context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE] = max_tokens
+
+    response = create_completion_response(
+        context=context,
+        deployment_name=deployment_name,
+        model_name=model_name,
+        prompt_tokens=prompt_tokens,
+        max_tokens=max_tokens,
+    )
+
+    # calculate a simulated latency and store in context.values
+    # needs to be called after the response has been created
+    await calculate_latency(context, 200)
+
+    return response
