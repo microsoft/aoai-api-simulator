@@ -30,7 +30,7 @@ make install-requirements
 
 1. Before running the Azure OpenAI API Simulator you should ensure that you have set up your local config. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this. The first time you run this, you should be sure to set at least the following environment variables.
 
-    ```python
+    ```dotenv
     SIMULATOR_API_KEY=my-test-key
     TEST_OPENAI_ENDPOINT=http://localhost:8000/
     TEST_OPENAI_KEY=my-test-key
