@@ -15,7 +15,7 @@ from aoai_api_simulator.models import (
     LatencyConfig,
     OpenAIDeployment,
 )
-from openai import AuthenticationError, AzureOpenAI, NotFoundError, RateLimitError
+from openai import AuthenticationError, AzureOpenAI, BadRequestError, NotFoundError, RateLimitError
 
 from .test_uvicorn_server import UvicornTestServer
 
@@ -247,3 +247,30 @@ async def test_pass_in_dimension_param_for_unsupported_model_ignored():
 
         # Dimension parameter is ignored and the default embeddingSize is used
         assert len(response.data[0].embedding) == 1536
+
+
+@pytest.mark.asyncio
+async def test_using_unsupported_model_for_embeddings_returns_400():
+    """
+    Test that passing in dimension parameter to embeddings generation
+    fails when the model does not support overriding embedding size
+    """
+    config = _get_generator_config()
+    server = UvicornTestServer(config)
+    with server.run_in_thread():
+        aoai_client = AzureOpenAI(
+            api_key=API_KEY,
+            api_version="2023-12-01-preview",
+            azure_endpoint="http://localhost:8001",
+            max_retries=0,
+        )
+        content = "This is some text to generate embeddings for"
+        # deployment1 will ignore the dimensions parameter
+        with pytest.raises(BadRequestError) as e:
+            aoai_client.embeddings.create(model="low_limit", input=content, dimensions=10)
+
+        assert e.value.status_code == 400
+        assert (
+            e.value.message
+            == "Error code: 400 - {'error': {'code': 'OperationNotSupported', 'message': 'The embeeddings operation does not work with the specified model, low_limitPlease choose different model and try again.'}}"
+        )

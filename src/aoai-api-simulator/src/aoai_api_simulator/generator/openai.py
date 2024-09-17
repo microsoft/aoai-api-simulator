@@ -170,7 +170,8 @@ def create_embeddings_response(
     embedding_size = deployment.embedding_size
 
     if dimension is not None:
-        if isinstance(deployment.model, OpenAIEmbeddingModel) and deployment.model.supports_custom_dimensions:
+        assert isinstance(deployment.model, OpenAIEmbeddingModel)
+        if deployment.model.supports_custom_dimensions:
             embedding_size = dimension
 
     embeddings = []
@@ -464,6 +465,23 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
         return Response(
             status_code=404,
             content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+    if not isinstance(deployment.model, OpenAIEmbeddingModel):
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "code": "OperationNotSupported",
+                        "message": f"The embeeddings operation does not work with the specified model, {deployment_name}"
+                        + "Please choose different model and try again.",
+                    }
+                }
+            ),
             headers={
                 "Content-Type": "application/json",
             },
