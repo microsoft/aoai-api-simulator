@@ -46,7 +46,7 @@ make install-requirements
     ```
 
     Kill the process and run the command again to restart the simulator whenever you make changes to the config.
-3. Now open the [test-aoai.http](test-aoai.http) file, and send the first POST request.  
+3. Now open the [http/chat-completions.http](../http/chat-completions.http) file, and send the first POST request. If you are using the rest-client extension, you may have to set the environment to `test`. Use the `>p rest client: switch environment` command in VS Code to do so.
 4. You should receive an http `200` response with some generated completions. Check the terminal for any warnings or errors.  
 
 ## Changing the Simulator Mode
