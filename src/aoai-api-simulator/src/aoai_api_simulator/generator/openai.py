@@ -151,7 +151,7 @@ async def calculate_latency(context: RequestContext, status_code: int):
             context.values[constants.TARGET_DURATION_MS] = target_duration_ms
 
 
-def create_embedding_content(index: int, embedding_size):
+def create_embedding_content(index: int, embedding_size: int):
     """Generates a random embedding"""
     return {
         "object": "embedding",
