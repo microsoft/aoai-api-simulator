@@ -1,7 +1,6 @@
 import logging
 import traceback
 from typing import Annotated
-from fastapi import Depends, FastAPI, Request, Response, HTTPException
 
 from aoai_api_simulator.auth import validate_api_key_header
 from aoai_api_simulator.config_loader import get_config, set_config
@@ -11,7 +10,7 @@ from aoai_api_simulator.limiters import apply_limits
 from aoai_api_simulator.models import RequestContext
 from aoai_api_simulator.record_replay.handler import RecordReplayHandler
 from aoai_api_simulator.record_replay.persistence import YamlRecordingPersister
-
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +151,8 @@ async def catchall(request: Request):
                 return Response(status_code=500)
 
             # Apply limits here so that that they apply to record/replay as well as generate
-            if response.status_code < 300:
+            # Limits are not applied if the request uses form data (e.g. whisper translation)
+            if response.status_code < 300 and not context.is_form_data():
                 response = await apply_limits(context, response)
 
             # pass the response to the latency generator
