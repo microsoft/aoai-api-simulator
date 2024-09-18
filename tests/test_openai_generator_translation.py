@@ -66,6 +66,8 @@ async def test_success():
 
         assert len(response.text) > 0
 
+        file.close()
+
 
 @pytest.mark.asyncio
 async def test_returns_413_when_file_too_large():
@@ -84,6 +86,7 @@ async def test_returns_413_when_file_too_large():
         )
 
         file = open(file_to_test, "rb")
+
         with pytest.raises(Exception) as e:
             aoai_client.audio.translations.create(model="whisper", file=file, response_format="json")
             assert e.value.status_code == 413
