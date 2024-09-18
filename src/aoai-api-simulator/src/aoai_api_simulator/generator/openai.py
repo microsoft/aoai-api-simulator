@@ -477,7 +477,7 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
                 {
                     "error": {
                         "code": "OperationNotSupported",
-                        "message": f"The embeeddings operation does not work with the specified model, {deployment_name}"
+                        "message": f"The embeddings operation does not work with the specified model, {deployment_name}. "
                         + "Please choose different model and try again.",
                     }
                 }

@@ -272,5 +272,5 @@ async def test_using_unsupported_model_for_embeddings_returns_400():
         assert e.value.status_code == 400
         assert (
             e.value.message
-            == "Error code: 400 - {'error': {'code': 'OperationNotSupported', 'message': 'The embeeddings operation does not work with the specified model, low_limitPlease choose different model and try again.'}}"
+            == "Error code: 400 - {'error': {'code': 'OperationNotSupported', 'message': 'The embeddings operation does not work with the specified model, low_limit. Please choose different model and try again.'}}"
         )
