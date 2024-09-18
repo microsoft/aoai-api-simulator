@@ -45,7 +45,7 @@ def _load_openai_deployments(logger: logging.Logger) -> dict[str, OpenAIDeployme
         openai_deployment_config_path = os.path.abspath(openai_deployment_config_path)
 
     if not os.path.exists(openai_deployment_config_path):
-        logger.error(f"OpenAI deployment configuration file not found: {openai_deployment_config_path}")
+        logger.error("OpenAI deployment configuration file not found: %s", openai_deployment_config_path)
         return None
 
     with open(openai_deployment_config_path, encoding="utf-8") as f:
