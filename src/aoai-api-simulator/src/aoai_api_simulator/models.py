@@ -125,7 +125,7 @@ class LatencyConfig(BaseSettings):
 
 class PatchableConfig(BaseSettings):
     simulator_mode: str = Field(default="generate", alias="SIMULATOR_MODE", pattern="^(generate|record|replay)$")
-    simulator_api_key: str = Field(default=nanoid.generate(size=30), alias="SIMULATOR_API_KEY")
+    simulator_api_key: str = Field(default="", alias="SIMULATOR_API_KEY")
     recording: RecordingConfig = Field(default=RecordingConfig())
     openai_deployments: dict[str, "OpenAIDeployment"] | None = Field(default=None)
     latency: Annotated[LatencyConfig, Field(default=LatencyConfig())]
