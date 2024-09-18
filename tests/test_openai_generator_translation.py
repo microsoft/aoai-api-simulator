@@ -70,6 +70,30 @@ async def test_success():
 
 
 @pytest.mark.asyncio
+async def test_when_response_format_is_text_returns_text():
+    """
+    Ensure we can call the translation endpoint
+    """
+    config = _get_generator_config()
+    server = UvicornTestServer(config)
+    with server.run_in_thread():
+        aoai_client = AzureOpenAI(
+            api_key=API_KEY,
+            api_version="2023-12-01-preview",
+            azure_endpoint="http://localhost:8001",
+            max_retries=0,
+        )
+
+        file = open("/workspaces/aoai-api-simulator/tests/audio/In-demo-1min-Vietnamese-UN-Speech.mp3", "rb")
+        response = aoai_client.audio.translations.create(model="whisper", file=file, response_format="text")
+
+        file.close()
+
+        assert '"text":' not in response.data
+        assert len(response.data) > 0
+
+
+@pytest.mark.asyncio
 async def test_returns_413_when_file_too_large():
     """
     Ensure we get a 413
