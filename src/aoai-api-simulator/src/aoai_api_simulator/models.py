@@ -1,15 +1,15 @@
-from dataclasses import dataclass
 import random
+from dataclasses import dataclass
 from typing import Annotated, Awaitable, Callable
+
+import nanoid
 
 # from aoai_api_simulator.pipeline import RequestContext
 from fastapi import Request, Response
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests import Response as requests_Response
-from starlette.routing import Route, Match
-
-import nanoid
+from starlette.routing import Match, Route
 
 
 class RequestContext:
@@ -153,9 +153,25 @@ class Config(PatchableConfig):
 
 
 @dataclass
+class OpenAIModel:
+    name: str
+
+
+@dataclass
+class OpenAIChatModel(OpenAIModel):
+    pass
+
+
+@dataclass
+class OpenAIEmbeddingModel(OpenAIModel):
+    name: str
+    supports_custom_dimensions: bool
+
+
+@dataclass
 class OpenAIDeployment:
     name: str
-    model: str
+    model: OpenAIModel
     tokens_per_minute: int = 0
     embedding_size: int = 0
 

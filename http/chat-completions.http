@@ -16,6 +16,20 @@ api-key: {{aoai_key}}
 {
   "messages": [{
     "role": "user",
+    "content": "Is this thing on?"
+    }],
+  "model": "gpt-5-turbo-1",
+  "max_tokens": 20
+}
+
+###
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2024-02-15-preview
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "messages": [{
+    "role": "user",
     "content": "What is the meaning of life?"
     }],
   "model": "gpt-5-turbo-1",
