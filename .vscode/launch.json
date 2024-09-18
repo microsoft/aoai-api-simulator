@@ -16,6 +16,9 @@
                 "--workers=1",
                 "--timeout=0"
             ],
+            "env": {
+                "OPENAI_DEPLOYMENT_CONFIG_PATH": "/workspaces/aoai-api-simulator/examples/openai_deployment_config.json",
+            },
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}/src/aoai-api-simulator"
         },
