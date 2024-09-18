@@ -13,12 +13,6 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics._internal.measurement_consumer import (
-    SynchronousMeasurementConsumer,
-)
-from opentelemetry.sdk.metrics._internal.sdk_configuration import (
-    SdkConfiguration,
-)
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -61,14 +55,14 @@ def setup_telemetry() -> bool:
 
         # metrics
         metric_reader = PeriodicExportingMetricReader(OTLPMetricExporter())
+
         if not using_azure_monitor:
             meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
             metrics.set_meter_provider(meter_provider)
-        else:
-            sdk_config = SdkConfiguration(resource=resource, metric_readers=[metric_reader], views=[])
-            measurement_consumer = SynchronousMeasurementConsumer(sdk_config=sdk_config)
-            meter_provider._all_metric_readers.add(metric_reader)
-            meter_provider._set_collect_callback(measurement_consumer.collect)
+
+        meter_provider = metrics.get_meter_provider()
+        meter_provider._all_metric_readers.add(metric_reader)
+        metric_reader._set_collect_callback(meter_provider._measurement_consumer.collect)
 
         # logging
         logger_provider = LoggerProvider(
