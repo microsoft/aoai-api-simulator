@@ -60,6 +60,12 @@ class RequestContext:
             return (False, {})
         return (True, scopes["path_params"])
 
+    def is_form_data(self):
+        """
+        Checks if the request is a form data request
+        """
+        return "multipart/form-data" in self.request.headers.get("Content-Type", "")
+
 
 class RecordingConfig(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
