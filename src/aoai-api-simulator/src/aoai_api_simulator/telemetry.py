@@ -13,6 +13,12 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics._internal.measurement_consumer import (
+    SynchronousMeasurementConsumer,
+)
+from opentelemetry.sdk.metrics._internal.sdk_configuration import (
+    SdkConfiguration,
+)
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -45,21 +51,24 @@ def setup_telemetry() -> bool:
         logger.info("🚀 Configuring OTLP telemetry")
 
         # setup the instrumentors
-        if not using_azure_monitor:
-            resource = Resource(attributes={"service.name": os.getenv("OTEL_SERVICE_NAME", "aoai-api-simulator")})
-            trace.set_tracer_provider(TracerProvider(resource=resource))
+        resource = Resource(attributes={"service.name": os.getenv("OTEL_SERVICE_NAME", "aoai-api-simulator")})
 
         # tracing
+        if not using_azure_monitor:
+            trace.set_tracer_provider(TracerProvider(resource=resource))
         span_processor = BatchSpanProcessor(OTLPSpanExporter())
         trace.get_tracer_provider().add_span_processor(span_processor)
 
         # metrics
-        if not using_azure_monitor:
-            meter_provider = MeterProvider(resource=resource, metric_readers=[])
-            metrics.set_meter_provider(meter_provider)
-
         metric_reader = PeriodicExportingMetricReader(OTLPMetricExporter())
-        metrics.get_meter_provider().add_metric_reader(metric_reader)
+        if not using_azure_monitor:
+            meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
+            metrics.set_meter_provider(meter_provider)
+        else:
+            sdk_config = SdkConfiguration(resource=resource, metric_readers=[metric_reader], views=[])
+            measurement_consumer = SynchronousMeasurementConsumer(sdk_config=sdk_config)
+            meter_provider._all_metric_readers.add(metric_reader)
+            meter_provider._set_collect_callback(measurement_consumer.collect)
 
         # logging
         logger_provider = LoggerProvider(
