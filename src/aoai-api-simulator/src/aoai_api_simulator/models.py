@@ -131,11 +131,15 @@ class PatchableConfig(BaseSettings):
     latency: Annotated[LatencyConfig, Field(default=LatencyConfig())]
     allow_undefined_openai_deployments: bool = Field(default=True, alias="ALLOW_UNDEFINED_OPENAI_DEPLOYMENTS")
 
+    # Disable all the no-self-argument violations in this function
+    # pylint: disable=no-self-argument
     @field_validator("simulator_api_key")
     def simulator_api_key_should_not_be_empty_string(cls, v):
         if v == "":
             return nanoid.generate(size=30)
         return v
+
+    # pylint: enable=no-self-argument
 
 
 class Config(PatchableConfig):
