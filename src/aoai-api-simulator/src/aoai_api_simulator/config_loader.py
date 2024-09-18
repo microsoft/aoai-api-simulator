@@ -56,8 +56,10 @@ def _load_openai_deployments(logger: logging.Logger) -> dict[str, OpenAIDeployme
 
         if model_name not in model_catalogue:
             logger.error(
-                f"Model {model_name} from deployment {deployment_name} not supported in the simulator."
-                + "Please raise an issue in the aoai_api_simulator repo."
+                "Model %s from deployment %s not supported in the simulator."
+                + "Please raise an issue in the aoai_api_simulator repo.",
+                model_name,
+                deployment_name,
             )
 
         model = model_catalogue[model_name]
