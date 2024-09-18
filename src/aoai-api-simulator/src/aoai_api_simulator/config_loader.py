@@ -2,19 +2,19 @@ import importlib
 import json
 import logging
 import os
-
 import sys
 
+from aoai_api_simulator.generator.manager import get_default_generators
 from aoai_api_simulator.limiters import get_default_limiters
 from aoai_api_simulator.models import Config, OpenAIDeployment
 from aoai_api_simulator.record_replay.handler import get_default_forwarders
-from aoai_api_simulator.generator.manager import get_default_generators
 
 
-def get_config_from_env_vars(logger: logging.Logger) -> Config:
+def get_config_from_env_vars() -> Config:
     """
     Load configuration from environment variables
     """
+    logger = logging.getLogger()
     config = Config(generators=get_default_generators())
     config.recording.forwarders = get_default_forwarders()
     config.openai_deployments = _load_openai_deployments(logger)
@@ -95,7 +95,6 @@ def _default_openai_deployments() -> dict[str, OpenAIDeployment]:
 
 
 def load_extension(config: Config):
-
     extension_path = config.extension_path
     if not extension_path:
         return
