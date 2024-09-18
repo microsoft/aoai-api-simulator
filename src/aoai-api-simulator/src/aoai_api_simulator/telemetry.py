@@ -50,6 +50,7 @@ def setup_telemetry() -> bool:
         # tracing
         if not using_azure_monitor:
             trace.set_tracer_provider(TracerProvider(resource=resource))
+
         span_processor = BatchSpanProcessor(OTLPSpanExporter())
         trace.get_tracer_provider().add_span_processor(span_processor)
 
@@ -59,10 +60,12 @@ def setup_telemetry() -> bool:
         if not using_azure_monitor:
             meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
             metrics.set_meter_provider(meter_provider)
-
-        meter_provider = metrics.get_meter_provider()
-        meter_provider._all_metric_readers.add(metric_reader)
-        metric_reader._set_collect_callback(meter_provider._measurement_consumer.collect)
+        else:
+            meter_provider = metrics.get_meter_provider()
+            # meter_provider.add_metric_reader() is not implemented in python sdk yet.
+            # adding it manually
+            meter_provider._all_metric_readers.add(metric_reader)
+            metric_reader._set_collect_callback(meter_provider._measurement_consumer.collect)
 
         # logging
         logger_provider = LoggerProvider(
