@@ -4,12 +4,12 @@
 import json
 
 from aoai_api_simulator.auth import validate_api_key_header
-from aoai_api_simulator.models import Config, RequestContext
 from aoai_api_simulator.generator.openai import (
     calculate_latency,
     create_lorem_chat_completion_response,
-    get_model_name_from_deployment_name,
+    get_chat_model_from_deployment_name,
 )
+from aoai_api_simulator.models import Config, RequestContext
 from fastapi import Response
 
 
@@ -49,8 +49,8 @@ async def custom_azure_openai_chat_completion(context: RequestContext) -> Respon
 
     request_body = await request.json()
     deployment_name = path_params["deployment"]
-    model_name = get_model_name_from_deployment_name(context, deployment_name)
-    if model_name is None:
+    model = get_chat_model_from_deployment_name(context, deployment_name)
+    if model is None:
         return Response(
             status_code=404,
             content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
@@ -70,7 +70,7 @@ async def custom_azure_openai_chat_completion(context: RequestContext) -> Respon
     response = create_lorem_chat_completion_response(
         context=context,
         deployment_name=deployment_name,
-        model_name=model_name,
+        model_name=model.name,
         streaming=streaming,
         max_tokens=max_tokens,
         prompt_messages=messages,
