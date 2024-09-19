@@ -145,6 +145,3 @@ async def forward_to_azure_openai(context: RequestContext) -> dict:
         context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = total_tokens
 
     return {"response": response, "persist_response": True}
-
-
-# async def forward_to_azure_openai_whisper(context: RequestContext) -> dict:
