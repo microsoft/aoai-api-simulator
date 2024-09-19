@@ -2,8 +2,6 @@
 Test the OpenAI generator endpoints
 """
 
-import json
-
 import pytest
 from aoai_api_simulator.generator.manager import get_default_generators
 from aoai_api_simulator.models import (
@@ -65,8 +63,7 @@ async def test_success():
         response = aoai_client.audio.translations.create(model="whisper", file=file, response_format="json")
 
         file.close()
-        result = json.loads(response.data)
-        assert len(result["text"]) > 0
+        assert len(response.text) > 0
 
 
 @pytest.mark.asyncio
@@ -89,8 +86,8 @@ async def test_when_response_format_is_text_returns_text():
 
         file.close()
 
-        assert '"text":' not in response.data
-        assert len(response.data) > 0
+        assert '"text":' not in response
+        assert len(response) > 0
 
 
 @pytest.mark.asyncio

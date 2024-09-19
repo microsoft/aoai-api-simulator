@@ -392,35 +392,23 @@ def create_translation_response(
     """
     text = generate_lorem_text(max_tokens=max_tokens, model_name=model_name)
 
+    content = text
     completion_tokens = num_tokens_from_string(text, model_name)
     if response_format == "json":
         json_result = {"text": text}
-        text = json.dumps(json_result)
-
-    response_body = {
-        "id": "translationcmpl-" + nanoid.non_secure_generate(size=29),
-        "object": "translate",
-        "created": int(time.time()),
-        "model": model_name,
-        "data": text,
-        "usage": {
-            "prompt_tokens": 0,
-            "completion_tokens": completion_tokens,
-            "total_tokens": completion_tokens,
-        },
-    }
+        content = json.dumps(json_result)
 
     context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "completions"
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = "translation"
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = 0
     context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
     context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = completion_tokens
 
     return Response(
-        content=json.dumps(response_body),
+        content=content,
         headers={
-            "Content-Type": "application/json",
+            "Content-Type": "application/json" if response_format == "json" else "text/plain",
         },
         status_code=200,
     )
