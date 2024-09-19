@@ -6,7 +6,7 @@ import nanoid
 
 # from aoai_api_simulator.pipeline import RequestContext
 from fastapi import Request, Response
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests import Response as requests_Response
 from starlette.routing import Match, Route
@@ -149,11 +149,21 @@ class LatencyConfig(BaseSettings):
 
 class PatchableConfig(BaseSettings):
     simulator_mode: str = Field(default="generate", alias="SIMULATOR_MODE", pattern="^(generate|record|replay)$")
-    simulator_api_key: str = Field(default=nanoid.generate(size=30), alias="SIMULATOR_API_KEY")
+    simulator_api_key: str = Field(default="", alias="SIMULATOR_API_KEY")
     recording: RecordingConfig = Field(default=RecordingConfig())
     openai_deployments: dict[str, "OpenAIDeployment"] | None = Field(default=None)
     latency: Annotated[LatencyConfig, Field(default=LatencyConfig())]
     allow_undefined_openai_deployments: bool = Field(default=True, alias="ALLOW_UNDEFINED_OPENAI_DEPLOYMENTS")
+
+    # Disable all the no-self-argument violations in this function
+    # pylint: disable=no-self-argument
+    @field_validator("simulator_api_key")
+    def simulator_api_key_should_not_be_empty_string(cls, v):
+        if v == "":
+            return nanoid.generate(size=30)
+        return v
+
+    # pylint: enable=no-self-argument
 
 
 class Config(PatchableConfig):
@@ -167,9 +177,25 @@ class Config(PatchableConfig):
 
 
 @dataclass
+class OpenAIModel:
+    name: str
+
+
+@dataclass
+class OpenAIChatModel(OpenAIModel):
+    pass
+
+
+@dataclass
+class OpenAIEmbeddingModel(OpenAIModel):
+    name: str
+    supports_custom_dimensions: bool
+
+
+@dataclass
 class OpenAIDeployment:
     name: str
-    model: str
+    model: OpenAIModel
     tokens_per_minute: int = 0
     embedding_size: int = 0
 

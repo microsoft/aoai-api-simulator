@@ -27,6 +27,15 @@ api-key: {{aoai_key}}
 {"input": ["This is some text to generate embeddings for", "And some more"], "model": "embedding"}
 
 
+###
+
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_embedding_deployment}}/embeddings?api-version=2023-05-15
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{"input": ["This is some text to generate embeddings for"], "model": "embedding", "dimension": 10}
+
 
 ###
 

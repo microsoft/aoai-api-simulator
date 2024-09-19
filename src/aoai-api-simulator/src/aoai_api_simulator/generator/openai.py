@@ -3,7 +3,6 @@ import json
 import logging
 import random
 import time
-from typing import Tuple
 
 import nanoid
 from aoai_api_simulator import constants
@@ -18,12 +17,14 @@ from aoai_api_simulator.constants import (
     SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
     SIMULATOR_KEY_OPERATION_NAME,
 )
+from aoai_api_simulator.generator.lorem import generate_lorem_text
+from aoai_api_simulator.generator.model_catalogue import model_catalogue
 from aoai_api_simulator.generator.openai_tokens import (
     get_max_completion_tokens,
     num_tokens_from_messages,
     num_tokens_from_string,
 )
-from aoai_api_simulator.models import OpenAIDeployment, RequestContext
+from aoai_api_simulator.models import OpenAIDeployment, OpenAIEmbeddingModel, RequestContext
 from fastapi import Response
 from fastapi.responses import StreamingResponse
 
@@ -36,18 +37,18 @@ logger = logging.getLogger(__name__)
 
 # API docs: https://learn.microsoft.com/en-gb/azure/ai-services/openai/reference
 
-missing_deployment_names = set()
-missing_embedding_deployment_names = set()
+deployment_missing_warning_printed = set()
+embedding_deployment_missing_warning_printed = set()
 default_openai_embedding_model = OpenAIDeployment(
-    name="embedding", model="text-embedding-ada-002", tokens_per_minute=10000, embedding_size=1536
+    name="embedding", model=model_catalogue["text-embedding-ada-002"], tokens_per_minute=10000, embedding_size=1536
 )
 
 
 def get_embedding_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
     """
-    Gets the model name for the specified embedding deployment. If
-    the deployment is not in the configured deployments then the
-    default model is returned and a warning is logged.
+    Gets the embedding model for the specified embedding deployment.
+    If the deployment is not in the configured deployments,
+    then the default model is returned and a warning is logged.
 
     Args:
         context: RequestContext instance
@@ -67,10 +68,9 @@ def get_embedding_model_from_deployment_name(context: RequestContext, deployment
     if context.config.allow_undefined_openai_deployments:
         default_model_name = "embedding"
 
-        # Output warning for missing embedding deployment name (only the
-        # first time we encounter it)
-        if deployment_name not in missing_embedding_deployment_names:
-            missing_embedding_deployment_names.add(default_model_name)
+        # Output warning for missing embedding deployment name
+        if deployment_name not in embedding_deployment_missing_warning_printed:
+            # We only output the warning the first time we encounter the model is missing
             logger.warning(
                 "Deployment %s not found in config and "
                 "allow_undefined_openai_deployments is True. "
@@ -78,15 +78,16 @@ def get_embedding_model_from_deployment_name(context: RequestContext, deployment
                 deployment_name,
                 default_model_name,
             )
+            embedding_deployment_missing_warning_printed.add(default_model_name)
         return default_openai_embedding_model
 
     # Output warning for missing embedding deployment name
     # (only the first time we encounter it)
-    if deployment_name not in missing_deployment_names:
-        missing_deployment_names.add(deployment_name)
+    if deployment_name not in deployment_missing_warning_printed:
         logger.warning(
             "Deployment %s not found in config and allow_undefined_openai_deployments is False", deployment_name
         )
+        deployment_missing_warning_printed.add(deployment_name)
     return None
 
 
@@ -99,28 +100,28 @@ def get_model_name_from_deployment_name(context: RequestContext, deployment_name
     if deployments:
         deployment = deployments.get(deployment_name)
         if deployment:
-            return deployment.model
+            return deployment.model.name
 
     if context.config.allow_undefined_openai_deployments:
         default_model = "gpt-3.5-turbo-0613"
 
         # Output warning for missing deployment name (only the first time we encounter it)
-        if deployment_name not in missing_deployment_names:
-            missing_deployment_names.add(deployment_name)
+        if deployment_name not in deployment_missing_warning_printed:
             logger.warning(
                 "Deployment %s not found in config and allow_undefined_openai_deployments is True."
                 + " Using default model %s",
                 deployment_name,
                 default_model,
             )
+            deployment_missing_warning_printed.add(deployment_name)
         return default_model
 
     # Output warning for missing deployment name (only the first time we encounter it)
-    if deployment_name not in missing_deployment_names:
-        missing_deployment_names.add(deployment_name)
+    if deployment_name not in deployment_missing_warning_printed:
         logger.warning(
             "Deployment %s not found in config and allow_undefined_openai_deployments is False", deployment_name
         )
+        deployment_missing_warning_printed.add(deployment_name)
     return None
 
 
@@ -150,7 +151,7 @@ async def calculate_latency(context: RequestContext, status_code: int):
             context.values[constants.TARGET_DURATION_MS] = target_duration_ms
 
 
-def create_embedding_content(index: int, embedding_size):
+def create_embedding_content(index: int, embedding_size: int):
     """Generates a random embedding"""
     return {
         "object": "embedding",
@@ -164,23 +165,31 @@ def create_embeddings_response(
     deployment_name: str,
     deployment: OpenAIDeployment,
     request_input: str | list,
+    dimension: int | None,
 ):
+    embedding_size = deployment.embedding_size
+
+    if dimension is not None:
+        assert isinstance(deployment.model, OpenAIEmbeddingModel)
+        if deployment.model.supports_custom_dimensions:
+            embedding_size = dimension
+
     embeddings = []
     if isinstance(request_input, str):
-        tokens = num_tokens_from_string(request_input, deployment.model)
-        embeddings.append(create_embedding_content(0, embedding_size=deployment.embedding_size))
+        tokens = num_tokens_from_string(request_input, deployment.model.name)
+        embeddings.append(create_embedding_content(0, embedding_size=embedding_size))
     else:
         tokens = 0
         index = 0
         for i in request_input:
-            tokens += num_tokens_from_string(i, deployment.model)
-            embeddings.append(create_embedding_content(index, embedding_size=deployment.embedding_size))
+            tokens += num_tokens_from_string(i, deployment.model.name)
+            embeddings.append(create_embedding_content(index, embedding_size=embedding_size))
             index += 1
 
     response_data = {
         "object": "list",
         "data": embeddings,
-        "model": deployment.model,
+        "model": deployment.model.name,
         "usage": {"prompt_tokens": tokens, "total_tokens": tokens},
     }
 
@@ -197,220 +206,6 @@ def create_embeddings_response(
         headers={
             "Content-Type": "application/json",
         },
-    )
-
-
-def get_lorem_factor(max_tokens: int):
-    # Use a sliding factor for the number of words to generate based on the max_tokens
-    if max_tokens > 500:
-        return 0.72
-    if max_tokens > 100:
-        return 0.6
-    return 0.5
-
-
-# pylint: disable-next=too-few-public-methods
-class LoremReference:
-    """
-    Generating large amounts of lorem text can be slow, so we pre-generate a set of reference values.
-    These are then combined to generate the required amount of text for API requests
-    """
-
-    model_name: str
-    values: dict[int, list[str]]
-    token_sizes: list[int]
-
-    def __init__(self, model_name: str, reference_values: dict[int, list[str]]):
-        self.model_name = model_name
-        self.values = reference_values
-        self.token_sizes = sorted(reference_values.keys(), reverse=True)
-
-    def get_value_for_size(self, size: int) -> Tuple[str, int] | None:
-        for token_size in self.token_sizes:
-            if token_size <= size:
-                values = self.values[token_size]
-                value = random.choice(values)
-                return (value, token_size)
-        return None
-
-
-lorem_reference_values: dict[str, LoremReference] = {}
-
-
-def generate_lorem_reference_text_values(token_values: list[int], model_name: str):
-    value_count = 5  # number of reference values of each size to generate
-    values = {}
-    for max_tokens in token_values:
-        generated_texts = [raw_generate_lorem_text(max_tokens, model_name) for _ in range(value_count)]
-        values[max_tokens] = generated_texts
-
-    return LoremReference(model_name, values)
-
-
-def generate_lorem_text(max_tokens: int, model_name: str):
-    text = ""
-    target = max_tokens
-
-    if model_name not in lorem_reference_values:
-        logger.info("Generating lorem reference values for model %s...", model_name)
-        start_time = time.perf_counter()
-        token_sizes = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 4000]
-        lorem_reference_values[model_name] = generate_lorem_reference_text_values(token_sizes, model_name)
-        duration = time.perf_counter() - start_time
-        logger.info("Generated lorem reference values for model %s (took %ss)", model_name, duration)
-    reference_values = lorem_reference_values[model_name]
-
-    separator = ""
-    while target > 0:
-        value = reference_values.get_value_for_size(target)
-        if value is None:
-            break
-        new_text, size = value
-        text += separator + new_text
-        separator = " "
-        target -= size
-
-    while num_tokens_from_string(text, model_name) > max_tokens:
-        # remove last word
-        last_space = text.rfind(" ")
-        text = text[:last_space]
-
-    return text
-
-
-lorem_words = [
-    "ullamco",
-    "labore",
-    "cupidatat",
-    "ipsum",
-    "elit,",
-    "esse",
-    "officia",
-    "aliquip",
-    "do",
-    "magna",
-    "duis",
-    "consequat",
-    "exercitation",
-    "occaecat",
-    "ea",
-    "laboris",
-    "sit",
-    "reprehenderit",
-    "velit",
-    "dolor",
-    "enim",
-    "irure",
-    "anim",
-    "nisi",
-    "amet,",
-    "culpa",
-    "commodo",
-    "consectetur",
-    "eiusmod",
-    "minim",
-    "mollit",
-    "fugiat",
-    "cillum",
-    "non",
-    "deserunt",
-    "veniam,",
-    "est",
-    "eu",
-    "qui",
-    "tempor",
-    "adipiscing",
-    "aliqua",
-    "et",
-    "nostrud",
-    "ex",
-    "incididunt",
-    "aute",
-    "nulla",
-    "in",
-    "proident,",
-    "sunt",
-    "id",
-    "lorem",
-    "pariatur",
-    "excepteur",
-    "ut",
-    "ad",
-    "sed",
-    "sint",
-    "laborum",
-    "voluptate",
-    "dolore",
-    "quis",
-]
-
-
-def raw_lorem_get_word(count: int = 1) -> str:
-    return " ".join([random.choice(lorem_words) for _ in range(count)])
-
-
-def raw_generate_lorem_text(max_tokens: int, model_name: str) -> str:
-    # The simplest approach to generating the compltion would
-    # be to add a word at a time and count the tokens until we reach the limit
-    # For large max_token values that will be slow, so we
-    # estimate the number of words to generate based on the max_tokens
-    # and then measure the number of tokens in that text
-    # Then we repeat for the remaining token count
-    # (allowing for some degree of error as tokens don't exactly combine that way )
-    target = max_tokens
-    full_text = ""
-    sep = ""
-    while target > 5:
-        factor = get_lorem_factor(target)
-        init_word_count = int(factor * target)
-        # text = lorem.get_word(count=init_word_count)
-        text = raw_lorem_get_word(count=init_word_count)
-        used = num_tokens_from_string(text, model_name)
-        if used > target:
-            break
-        full_text += sep + text
-        sep = " "
-        target -= used
-        target -= 2  # allow for space and error margin in token count addition
-
-    # Now top up the text to the max_tokens
-    # by adding a word at a time
-    while True:
-        new_text = full_text + " " + raw_lorem_get_word()  # lorem.get_word()
-        if num_tokens_from_string(new_text, model_name) > max_tokens:
-            break
-        full_text = new_text
-
-    return full_text
-
-
-def create_translation_response(
-    context: RequestContext, response_format: str, deployment_name: str, model_name: str, max_tokens: int
-):
-    """
-    Creates a Response object for a translation request and sets context values for the rate-limiter etc
-    """
-    text = generate_lorem_text(max_tokens=max_tokens, model_name=model_name)
-
-    content = text
-    completion_tokens = num_tokens_from_string(text, model_name)
-    if response_format == "json":
-        json_result = {"text": text}
-        content = json.dumps(json_result)
-
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "translation"
-    context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
-    context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = 0
-    context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
-    context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = completion_tokens
-
-    return Response(
-        content=content,
-        headers={
-            "Content-Type": "application/json" if response_format == "json" else "text/plain",
-        },
-        status_code=200,
     )
 
 
@@ -664,12 +459,29 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
     _validate_api_key_header(context)
     deployment_name = path_params["deployment"]
     request_body = await request.json()
-    model = get_embedding_model_from_deployment_name(context, deployment_name)
+    deployment = get_embedding_model_from_deployment_name(context, deployment_name)
 
-    if model is None:
+    if deployment is None:
         return Response(
             status_code=404,
             content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+    if not isinstance(deployment.model, OpenAIEmbeddingModel):
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "code": "OperationNotSupported",
+                        "message": f"The embeddings operation does not work with the specified model, {deployment_name}. "
+                        + "Please choose different model and try again.",
+                    }
+                }
+            ),
             headers={
                 "Content-Type": "application/json",
             },
@@ -679,8 +491,9 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
     response = create_embeddings_response(
         context=context,
         deployment_name=deployment_name,
-        deployment=model,
+        deployment=deployment,
         request_input=request_input,
+        dimension=request_body["dimensions"] if "dimensions" in request_body else None,
     )
 
     # calculate a simulated latency and store in context.values

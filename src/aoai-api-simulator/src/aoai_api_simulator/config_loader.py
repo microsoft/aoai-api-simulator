@@ -2,13 +2,13 @@ import importlib
 import json
 import logging
 import os
-
 import sys
 
+from aoai_api_simulator.generator.manager import get_default_generators
+from aoai_api_simulator.generator.model_catalogue import model_catalogue
 from aoai_api_simulator.limiters import get_default_limiters
 from aoai_api_simulator.models import Config, OpenAIDeployment
 from aoai_api_simulator.record_replay.handler import get_default_forwarders
-from aoai_api_simulator.generator.manager import get_default_generators
 
 
 def get_config_from_env_vars(logger: logging.Logger) -> Config:
@@ -52,11 +52,22 @@ def _load_openai_deployments(logger: logging.Logger) -> dict[str, OpenAIDeployme
         config_json = json.load(f)
     deployments = {}
     for deployment_name, deployment in config_json.items():
+        model_name = deployment["model"]
+
+        if model_name not in model_catalogue:
+            logger.error(
+                "Model %s from deployment %s not supported in the simulator."
+                + "Please raise an issue in the aoai_api_simulator repo.",
+                model_name,
+                deployment_name,
+            )
+
+        model = model_catalogue[model_name]
         deployments[deployment_name] = OpenAIDeployment(
             name=deployment_name,
-            model=deployment["model"],
+            model=model,
             tokens_per_minute=deployment["tokensPerMinute"],
-            embedding_size=deployment.get("embeddingSize", 1536),
+            embedding_size=int(deployment.get("embeddingSize", 1536)),
         )
     return deployments
 
@@ -95,7 +106,6 @@ def _default_openai_deployments() -> dict[str, OpenAIDeployment]:
 
 
 def load_extension(config: Config):
-
     extension_path = config.extension_path
     if not extension_path:
         return
