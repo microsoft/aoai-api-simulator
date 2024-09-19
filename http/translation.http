@@ -22,9 +22,3 @@ Content-Type: audio/mpeg
 < ./short-spanish.mp3
 -----7MA4YWxkTrZu0gW--
 
-###
-curl https://wthack2.openai.azure.com/openai/deployments/whisper-hack/audio/translations?api-version=2024-06-01  \
--H "api-key: 5d51515468a4432a95f1a121eb9a6d43"  \
--H "Content-Type: multipart/form-data"  \
--F file="@/workspaces/aoai-api-simulator/http/short-spanish.mp3" \
--F response_type="json"

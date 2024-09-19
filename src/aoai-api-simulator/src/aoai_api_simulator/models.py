@@ -66,6 +66,18 @@ class RequestContext:
         """
         return "multipart/form-data" in self.request.headers.get("Content-Type", "")
 
+    def is_openai_request(self):
+        """
+        Checks if the request is an OpenAI request
+        """
+        return self.request.url.path.startswith("/openai/")
+
+    def is_openai_target_service(self, target: str):
+        """
+        Checks if the request is an OpenAI request for a specific service
+        """
+        return target in self.request.url.path
+
 
 class RecordingConfig(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
