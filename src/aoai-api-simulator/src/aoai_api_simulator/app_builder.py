@@ -1,4 +1,5 @@
 import logging
+import re
 import traceback
 from typing import Annotated
 
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
+repeated_quotes = re.compile(r"//+")
 
 # pylint: disable-next=invalid-name
 record_replay_handler = None
@@ -50,6 +52,17 @@ def apply_config():
 
 def _default_validate_api_key_header(request: Request):
     validate_api_key_header(request=request, header_name="api-key", allowed_key_value=get_config().simulator_api_key)
+
+
+# This middleware replaces double slashes in paths with a single slash
+@app.middleware("http")
+async def fix_double_slash_urls(request: Request, call_next):
+    if repeated_quotes.search(request.url.path):
+        new_url = request.url.replace(path=repeated_quotes.sub("/", request.url.path))
+        request.scope["path"] = new_url.path
+
+    response = await call_next(request)
+    return response
 
 
 @app.get("/")
