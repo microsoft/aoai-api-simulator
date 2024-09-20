@@ -655,3 +655,33 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
     await calculate_latency(context, 200)
 
     return response
+
+
+def create_translation_response(
+    context: RequestContext, response_format: str, deployment_name: str, model_name: str, max_tokens: int
+):
+    """
+    Creates a Response object for a translation request and sets context values for the rate-limiter etc
+    """
+    text = generate_lorem_text(max_tokens=max_tokens, model_name=model_name)
+
+    content = text
+    completion_tokens = num_tokens_from_string(text, model_name)
+    if response_format == "json":
+        json_result = {"text": text}
+        content = json.dumps(json_result)
+
+    context.values[SIMULATOR_KEY_LIMITER] = "openai"
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = "translation"
+    context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
+    context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = 0
+    context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
+    context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = completion_tokens
+
+    return Response(
+        content=content,
+        headers={
+            "Content-Type": "application/json" if response_format == "json" else "text/plain",
+        },
+        status_code=200,
+    )
