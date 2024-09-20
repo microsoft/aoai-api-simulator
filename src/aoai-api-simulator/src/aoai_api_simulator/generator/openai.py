@@ -24,7 +24,7 @@ from aoai_api_simulator.generator.openai_tokens import (
     num_tokens_from_messages,
     num_tokens_from_string,
 )
-from aoai_api_simulator.models import OpenAIDeployment, OpenAIEmbeddingModel, RequestContext
+from aoai_api_simulator.models import OpenAIChatModel, OpenAIDeployment, OpenAIEmbeddingModel, RequestContext
 from fastapi import Response
 from fastapi.responses import StreamingResponse
 
@@ -44,7 +44,7 @@ default_openai_embedding_model = OpenAIDeployment(
 )
 
 
-def get_embedding_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
+def get_embedding_deployment_from_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
     """
     Gets the embedding model for the specified embedding deployment.
     If the deployment is not in the configured deployments,
@@ -91,7 +91,7 @@ def get_embedding_model_from_deployment_name(context: RequestContext, deployment
     return None
 
 
-def get_model_name_from_deployment_name(context: RequestContext, deployment_name: str) -> str | None:
+def get_chat_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIChatModel | None:
     """
     Gets the model name for the specified deployment.
     If the deployment is not in the configured deployments then either a default model is returned (if )
@@ -100,7 +100,7 @@ def get_model_name_from_deployment_name(context: RequestContext, deployment_name
     if deployments:
         deployment = deployments.get(deployment_name)
         if deployment:
-            return deployment.model.name
+            return deployment.model
 
     if context.config.allow_undefined_openai_deployments:
         default_model = "gpt-3.5-turbo-0613"
@@ -114,7 +114,7 @@ def get_model_name_from_deployment_name(context: RequestContext, deployment_name
                 default_model,
             )
             deployment_missing_warning_printed.add(deployment_name)
-        return default_model
+        return model_catalogue[default_model]
 
     # Output warning for missing deployment name (only the first time we encounter it)
     if deployment_name not in deployment_missing_warning_printed:
@@ -459,7 +459,7 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
     _validate_api_key_header(context)
     deployment_name = path_params["deployment"]
     request_body = await request.json()
-    deployment = get_embedding_model_from_deployment_name(context, deployment_name)
+    deployment = get_embedding_deployment_from_name(context, deployment_name)
 
     if deployment is None:
         return Response(
@@ -478,7 +478,8 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
                     "error": {
                         "code": "OperationNotSupported",
                         "message": f"The embeddings operation does not work with the specified model, {deployment_name}. "
-                        + "Please choose different model and try again.",
+                        + "Please choose different model and try again. "
+                        + "You can learn more about which models can be used with each operation here: https://go.microsoft.com/fwlink/?linkid=2197993.",
                     }
                 }
             ),
@@ -514,8 +515,8 @@ async def azure_openai_completion(context: RequestContext) -> Response | None:
     _validate_api_key_header(context)
 
     deployment_name = path_params["deployment"]
-    model_name = get_model_name_from_deployment_name(context, deployment_name)
-    if model_name is None:
+    model = get_chat_model_from_deployment_name(context, deployment_name)
+    if model is None:
         return Response(
             status_code=404,
             content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
@@ -523,10 +524,28 @@ async def azure_openai_completion(context: RequestContext) -> Response | None:
                 "Content-Type": "application/json",
             },
         )
-    request_body = await request.json()
-    prompt_tokens = num_tokens_from_string(request_body["prompt"], model_name)
 
-    requested_max_tokens, max_tokens = get_max_completion_tokens(request_body, model_name, prompt_tokens=prompt_tokens)
+    if not isinstance(model, OpenAIChatModel):
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "code": "OperationNotSupported",
+                        "message": f"The completions operation does not work with the specified model, {deployment_name}. "
+                        + "Please choose different model and try again. "
+                        + "You can learn more about which models can be used with each operation here: https://go.microsoft.com/fwlink/?linkid=2197993.",
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+    request_body = await request.json()
+    prompt_tokens = num_tokens_from_string(request_body["prompt"], model.name)
+
+    requested_max_tokens, max_tokens = get_max_completion_tokens(request_body, model.name, prompt_tokens=prompt_tokens)
 
     context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
     context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE] = max_tokens
@@ -534,7 +553,7 @@ async def azure_openai_completion(context: RequestContext) -> Response | None:
     response = create_completion_response(
         context=context,
         deployment_name=deployment_name,
-        model_name=model_name,
+        model_name=model.name,
         prompt_tokens=prompt_tokens,
         max_tokens=max_tokens,
     )
@@ -558,8 +577,8 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
 
     request_body = await request.json()
     deployment_name = path_params["deployment"]
-    model_name = get_model_name_from_deployment_name(context, deployment_name)
-    if model_name is None:
+    model = get_chat_model_from_deployment_name(context, deployment_name)
+    if model is None:
         return Response(
             status_code=404,
             content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
@@ -567,10 +586,28 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
                 "Content-Type": "application/json",
             },
         )
-    messages = request_body["messages"]
-    prompt_tokens = num_tokens_from_messages(messages, model_name)
+    if not isinstance(model, OpenAIChatModel):
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "code": "OperationNotSupported",
+                        "message": f"The chatCompletion operation does not work with the specified model, {deployment_name}. "
+                        + "Please choose different model and try again. "
+                        + "You can learn more about which models can be used with each operation here: https://go.microsoft.com/fwlink/?linkid=2197993.",
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
 
-    requested_max_tokens, max_tokens = get_max_completion_tokens(request_body, model_name, prompt_tokens=prompt_tokens)
+    messages = request_body["messages"]
+    prompt_tokens = num_tokens_from_messages(messages, model.name)
+
+    requested_max_tokens, max_tokens = get_max_completion_tokens(request_body, model.name, prompt_tokens=prompt_tokens)
 
     context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
     context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE] = max_tokens
@@ -580,7 +617,7 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
     response = create_lorem_chat_completion_response(
         context=context,
         deployment_name=deployment_name,
-        model_name=model_name,
+        model_name=model.name,
         streaming=streaming,
         max_tokens=max_tokens,
         prompt_messages=messages,
