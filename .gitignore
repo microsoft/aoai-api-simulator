@@ -170,7 +170,15 @@ cython_debug/
 azuredeploy.parameters.json
 infra/output.json
 __azurite_db_table__.json
+*.dtmp
+data.zip
+
+# Ignore Terraform files
+terraform.tfstate.backup
+tf.tfvars
+terraform.tfstate
+.terraform
 infra/.openai_deployment_config.json
 
-*.dtmp
-
+# Ignore os specific files
+.DS_Store
