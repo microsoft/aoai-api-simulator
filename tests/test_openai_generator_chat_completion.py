@@ -50,6 +50,11 @@ def _get_generator_config(extension_path: str | None = None) -> Config:
             embedding_size=1536,
             tokens_per_minute=10000,
         ),
+        "gpt-3.5-10m": OpenAIDeployment(
+            name="gpt-3.5-10m,",
+            model=model_catalogue["gpt-3.5-turbo"],
+            tokens_per_minute=10000000,
+        ),
     }
     config.extension_path = extension_path
     return config
@@ -173,7 +178,7 @@ async def test_max_tokens():
         # Make repeated requests to ensure that none exceed max_tokens
         for _ in range(1000):
             response = aoai_client.chat.completions.create(
-                model="deployment1", messages=messages, max_tokens=max_tokens
+                model="gpt-3.5-10m", messages=messages, max_tokens=max_tokens
             )
             assert response.usage.completion_tokens <= max_tokens
 
