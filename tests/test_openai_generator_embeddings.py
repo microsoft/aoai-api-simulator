@@ -20,6 +20,7 @@ from openai import AuthenticationError, AzureOpenAI, BadRequestError, NotFoundEr
 from .test_uvicorn_server import UvicornTestServer
 
 API_KEY = "123456789"
+ENDPOINT = "http://localhost:8001"
 
 
 def _get_generator_config(extension_path: str | None = None) -> Config:
@@ -78,7 +79,7 @@ async def test_requires_auth():
         aoai_client = AzureOpenAI(
             api_key="wrong_key",
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
         content = "This is some text to generate embeddings for"
@@ -101,7 +102,7 @@ async def test_success():
         aoai_client = AzureOpenAI(
             api_key=API_KEY,
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
 
@@ -133,7 +134,7 @@ async def test_limit_reached():
         aoai_client = AzureOpenAI(
             api_key=API_KEY,
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
         messages = [{"role": "user", "content": "What is the meaning of life?"}]
@@ -169,7 +170,7 @@ async def test_requires_known_deployment_when_config_set():
         aoai_client = AzureOpenAI(
             api_key=API_KEY,
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
         content = "This is some text to generate embeddings for"
@@ -193,7 +194,7 @@ async def test_allows_unknown_deployment_when_config_not_set():
         aoai_client = AzureOpenAI(
             api_key=API_KEY,
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
         content = "This is some text to generate embeddings for"
@@ -214,7 +215,7 @@ async def test_pass_in_dimension_param_for_supported_model():
         aoai_client = AzureOpenAI(
             api_key=API_KEY,
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
         content = "This is some text to generate embeddings for"
@@ -235,7 +236,7 @@ async def test_pass_in_dimension_param_for_unsupported_model_ignored():
         aoai_client = AzureOpenAI(
             api_key=API_KEY,
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
         content = "This is some text to generate embeddings for"
@@ -252,25 +253,25 @@ async def test_pass_in_dimension_param_for_unsupported_model_ignored():
 @pytest.mark.asyncio
 async def test_using_unsupported_model_for_embeddings_returns_400():
     """
-    Test that passing in dimension parameter to embeddings generation
-    fails when the model does not support overriding embedding size
+    Test that passing in an unsupported model name to embeddings generation
+    fails with 400 Bad Request
     """
     config = _get_generator_config()
+    config.allow_undefined_openai_deployments = False
     server = UvicornTestServer(config)
     with server.run_in_thread():
         aoai_client = AzureOpenAI(
             api_key=API_KEY,
             api_version="2023-12-01-preview",
-            azure_endpoint="http://localhost:8001",
+            azure_endpoint=ENDPOINT,
             max_retries=0,
         )
         content = "This is some text to generate embeddings for"
-        # deployment1 will ignore the dimensions parameter
         with pytest.raises(BadRequestError) as e:
             aoai_client.embeddings.create(model="low_limit", input=content, dimensions=10)
 
         assert e.value.status_code == 400
         assert (
             e.value.message
-            == "Error code: 400 - {'error': {'code': 'OperationNotSupported', 'message': 'The embeddings operation does not work with the specified model, low_limit. Please choose different model and try again.'}}"
+            == "Error code: 400 - {'error': {'code': 'OperationNotSupported', 'message': 'The embeddings operation does not work with the specified model, low_limit. Please choose different model and try again. You can learn more about which models can be used with each operation here: https://go.microsoft.com/fwlink/?linkid=2197993.'}}"
         )
