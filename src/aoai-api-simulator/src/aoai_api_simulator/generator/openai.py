@@ -641,7 +641,7 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
     _validate_api_key_header(context)
 
     deployment_name = path_params["deployment"]
-    model_name = get_model_name_from_deployment_name(context, deployment_name)
+    model_name = get_chat_model_from_deployment_name(context, deployment_name)
     if model_name is None:
         return Response(
             status_code=404,
