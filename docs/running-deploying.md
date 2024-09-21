@@ -28,13 +28,26 @@ make install-requirements
 
 ## Running the Simulator Locally
 
-Before running the Azure OpenAI API Simulator you should ensure that you have set up your local config. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this.
+1. Before running the Azure OpenAI API Simulator you should ensure that you have set up your local config. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this.
 
-To run the simulated API, use the following command from the repository root directory:
+    The minimum set of environment variables you'll need in your `.env` file to run the simulator locally are as follows:
 
-```console
-make run-simulated-api
-```
+    ```dotenv
+    SIMULATOR_API_KEY=my-test-key
+    TEST_OPENAI_ENDPOINT=http://localhost:8000/
+    TEST_OPENAI_KEY=my-test-key
+    TEST_OPENAI_DEPLOYMENT=gpt-3.5-turbo-0613
+    ```  
+
+2. Start the simulator by running the following command in your terminal from the repository root directory:
+  
+    ```console
+    make run-simulated-api
+    ```
+
+    Kill the process and run the command again to restart the simulator whenever you make changes to the config.
+3. Now open the [http/chat-completions.http](../http/chat-completions.http) file, and send the first POST request. If you are using the rest-client extension, you may have to set the environment to `test`. Use the `>p rest client: switch environment` command in VS Code to do so.
+4. You should receive an http `200` response with some generated completions. Check the terminal for any warnings or errors.  
 
 ## Changing the Simulator Mode
 

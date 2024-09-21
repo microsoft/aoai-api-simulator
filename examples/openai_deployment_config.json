@@ -46,31 +46,31 @@
 	"text-embedding-3-small": {
         "model": "text-embedding-3-small",
 		"tokensPerMinute" : 10000,
-        "embeddingSize": "512"
+        "embeddingSize": 512
     },
     "text-embedding-3-medium": {
         "model": "text-embedding-3-medium",
 		"tokensPerMinute" : 10000,
-        "embeddingSize": "768"
+        "embeddingSize": 768
     },
     "text-embedding-3-large": {
         "model": "text-embedding-3-large",
 		"tokensPerMinute" : 10000,
-        "embeddingSize": "1024"
+        "embeddingSize": 1024
     },
     "text-embedding-3-xlarge": {
         "model": "text-embedding-3-xlarge",
 		"tokensPerMinute" : 10000,
-        "embeddingSize": "1536"
+        "embeddingSize": 1536
     },
     "text-embedding-ada-001": {
         "model": "text-embedding-ada-001",
 		"tokensPerMinute" : 10000,
-        "embeddingSize": "768"
+        "embeddingSize": 768
     },
     "text-embedding-ada-002": {
         "model": "text-embedding-ada-002",
 		"tokensPerMinute" : 10000,
-        "embeddingSize": "1536"
+        "embeddingSize": 1536
     }
 }
