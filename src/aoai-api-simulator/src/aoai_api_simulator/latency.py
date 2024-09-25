@@ -3,7 +3,7 @@ import time
 from fastapi import Response
 
 from aoai_api_simulator import constants
-from aoai_api_simulator.metrics import simulator_metrics
+from aoai_api_simulator.telemetry import simulator_metrics
 from aoai_api_simulator.models import RequestContext
 
 

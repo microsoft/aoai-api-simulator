@@ -17,6 +17,7 @@ WARNING: This is a work in progress!
   - [How to Get Started with the Azure OpenAI API Simulator](#how-to-get-started-with-the-azure-openai-api-simulator)
     - [Running and Deploying the Azure OpenAI API Simulator](#running-and-deploying-the-azure-openai-api-simulator)
     - [Configuring the Azure OpenAI API Simulator](#configuring-the-azure-openai-api-simulator)
+    - [Monitoring the Azure OpenAI API Simulator](#monitoring-the-azure-openai-api-simulator)
     - [Extending the Azure OpenAI API Simulator](#extending-the-azure-openai-api-simulator)
     - [Contributing to the Azure OpenAI API Simulator](#contributing-to-the-azure-openai-api-simulator)
   - [Changelog](#changelog)
@@ -90,6 +91,12 @@ The document [Running and Deploying the Azure OpenAI API Simulator](./docs/runni
 ### Configuring the Azure OpenAI API Simulator
 
 The behaviour of the Azure OpenAI API Simulator is controlled via a range of [Azure OpenAI API Simulator Configuration Options](./docs/config.md).
+
+### Monitoring the Azure OpenAI API Simulator
+
+The Azure OpenAI API Simulator is instrumented using OpenTelemetry and supports exporting telemetry to Azure Monitor or an OTLP endpoint.
+
+See the [telemetry documentation](./docs/telemetry.md) on how to configure the application to export telemetry and the types of metrics captured.
 
 ### Extending the Azure OpenAI API Simulator
 
