@@ -1,0 +1,159 @@
+
+@aoai_endpoint={{$dotenv %endpoint_env_var}}
+@aoai_key={{$dotenv %key_env_var}}
+@aoai_deployment={{$dotenv %deployment_env_var}}
+
+
+################################################################
+#
+# Chat Completions
+# https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2024-02-15-preview
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "messages": [{
+    "role": "user",
+    "content": "Is this thing on?"
+    }],
+  "model": "gpt-5-turbo-1",
+  "max_tokens": 20
+}
+
+###
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2024-02-15-preview
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "messages": [{
+    "role": "user",
+    "content": "What is the meaning of life?"
+    }],
+  "model": "gpt-5-turbo-1",
+  "max_tokens": 2000
+}
+
+
+###
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2023-12-01-preview
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+	"messages": [
+		{
+			"role": "user",
+			"content": "Lorem ipsum dolor sit amet?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Ut enim ad minim veniam?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Lorem ipsum dolor sit amet?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Ut enim ad minim veniam?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Lorem ipsum dolor sit amet?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Ut enim ad minim veniam?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Lorem ipsum dolor sit amet?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Ut enim ad minim veniam?"
+		},
+		{
+			"role": "assistant",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+		},
+		{
+			"role": "user",
+			"content": "Duis aute irure dolor in reprehenderit?"
+		}
+	],
+	"model": "gpt-5-turbo-1"
+}
+
+
+###
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2023-12-01-preview
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "messages": [{
+    "role": "user",
+    "content": "What is the meaning of life?"
+    }, {
+      "role": "assistant",
+      "content": "blank"
+    }, {
+      "role": "user",
+      "content": "What is the meaning of life?"
+    }],
+  "model": "gpt-5-turbo-1"
+}
+
+###
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2023-12-01-preview
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "messages": [
+    {"role": "user", "content": "What is the furthest human-made object from Earth?"},
+    {"role": "assistant", "content": "As an AI language model, I don't have the latest information on this. However, as of August 2021, the furthest human-made object from Earth is the Voyager 1 spacecraft. It was launched in 1977 and is currently over 14 billion miles away from Earth and is still transmitting data."},
+
+    {"role": "user", "content": "How fast is it travelling?"},
+    {"role": "assistant", "content": "As of August 2021, Voyager 1 is traveling at a speed of about 17.7 km/s (62,136 km/h or 38,614 miles per hour). This is about 0.006% of the speed of light, which means it would take over 17,000 years to travel one light-year."},
+
+    {"role": "user", "content": "How much does it weigh?"}
+  ],
+  "model": "gpt-5-turbo-1"
+}
+
+###

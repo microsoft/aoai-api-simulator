@@ -3,6 +3,7 @@
 - [Configuring the Azure OpenAI API Simulator](#configuring-the-azure-openai-api-simulator)
   - [Environment Variables](#environment-variables)
     - [Setting Environment Variables via the `.env` File](#setting-environment-variables-via-the-env-file)
+  - [Configuring Endpoints](#configuring-endpoints)
   - [Configuring Latency](#configuring-latency)
   - [Configuring Rate Limiting](#configuring-rate-limiting)
   - [Open Telemetry Configuration](#open-telemetry-configuration)
@@ -27,6 +28,7 @@ When running the Azure OpenAI API Simulator, there are a number of environment v
 | `AZURE_OPENAI_KEY`              | The API key for the Azure OpenAI service. Used by the simulator when forwarding requests                                                                                                           |
 | `AZURE_OPENAI_DEPLOYMENT`       | The deployment name for your GPT model. Used by the simulator when forwarding requests.                                                  |
 | `AZURE_OPENAI_EMBEDDING_DEPLOYMENT`       | The deployment name for your embedding model. Used by the simulator when forwarding requests.                                                  |
+| `AZURE_OPENAI_IMAGE_DEPLOYMENT`       | The deployment name for your image generation model. Used by the simulator when forwarding requests.                                                  |
 | `LOG_LEVEL`                     | The log level for the simulator. Defaults to `INFO`.                                                                                                                              |
 | `LATENCY_OPENAI_*`              | The latency to add to the OpenAI service when using generated output. See [Latency](#configuring-latency) for more details.                                                                   |
 | `RECORDING_AUTOSAVE`            | If set to `True` (default), the simulator will save the recording after each request (see [Large Recordings](./running-deploying.md#managing-large-recordings)).                                                 |
@@ -39,7 +41,8 @@ There are also a set of environment variables that the test clients and tests wi
 | `TEST_OPENAI_ENDPOINT` | **Used by test client code only**. Defines the OpenAI-like endpoint that the test client will call. Most likely set to the location of your similator deployment.|
 | `TEST_OPENAI_KEY` | **Used by test client code. only**. Defines the key that will be set to the `TEST_OPENAI_ENDPOINT` when making requests. Most likely set to the value of `SIMULATOR_API_KEY`.|
 | `TEST_OPENAI_DEPLOYMENT` | **Used by test client code only**. Defines the GPT model deployment that the test client will request.|
-| `TEST_OPENAI_EMBEDDING_DEPLOYMENT` | **Used by test client code only**. Defines the embeddking model deployment that the test client will request.|
+| `TEST_OPENAI_EMBEDDING_DEPLOYMENT` | **Used by test client code only**. Defines the embedding model deployment that the test client will request.|
+| `TEST_OPENAI_IMAGE_DEPLOYMENT`       | **Used by test client code only**. Defines the image generation model deployment that the test client will request.|
 
 ### Setting Environment Variables via the `.env` File
 
@@ -52,6 +55,10 @@ The file `sample.env` lives in the root of this repository, and provides a start
 The `.http` files for testing the endpoints also use the `.env` file to set the environment variables for calling the API.
 
 > Note: when running the simulator it will auto-generate an API Key. This needs to be passed to the API when making requests. To avoid the API Key changing each time the simulator is run, set the `SIMULATOR_API_KEY` environment variable to a fixed value.
+
+## Configuring Endpoints
+
+There are a number of environment variables that specify API endpoints. Each of these environment variables is named ending `_ENDPOINT`. For all such environment variables the format is `scheme://fqdn` or `scheme://fqdn:port`. e.g. `http://localhost:5000` or `https://example.openai.azure.com`. You should **not** include a trailing forward slash in the value of the environment variable.
 
 ## Configuring Latency
 
