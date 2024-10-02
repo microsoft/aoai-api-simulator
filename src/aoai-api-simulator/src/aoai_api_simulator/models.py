@@ -7,9 +7,19 @@ import nanoid
 # from aoai_api_simulator.pipeline import RequestContext
 from fastapi import Request, Response
 from pydantic import Field, field_validator
+from pydantic.functional_validators import AfterValidator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from requests import Response as requests_Response
 from starlette.routing import Match, Route
+
+
+def validate_endpoint_format(url: str) -> str:
+    if url.endswith("/"):
+        url = url[:-1]
+    return url
+
+
+ValidatedUrl = Annotated[str, AfterValidator(validate_endpoint_format)]
 
 
 class RequestContext:
@@ -67,7 +77,8 @@ class RecordingConfig(BaseSettings):
     dir: str = Field(default=".recording", alias="RECORDING_DIR")
     autosave: bool = Field(default=True, alias="RECORDING_AUTOSAVE")
     aoai_api_key: str | None = Field(default=None, alias="AZURE_OPENAI_KEY")
-    aoai_api_endpoint: str | None = Field(default=None, alias="AZURE_OPENAI_ENDPOINT")
+    aoai_api_endpoint: ValidatedUrl | None = Field(default=None, alias="AZURE_OPENAI_ENDPOINT")
+
     forwarders: (
         list[
             Callable[
