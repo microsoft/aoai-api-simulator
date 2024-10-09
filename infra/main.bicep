@@ -170,7 +170,7 @@ resource azureOpenAIKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
 }
 resource appInsightsConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: vault
-  name: 'app-insights-connection-string'
+  name: 'applicationinsights-connection-string'
   properties: {
     value: appInsights.properties.ConnectionString
   }
@@ -208,8 +208,8 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
           identity: managedIdentity.id
         }
         {
-          name: 'app-insights-connection-string'
-          keyVaultUrl: '${keyVaultUri}secrets/app-insights-connection-string'
+          name: 'applicationinsights-connection-string'
+          keyVaultUrl: '${keyVaultUri}secrets/applicationinsights-connection-string'
           identity: managedIdentity.id
         }
         {
@@ -243,7 +243,7 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
             { name: 'AZURE_OPENAI_KEY', secretRef: 'azure-openai-key' }
             { name: 'OPENAI_DEPLOYMENT_CONFIG_PATH', value: '/mnt/deployment-config/simulator_deployment_config.json' }
             { name: 'LOG_LEVEL', value: logLevel }
-            { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'app-insights-connection-string' }
+            { name: 'APPLICATIONINSIGHTS_CONNECTION_STRING', secretRef: 'applicationinsights-connection-string' }
             // Ensure cloudRoleName is set in telemetry
             // https://opentelemetry-python.readthedocs.io/en/latest/sdk/environment_variables.html#opentelemetry.sdk.environment_variables.OTEL_SERVICE_NAME
             { name: 'OTEL_SERVICE_NAME', value: apiSimulatorName }
