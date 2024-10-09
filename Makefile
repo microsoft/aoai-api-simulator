@@ -34,10 +34,10 @@ deploy-aca-terraform: ## Run deployment script for Azure Container Apps
 	./scripts/deploy-aca-terraform.sh
 
 test: ## Run PyTest (verbose)
-	pytest ./tests -v
+	pytest ./tests -vv
 
 test-not-slow: ## Run PyTest (verbose, skip slow tests)
-	pytest ./tests -v -m "not slow"
+	pytest ./tests -vv -m "not slow"
 
 test-watch: ## Start PyTest Watch
 	ptw --clear ./tests
