@@ -15,4 +15,5 @@ if [[ -n "$GITHUB_BASE_REF" ]]; then
 fi
 
 echo "Running linter..."
-pylint "$script_dir/../src/aoai-api-simulator/"  --exit-zero
+echo "# Linter result" >> $GITHUB_STEP_SUMMARY
+pylint "$script_dir/../src/aoai-api-simulator/"  --exit-zero >> $GITHUB_STEP_SUMMARY

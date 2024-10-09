@@ -477,9 +477,11 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
                 {
                     "error": {
                         "code": "OperationNotSupported",
-                        "message": f"The embeddings operation does not work with the specified model, {deployment_name}. "
-                        + "Please choose different model and try again. "
-                        + "You can learn more about which models can be used with each operation here: https://go.microsoft.com/fwlink/?linkid=2197993.",
+                        "message": "The embeddings operation does not work with the specified model, "
+                        + deployment_name
+                        + ". Please choose different model and try again. "
+                        + "You can learn more about which models can be used with each operation here: "
+                        + "https://go.microsoft.com/fwlink/?linkid=2197993.",
                     }
                 }
             ),
@@ -532,9 +534,11 @@ async def azure_openai_completion(context: RequestContext) -> Response | None:
                 {
                     "error": {
                         "code": "OperationNotSupported",
-                        "message": f"The completions operation does not work with the specified model, {deployment_name}. "
-                        + "Please choose different model and try again. "
-                        + "You can learn more about which models can be used with each operation here: https://go.microsoft.com/fwlink/?linkid=2197993.",
+                        "message": "The completions operation does not work with the specified model, "
+                        + deployment_name
+                        + ". Please choose different model and try again. "
+                        + "You can learn more about which models can be used with each operation here: "
+                        + "https://go.microsoft.com/fwlink/?linkid=2197993.",
                     }
                 }
             ),
@@ -593,9 +597,11 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
                 {
                     "error": {
                         "code": "OperationNotSupported",
-                        "message": f"The chatCompletion operation does not work with the specified model, {deployment_name}. "
-                        + "Please choose different model and try again. "
-                        + "You can learn more about which models can be used with each operation here: https://go.microsoft.com/fwlink/?linkid=2197993.",
+                        "message": "The chatCompletion operation does not work with the specified model, "
+                        + deployment_name
+                        + ". Please choose different model and try again. "
+                        + "You can learn more about which models can be used with each operation here: "
+                        + "https://go.microsoft.com/fwlink/?linkid=2197993.",
                     }
                 }
             ),
