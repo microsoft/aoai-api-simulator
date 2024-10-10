@@ -27,12 +27,15 @@ run-simulated-api: ## Launch the AOAI Simulated API locally
 		--bind 0.0.0.0:8000 \
 		--timeout 3600
 
-deploy-aca: ## Run deployment script for Azure Container Apps
-	./scripts/deploy-aca.sh
+deploy-aca-bicep: ## Run deployment script for Azure Container Apps
+	./scripts/deploy-aca-bicep.sh
+
+deploy-aca-terraform: ## Run deployment script for Azure Container Apps
+	./scripts/deploy-aca-terraform.sh
 
 test: ## Run PyTest (verbose)
 	pytest ./tests -vv
-	
+
 test-not-slow: ## Run PyTest (verbose, skip slow tests)
 	pytest ./tests -vv -m "not slow"
 
@@ -49,7 +52,7 @@ run-test-client: ## Run the test client
 	cd tools/test-client && \
 	python app.py
 
-run-test-client-simulator-local: ## Run the test client against local AOAI Simulated API 
+run-test-client-simulator-local: ## Run the test client against local AOAI Simulated API
 	cd tools/test-client && \
 	TEST_OPENAI_KEY=${SIMULATOR_API_KEY} \
 	TEST_OPENAI_ENDPOINT=http://localhost:8000 \
