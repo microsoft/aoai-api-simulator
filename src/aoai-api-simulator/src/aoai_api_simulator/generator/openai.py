@@ -634,3 +634,97 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
     await calculate_latency(context, 200)
 
     return response
+
+
+async def azure_openai_translation(context: RequestContext) -> Response | None:
+    request = context.request
+    is_match, path_params = context.is_route_match(
+        request=request, path="/openai/deployments/{deployment}/audio/translations", methods=["POST"]
+    )
+    if not is_match:
+        return None
+
+    _validate_api_key_header(context)
+
+    deployment_name = path_params["deployment"]
+    model_name = get_chat_model_from_deployment_name(context, deployment_name)
+    if model_name is None:
+        return Response(
+            status_code=404,
+            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+    request_form = await request.form()
+    audio_file = request_form["file"]
+    response_format = request_form["response_format"]
+
+    file_size = len(audio_file.file.read())
+
+    if file_size == 0 or file_size > 26214400:
+        return Response(
+            status_code=413,
+            content=json.dumps(
+                {
+                    "error": {
+                        "message": f"Maximum content size limit (26214400) exceeded ({file_size} bytes read)",
+                        "type": "server_error",
+                        "param": "null",
+                        "code": "null",
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+    max_tokens = 200
+
+    # context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
+    context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE] = max_tokens
+
+    response = create_translation_response(
+        context=context,
+        response_format=response_format,
+        deployment_name=deployment_name,
+        model_name=model_name,
+        max_tokens=max_tokens,
+    )
+
+    # calculate a simulated latency and store in context.values
+    # needs to be called after the response has been created
+    await calculate_latency(context, 200)
+
+    return response
+
+
+def create_translation_response(
+    context: RequestContext, response_format: str, deployment_name: str, model_name: str, max_tokens: int
+):
+    """
+    Creates a Response object for a translation request and sets context values for the rate-limiter etc
+    """
+    text = generate_lorem_text(max_tokens=max_tokens, model_name=model_name)
+
+    content = text
+    completion_tokens = num_tokens_from_string(text, model_name)
+    if response_format == "json":
+        json_result = {"text": text}
+        content = json.dumps(json_result)
+
+    context.values[SIMULATOR_KEY_LIMITER] = "openai"
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = "translation"
+    context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
+    context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = 0
+    context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
+    context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = completion_tokens
+
+    return Response(
+        content=content,
+        headers={
+            "Content-Type": "application/json" if response_format == "json" else "text/plain",
+        },
+        status_code=200,
+    )

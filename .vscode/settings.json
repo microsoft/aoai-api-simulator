@@ -14,19 +14,22 @@
 	"python.testing.unittestEnabled": false,
 	"python.testing.pytestEnabled": true,
     "rest-client.environmentVariables": {
-        "test": {
+
+       "test": {
             "endpoint_env_var": "TEST_OPENAI_ENDPOINT",
             "key_env_var": "TEST_OPENAI_KEY",
             "deployment_env_var": "TEST_OPENAI_DEPLOYMENT",
             "embedding_deployment_env_var": "TEST_OPENAI_EMBEDDING_DEPLOYMENT",
-            "image_deployment_env_var": "TEST_OPENAI_IMAGE_DEPLOYMENT"
+            "image_deployment_env_var": "TEST_OPENAI_IMAGE_DEPLOYMENT",
+            "whisper_deploy_env_var": "TEST_WHISPER_DEPLOYMENT"
         },
         "azure": {
             "endpoint_env_var": "AZURE_OPENAI_ENDPOINT",
             "key_env_var": "AZURE_OPENAI_KEY",
             "deployment_env_var": "AZURE_OPENAI_DEPLOYMENT",
             "embedding_deployment_env_var": "AZURE_OPENAI_EMBEDDING_DEPLOYMENT",
-            "image_deployment_env_var": "AZURE_OPENAI_IMAGE_DEPLOYMENT"
+            "image_deployment_env_var": "AZURE_OPENAI_IMAGE_DEPLOYMENT",
+            "whisper_deploy_env_var": "AZURE_WHISPER_DEPLOYMENT"
         }
     }
 }

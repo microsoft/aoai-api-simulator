@@ -1,5 +1,6 @@
 import logging
 from typing import Tuple
+
 import tiktoken
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,6 @@ def num_tokens_from_string(string: str, model: str) -> int:
     return num_tokens
 
 
-
 def num_tokens_from_messages(messages, model):
     """Return the number of tokens used by a list of messages."""
     # pylint: disable-next=global-statement
@@ -74,10 +74,10 @@ def num_tokens_from_messages(messages, model):
         )
         return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613")
     elif "gpt-4" in model:
-        _warn_once(
-            model, "Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-0613."
-        )
+        _warn_once(model, "Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-0613.")
         return num_tokens_from_messages(messages, model="gpt-4-0613")
+    elif "whisper" in model:
+        return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301")
     else:
         raise NotImplementedError(
             f"num_tokens_from_messages() is not implemented for model {model}. "

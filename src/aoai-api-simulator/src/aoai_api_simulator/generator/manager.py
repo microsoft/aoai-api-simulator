@@ -5,7 +5,12 @@ from typing import Awaitable, Callable
 from aoai_api_simulator.models import RequestContext
 from fastapi import HTTPException, Response
 
-from .openai import azure_openai_chat_completion, azure_openai_completion, azure_openai_embedding
+from .openai import (
+    azure_openai_chat_completion,
+    azure_openai_completion,
+    azure_openai_embedding,
+    azure_openai_translation,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +20,7 @@ def get_default_generators() -> list[Callable[[RequestContext], Response | Await
         azure_openai_embedding,
         azure_openai_completion,
         azure_openai_chat_completion,
+        azure_openai_translation,
     ]
 
 

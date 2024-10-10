@@ -164,7 +164,8 @@ async def catchall(request: Request):
                 return Response(status_code=500)
 
             # Apply limits here so that that they apply to record/replay as well as generate
-            if response.status_code < 300:
+            # Limits are not applied if the request uses form data (e.g. whisper translation)
+            if response.status_code < 300 and not context.is_form_data():
                 response = await apply_limits(context, response)
 
             # pass the response to the latency generator
