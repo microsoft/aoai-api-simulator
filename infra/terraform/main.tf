@@ -119,7 +119,7 @@ resource "azurerm_application_insights" "app_insights" {
 }
 
 resource "azurerm_user_assigned_identity" "identity" {
-  name                = "${var.resource_group_name}-identity"
+  name                = "${local.root_name}-identity"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
@@ -183,7 +183,7 @@ resource "azurerm_container_app_environment_storage" "storage" {
 }
 
 resource "azurerm_container_app" "container_app" {
-  name                         = "${var.resource_group_name}-app"
+  name                         = "${local.root_name}-app"
   resource_group_name          = azurerm_resource_group.rg.name
   container_app_environment_id = azurerm_container_app_environment.aca_env.id
   revision_mode                = "Single"
