@@ -42,7 +42,7 @@ image_tag=${SIMULATOR_IMAGE_TAG:-latest}
 
 user_id=$(az ad signed-in-user show --output tsv --query id)
 
-RESOURCE_GROUP_NAME="aoaisim"
+RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-aoaisim}
 
 cat << EOF > "$script_dir/azuredeploy.parameters.json"
 {

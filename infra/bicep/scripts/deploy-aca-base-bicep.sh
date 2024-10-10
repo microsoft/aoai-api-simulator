@@ -18,7 +18,7 @@ if [[ ${#LOCATION} -eq 0 ]]; then
   exit 6
 fi
 
-RESOURCE_GROUP_NAME="aoaisim"
+RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-aoaisim}
 
 echo "creating RG ($RESOURCE_GROUP_NAME, location $LOCATION)"
 az group create --name "$RESOURCE_GROUP_NAME" --location "$LOCATION"
