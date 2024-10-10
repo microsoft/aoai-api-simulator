@@ -316,6 +316,6 @@ resource "null_resource" "docker" {
     EOT
   }
   triggers = {
-    src_hash = "${data.archive_file.init.output_sha}"
+    src_hash = "${data.archive_file.init.output_sha}|${azurerm_container_registry.acr.id}"
   }
 }
