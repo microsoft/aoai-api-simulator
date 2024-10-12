@@ -59,7 +59,7 @@ async def test_success():
             max_retries=0,
         )
 
-        file = open("/workspaces/aoai-api-simulator/tests/audio/In-demo-1min-Vietnamese-UN-Speech.mp3", "rb")
+        file = open("/workspaces/aoai-api-simulator/tests/audio/short-white-noise.mp3", "rb")
         response = aoai_client.audio.translations.create(model="whisper", file=file, response_format="json")
 
         file.close()
@@ -81,7 +81,7 @@ async def test_when_response_format_is_text_returns_text():
             max_retries=0,
         )
 
-        file = open("/workspaces/aoai-api-simulator/tests/audio/In-demo-1min-Vietnamese-UN-Speech.mp3", "rb")
+        file = open("/workspaces/aoai-api-simulator/tests/audio/short-white-noise.mp3", "rb")
         response = aoai_client.audio.translations.create(model="whisper", file=file, response_format="text")
 
         file.close()
@@ -95,7 +95,7 @@ async def test_returns_413_when_file_too_large():
     """
     Ensure we get a 413
     """
-    file_to_test = "/workspaces/aoai-api-simulator/tests/audio/over-large-audio-file.mp3"
+    file_to_test = "/workspaces/aoai-api-simulator/tests/audio/over-large-audio-file-white-noise.mp3"
     config = _get_generator_config()
     server = UvicornTestServer(config)
     with server.run_in_thread():
