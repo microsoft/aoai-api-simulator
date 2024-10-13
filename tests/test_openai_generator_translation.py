@@ -37,9 +37,7 @@ def _get_generator_config(extension_path: str | None = None) -> Config:
             LATENCY_OPENAI_EMBEDDINGS_STD_DEV=0.1,
         ),
     )
-    config.openai_deployments = {
-        "whisper": OpenAIDeployment(name="whisper", model="whisper-1", tokens_per_minute=64 * 6)
-    }
+    config.openai_deployments = {"whisper": OpenAIDeployment(name="whisper", model="whisper", tokens_per_minute=64 * 6)}
     config.extension_path = extension_path
     return config
 

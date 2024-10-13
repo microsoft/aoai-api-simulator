@@ -193,11 +193,17 @@ class OpenAIEmbeddingModel(OpenAIModel):
 
 
 @dataclass
+class OpenAIWhisperModel(OpenAIModel):
+    name: str
+
+
+@dataclass
 class OpenAIDeployment:
     name: str
     model: OpenAIModel
     tokens_per_minute: int = 0
     embedding_size: int = 0
+    request_per_minute: int = 0
 
 
 # re-using Starlette's Route class to define a route

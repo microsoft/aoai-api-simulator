@@ -125,6 +125,40 @@ def get_chat_model_from_deployment_name(context: RequestContext, deployment_name
     return None
 
 
+def get_whisper_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
+    """
+    Gets the model name for the specified deployment.
+    If the deployment is not in the configured deployments then either a default model is returned (if )
+    """
+    deployments = context.config.openai_deployments
+    if deployments:
+        deployment = deployments.get(deployment_name)
+        if deployment:
+            return deployment
+
+    if context.config.allow_undefined_openai_deployments:
+        default_model = "whisper"
+
+        # Output warning for missing deployment name (only the first time we encounter it)
+        if deployment_name not in deployment_missing_warning_printed:
+            logger.warning(
+                "Deployment %s not found in config and allow_undefined_openai_deployments is True."
+                + " Using default model %s",
+                deployment_name,
+                default_model,
+            )
+            deployment_missing_warning_printed.add(deployment_name)
+        return model_catalogue[default_model]
+
+    # Output warning for missing deployment name (only the first time we encounter it)
+    if deployment_name not in deployment_missing_warning_printed:
+        logger.warning(
+            "Deployment %s not found in config and allow_undefined_openai_deployments is False", deployment_name
+        )
+        deployment_missing_warning_printed.add(deployment_name)
+    return None
+
+
 async def calculate_latency(context: RequestContext, status_code: int):
     """Calculate additional latency that should be applied"""
     if status_code >= 300:
@@ -647,8 +681,8 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
     _validate_api_key_header(context)
 
     deployment_name = path_params["deployment"]
-    model_name = get_chat_model_from_deployment_name(context, deployment_name)
-    if model_name is None:
+    model = get_whisper_model_from_deployment_name(context, deployment_name)
+    if model is None:
         return Response(
             status_code=404,
             content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
@@ -680,7 +714,7 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
             },
         )
 
-    max_tokens = 200
+    max_tokens = 10 if file_size < 1000 else (file_size // 1000) * 10
 
     # context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED] = requested_max_tokens
     context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE] = max_tokens
@@ -689,7 +723,7 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
         context=context,
         response_format=response_format,
         deployment_name=deployment_name,
-        model_name=model_name,
+        model_name=model.name,
         max_tokens=max_tokens,
     )
 
@@ -717,8 +751,6 @@ def create_translation_response(
     context.values[SIMULATOR_KEY_LIMITER] = "openai"
     context.values[SIMULATOR_KEY_OPERATION_NAME] = "translation"
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
-    context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = 0
-    context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
     context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = completion_tokens
 
     return Response(
