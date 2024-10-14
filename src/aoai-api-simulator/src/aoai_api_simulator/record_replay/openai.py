@@ -1,15 +1,15 @@
 import json
 import logging
-import requests
 
-from aoai_api_simulator.models import RequestContext
+import requests
 from aoai_api_simulator.constants import (
     SIMULATOR_KEY_DEPLOYMENT_NAME,
-    SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
-    SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
-    SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
     SIMULATOR_KEY_LIMITER,
+    SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
+    SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
+    SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
 )
+from aoai_api_simulator.models import RequestContext
 
 # This file contains a default openai forwarder
 # You can configure your own forwarders by creating a forwarder_config.py file and setting the
@@ -85,7 +85,7 @@ def _get_token_usage_from_response(body: str) -> int | None:
     return None
 
 
-async def forward_to_azure_openai(context: RequestContext) -> dict:
+async def default_openai_forwarder(context: RequestContext) -> dict:
     request = context.request
     if not request.url.path.startswith("/openai/"):
         # assume not an OpenAI request
@@ -95,13 +95,7 @@ async def forward_to_azure_openai(context: RequestContext) -> dict:
         # Only initialize once, and only if we need to
         _validate_endpoint_config(context)
 
-    aoai_api_endpoint = context.config.recording.aoai_api_endpoint
-    aoai_api_key = context.config.recording.aoai_api_key
-
-    if aoai_api_key is None or aoai_api_endpoint is None:
-        return None
-
-    url = aoai_api_endpoint
+    url = context.config.recording.aoai_api_endpoint
     if url.endswith("/"):
         url = url[:-1]
     url += request.url.path + "?" + request.url.query
@@ -110,7 +104,60 @@ async def forward_to_azure_openai(context: RequestContext) -> dict:
     fwd_headers = {
         k: v for k, v in request.headers.items() if k.lower() not in ["content-length", "host", "authorization"]
     }
-    fwd_headers["api-key"] = aoai_api_key
+    fwd_headers["api-key"] = context.config.recording.aoai_api_key
+
+    body = await request.body()
+
+    response = requests.request(
+        request.method,
+        url,
+        headers=fwd_headers,
+        data=body,
+        timeout=30,
+    )
+
+    for header in aoai_response_headers_to_remove:
+        if response.headers.get(header):
+            del response.headers[header]
+
+    if response.status_code >= 300:
+        # Likely an error or rate-limit
+        # no further processing - indicate not to persist this response
+        return {"response": response, "persist_response": False}
+
+    # store values in the context for use by the rate-limiter etc
+    deployment_name = _get_deployment_name_from_url(request.url.path)
+    prompt_tokens, completion_tokens, total_tokens = _get_token_usage_from_response(response.text)
+    context.values[SIMULATOR_KEY_LIMITER] = "openai"
+    context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
+    context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
+    context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
+    context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = total_tokens
+
+    return {"response": response, "persist_response": True}
+
+
+async def openai_image_gen_forwarder(context: RequestContext) -> dict:
+    request = context.request
+
+    if request.url.path.find("images/generations") == -1:
+        # this is not an image generation request
+        return None
+
+    if not config_validated:
+        # Only initialize once, and only if we need to
+        _validate_endpoint_config(context)
+
+    raise NotImplementedError("Image Forwarder Not Complete.")
+
+    url = context.config.recording.aoai_api_endpoint
+    url += request.url.path + "?" + request.url.query
+
+    # Copy most headers, but override auth
+    fwd_headers = {
+        k: v for k, v in request.headers.items() if k.lower() not in ["content-length", "host", "authorization"]
+    }
+    fwd_headers["api-key"] = context.config.recording.aoai_api_key
 
     body = await request.body()
 

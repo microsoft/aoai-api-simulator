@@ -5,11 +5,10 @@ from typing import Awaitable, Callable
 
 import fastapi
 import requests
-
 from aoai_api_simulator import constants
 from aoai_api_simulator.models import RequestContext
-from aoai_api_simulator.record_replay.openai import forward_to_azure_openai
 from aoai_api_simulator.record_replay.models import RecordedResponse, get_request_hash, hash_request_parts
+from aoai_api_simulator.record_replay.openai import default_openai_forwarder, openai_image_gen_forwarder
 from aoai_api_simulator.record_replay.persistence import YamlRecordingPersister
 
 logger = logging.getLogger(__name__)
@@ -17,18 +16,20 @@ logger = logging.getLogger(__name__)
 text_content_types = ["application/json", "application/text"]
 
 
-def get_default_forwarders() -> list[
-    Callable[
-        [RequestContext],
-        fastapi.Response
-        | Awaitable[fastapi.Response]
-        | requests.Response
-        | Awaitable[requests.Response]
-        | dict
-        | Awaitable[dict]
-        | None,
+def get_default_forwarders() -> (
+    list[
+        Callable[
+            [RequestContext],
+            fastapi.Response
+            | Awaitable[fastapi.Response]
+            | requests.Response
+            | Awaitable[requests.Response]
+            | dict
+            | Awaitable[dict]
+            | None,
+        ]
     ]
-]:
+):
     # Return a list of functions to call when recording and no matching saved request is found
     #
     # If the function returns a Response object (from FastAPI or requests package)
@@ -39,7 +40,8 @@ def get_default_forwarders() -> list[
     #
     # If the function returns None, the next function in the list will be called
     return [
-        forward_to_azure_openai,
+        openai_image_gen_forwarder,
+        default_openai_forwarder,
     ]
 
 
@@ -58,7 +60,6 @@ class ForwardedResponse:
 
 
 class RecordReplayHandler:
-
     _recordings: dict[str, dict[int, RecordedResponse]]
     _forwarders: list[
         Callable[
