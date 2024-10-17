@@ -37,3 +37,13 @@ SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE = "X-OpenAI-Max-Tokens-Effective"
 # For recorded requests this will be the recorded duration
 # For generated requests this will be estimated based on the request type and response length
 TARGET_DURATION_MS = "Simulator-Target-Duration"
+
+
+# LIMTER_OPENAI is the name of the limiter used for OpenAI requests
+LIMITER_OPENAI = "openai"
+
+
+OPENAI_OPERATION_EMBEDDINGS = "embeddings"
+OPENAI_OPERATION_COMPLETIONS = "completions"
+OPENAI_OPERATION_CHAT_COMPLETIONS = "chat_completions"
+OPENAI_OPERATION_TRANSLATION = "translation"

@@ -35,6 +35,11 @@ deployment_warnings_issues: dict[str, bool] = {}
 
 
 async def determine_token_cost(context: RequestContext):
+    if context.values.get(constants.SIMULATOR_KEY_OPERATION_NAME) == constants.OPENAI_OPERATION_TRANSLATION:
+        # Don't apply token limits to translations
+        # Also, don't read the body as it may be a stream
+        return 0
+
     # Check whether the request has set max_tokens
     # If so, use that as the rate-limiting token value
     request_body = await context.request.json()
@@ -304,5 +309,5 @@ def get_default_limiters(config: Config):
     # whether the request should be allowed
     # Limiter returns Response object if request should be blocked or None otherwise
     return {
-        "openai": create_openai_limiter(openai_deployment_limits),
+        constants.LIMITER_OPENAI: create_openai_limiter(openai_deployment_limits),
     }

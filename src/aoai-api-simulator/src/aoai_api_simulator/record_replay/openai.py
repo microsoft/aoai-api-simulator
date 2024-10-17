@@ -3,11 +3,14 @@ import logging
 
 import requests
 from aoai_api_simulator.constants import (
+    LIMITER_OPENAI,
+    OPENAI_OPERATION_TRANSLATION,
     SIMULATOR_KEY_DEPLOYMENT_NAME,
     SIMULATOR_KEY_LIMITER,
     SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
     SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
     SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
+    SIMULATOR_KEY_OPERATION_NAME,
 )
 from aoai_api_simulator.models import RequestContext
 
@@ -136,9 +139,12 @@ async def forward_to_azure_openai(context: RequestContext) -> dict:
     # store values in the context for use by the rate-limiter etc
     deployment_name = _get_deployment_name_from_url(request.url.path)
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
 
-    if not context.is_openai_target_service("translations"):
+    if context.is_openai_target_service("translations"):
+        context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_TRANSLATION
+    else:
+        # TODO: Set operation name for non-translation operations
         prompt_tokens, completion_tokens, total_tokens = _get_token_usage_from_response(response.text)
         context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
         context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens

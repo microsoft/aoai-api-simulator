@@ -8,6 +8,11 @@ import nanoid
 from aoai_api_simulator import constants
 from aoai_api_simulator.auth import validate_api_key_header
 from aoai_api_simulator.constants import (
+    LIMITER_OPENAI,
+    OPENAI_OPERATION_CHAT_COMPLETIONS,
+    OPENAI_OPERATION_COMPLETIONS,
+    OPENAI_OPERATION_EMBEDDINGS,
+    OPENAI_OPERATION_TRANSLATION,
     SIMULATOR_KEY_DEPLOYMENT_NAME,
     SIMULATOR_KEY_LIMITER,
     SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
@@ -24,7 +29,13 @@ from aoai_api_simulator.generator.openai_tokens import (
     num_tokens_from_messages,
     num_tokens_from_string,
 )
-from aoai_api_simulator.models import OpenAIChatModel, OpenAIDeployment, OpenAIEmbeddingModel, RequestContext
+from aoai_api_simulator.models import (
+    OpenAIChatModel,
+    OpenAIDeployment,
+    OpenAIEmbeddingModel,
+    OpenAIWhisperModel,
+    RequestContext,
+)
 from fastapi import Response
 from fastapi.responses import StreamingResponse
 
@@ -55,7 +66,7 @@ def get_embedding_deployment_from_name(context: RequestContext, deployment_name:
         deployment_name: Name of the deployment
 
     Returns:
-        OpenAIDeployment | None: Instance of OpenAIDeployment
+        OpenAIEmbeddingModel | None: Instance of OpenAIEmbeddingModel
     """
     deployments = context.config.openai_deployments
 
@@ -125,7 +136,7 @@ def get_chat_model_from_deployment_name(context: RequestContext, deployment_name
     return None
 
 
-def get_whisper_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
+def get_whisper_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIWhisperModel | None:
     """
     Gets the model name for the specified deployment.
     If the deployment is not in the configured deployments then either a default model is returned (if )
@@ -171,15 +182,17 @@ async def calculate_latency(context: RequestContext, status_code: int):
         config = context.config
         operation_name = context.values.get(constants.SIMULATOR_KEY_OPERATION_NAME)
         target_duration_ms = None
-        if operation_name == "embeddings":
+        if operation_name == OPENAI_OPERATION_EMBEDDINGS:
             # embeddings config returns latency value to use (in milliseconds)
             target_duration_ms = config.latency.open_ai_embeddings.get_value()
-        elif operation_name == "completions":
+        elif operation_name == OPENAI_OPERATION_COMPLETIONS:
             # completions config returns latency per completion token in milliseconds
             target_duration_ms = config.latency.open_ai_completions.get_value()
-        elif operation_name == "chat-completions":
+        elif operation_name == OPENAI_OPERATION_CHAT_COMPLETIONS:
             # chat completions config returns latency per completion token in milliseconds
             target_duration_ms = config.latency.open_ai_chat_completions.get_value() * completion_tokens
+
+        # TODO - add translation latency
 
         if target_duration_ms:
             context.values[constants.TARGET_DURATION_MS] = target_duration_ms
@@ -228,8 +241,8 @@ def create_embeddings_response(
     }
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "embeddings"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_EMBEDDINGS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = tokens
     context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = tokens
@@ -279,8 +292,8 @@ def create_completion_response(
     }
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "completions"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_COMPLETIONS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
     context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
@@ -346,8 +359,8 @@ def create_chat_completion_response(
     total_tokens = prompt_tokens + completion_tokens
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "chat-completions"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_CHAT_COMPLETIONS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
     context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
@@ -748,8 +761,8 @@ def create_translation_response(
         json_result = {"text": text}
         content = json.dumps(json_result)
 
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "translation"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_TRANSLATION
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = completion_tokens
 
