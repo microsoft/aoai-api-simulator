@@ -1,9 +1,9 @@
 import logging
 import os
+from dataclasses import dataclass
 
 # from opentelemetry import trace
 from azure.monitor.opentelemetry import configure_azure_monitor
-from dataclasses import dataclass
 from fastapi import FastAPI
 from opentelemetry import metrics, trace
 from opentelemetry.exporter.otlp.proto.grpc._log_exporter import OTLPLogExporter
@@ -82,6 +82,7 @@ def _get_simulator_metrics() -> SimulatorMetrics:
 
 
 simulator_metrics = _get_simulator_metrics()
+
 
 def setup_telemetry() -> bool:
     using_azure_monitor: bool
