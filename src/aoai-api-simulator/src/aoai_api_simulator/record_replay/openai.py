@@ -1,15 +1,18 @@
 import json
 import logging
-import requests
 
-from aoai_api_simulator.models import RequestContext
+import requests
 from aoai_api_simulator.constants import (
+    LIMITER_OPENAI,
+    OPENAI_OPERATION_TRANSLATION,
     SIMULATOR_KEY_DEPLOYMENT_NAME,
-    SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
-    SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
-    SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
     SIMULATOR_KEY_LIMITER,
+    SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
+    SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
+    SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
+    SIMULATOR_KEY_OPERATION_NAME,
 )
+from aoai_api_simulator.models import RequestContext
 
 # This file contains a default openai forwarder
 # You can configure your own forwarders by creating a forwarder_config.py file and setting the
@@ -74,6 +77,7 @@ def _get_deployment_name_from_url(url: str) -> str | None:
 def _get_token_usage_from_response(body: str) -> int | None:
     try:
         response_json = json.loads(body)
+
         usage = response_json.get("usage")
         if usage is not None:
             prompt_tokens = usage.get("prompt_tokens")
@@ -86,10 +90,11 @@ def _get_token_usage_from_response(body: str) -> int | None:
 
 
 async def forward_to_azure_openai(context: RequestContext) -> dict:
-    request = context.request
-    if not request.url.path.startswith("/openai/"):
+    if not context.is_openai_request():
         # assume not an OpenAI request
         return None
+
+    request = context.request
 
     if not config_validated:
         # Only initialize once, and only if we need to
@@ -133,11 +138,16 @@ async def forward_to_azure_openai(context: RequestContext) -> dict:
 
     # store values in the context for use by the rate-limiter etc
     deployment_name = _get_deployment_name_from_url(request.url.path)
-    prompt_tokens, completion_tokens, total_tokens = _get_token_usage_from_response(response.text)
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
-    context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
-    context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
-    context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = total_tokens
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+
+    if context.is_openai_target_service("translations"):
+        context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_TRANSLATION
+    else:
+        # TODO: Set operation name for non-translation operations
+        prompt_tokens, completion_tokens, total_tokens = _get_token_usage_from_response(response.text)
+        context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
+        context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
+        context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = total_tokens
 
     return {"response": response, "persist_response": True}

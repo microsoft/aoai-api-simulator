@@ -60,6 +60,24 @@ class RequestContext:
             return (False, {})
         return (True, scopes["path_params"])
 
+    def is_form_data(self):
+        """
+        Checks if the request is a form data request
+        """
+        return "multipart/form-data" in self.request.headers.get("Content-Type", "")
+
+    def is_openai_request(self):
+        """
+        Checks if the request is an OpenAI request
+        """
+        return self.request.url.path.startswith("/openai/")
+
+    def is_openai_target_service(self, target: str):
+        """
+        Checks if the request is an OpenAI request for a specific service
+        """
+        return target in self.request.url.path
+
 
 class RecordingConfig(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
@@ -109,6 +127,11 @@ class EmbeddingLatency(BaseSettings):
         return random.normalvariate(self.mean, self.std_dev)
 
 
+class TranslationLatency(BaseSettings):
+    mean: float = Field(default=100, alias="LATENCY_OPENAI_TRANSLATIONS_MEAN")
+    std_dev: float = Field(default=30, alias="LATENCY_OPENAI_TRANSLATIONS_STD_DEV")
+
+
 class LatencyConfig(BaseSettings):
     """
     Defines the latency for different types of requests
@@ -121,6 +144,7 @@ class LatencyConfig(BaseSettings):
     open_ai_completions: CompletionLatency = Field(default=CompletionLatency())
     open_ai_chat_completions: ChatCompletionLatency = Field(default=ChatCompletionLatency())
     open_ai_embeddings: EmbeddingLatency = Field(default=EmbeddingLatency())
+    open_ai_translations: TranslationLatency = Field(default=TranslationLatency())
 
 
 class PatchableConfig(BaseSettings):
@@ -169,11 +193,17 @@ class OpenAIEmbeddingModel(OpenAIModel):
 
 
 @dataclass
+class OpenAIWhisperModel(OpenAIModel):
+    name: str
+
+
+@dataclass
 class OpenAIDeployment:
     name: str
     model: OpenAIModel
     tokens_per_minute: int = 0
     embedding_size: int = 0
+    request_per_minute: int = 0
 
 
 # re-using Starlette's Route class to define a route

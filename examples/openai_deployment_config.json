@@ -72,5 +72,10 @@
         "model": "text-embedding-ada-002",
 		"tokensPerMinute" : 10000,
         "embeddingSize": 1536
-    }
+    },
+	"whisper": {
+		"model": "whisper",
+		"tokensPerMinute" : 3000,
+		"requestPerMinute" : 3
+	}
 }
