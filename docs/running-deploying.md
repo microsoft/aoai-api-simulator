@@ -76,10 +76,14 @@ The simulated API can be deployed to Azure Container Apps (ACA) to provide a pub
 
 Before deploying, set up a `.env` file. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this.
 
-Once you have your `.env` file, you can deploy to Azure using the following command:
+Once you have your `.env` file, you can deploy to Azure using one the following commands:
 
 ```console
-make deploy-aca
+make deploy-aca-bicep
+```
+
+```console
+make deploy-aca-terraform
 ```
 
 This will deploy a container registry, build and push the simulator image to it, and deploy an Azure Container App running the simulator with the settings from `.env`.

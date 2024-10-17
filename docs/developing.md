@@ -32,15 +32,16 @@ Almost all of the common tasks for running or testing the simulator are availabl
 
 The following section of this document describes some of the more commonly used rules:
 
-| Make command                | Description                                              |
-| --------------------------- | -------------------------------------------------------- |
-| `make help`                 | Show the help message with a full set of available rules |
-| `make install-requirements` | Installs the PyPI requirements                           |
-| `make run-simulated-api`    | Launches the AOAI Simulated API locally                  |
-| `make test`                 | Run the suite of PyTest tests (in verbose mode)          |
-| `make lint`                 | Lints the aoai-api-simulator source code                 |
-| `make lint-docs`            | Lints Markdown docs                                      |
-| `make deploy-aca`           | Runs the deployment scripts for Azure Container Apps     |
+| Make command                | Description                                                    |
+| --------------------------- | -------------------------------------------------------------  |
+| `make help`                 | Show the help message with a full set of available rules       |
+| `make install-requirements` | Installs the PyPI requirements                                 |
+| `make run-simulated-api`    | Launches the AOAI Simulated API locally                        |
+| `make test`                 | Run the suite of PyTest tests (in verbose mode)                |
+| `make lint`                 | Lints the aoai-api-simulator source code                       |
+| `make lint-docs`            | Lints Markdown docs                                            |
+| `make deploy-aca-bicep`     | Runs the Bicep deployment scripts for Azure Container Apps     |
+| `make deploy-aca-terraform` | Runs the Terraform deployment scripts for Azure Container Apps |
 
 For a full set of rules, type `make help` from the command line and you will be presented with a list of available rules.
 

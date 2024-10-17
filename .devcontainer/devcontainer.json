@@ -7,7 +7,10 @@
 	"features": {
 		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {},
 		"ghcr.io/devcontainers/features/docker-in-docker": {},
-		"ghcr.io/devcontainers/features/azure-cli": {}
+		"ghcr.io/devcontainers/features/azure-cli": {
+			"installBicep": true
+		},
+		"ghcr.io/devcontainers/features/terraform": {}
 	},
 	"customizations": {
 		"vscode": {
@@ -18,7 +21,8 @@
 				"ms-azuretools.vscode-bicep",
 				"timonwong.shellcheck",
 				"hediet.vscode-drawio",
-				"charliermarsh.ruff"
+				"charliermarsh.ruff",
+				"HashiCorp.terraform"
 			]
 		}
 	},
@@ -26,7 +30,6 @@
 		5000, // test-client-web port
 		3000 // grafana UI port
 	],
-
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "bash -c .devcontainer/post-create.sh",
 
