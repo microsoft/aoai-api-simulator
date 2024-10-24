@@ -1,23 +1,20 @@
 import base64
-from datetime import UTC, datetime, timedelta
 import io
 import logging
 import time
-import requests
 import urllib.parse
-
-import asciichartpy as asciichart
-
-from azure.core.credentials import TokenCredential
-from azure.core.exceptions import HttpResponseError
-from azure.monitor.query import LogsQueryClient, MetricsQueryClient, MetricsClient
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from gzip import GzipFile
-from tabulate import tabulate
 from typing import Any, Callable
 
-from .terminal import get_link
+import asciichartpy as asciichart
+from azure.core.credentials import TokenCredential
+from azure.core.exceptions import HttpResponseError
+from azure.monitor.query import LogsQueryClient
+from tabulate import tabulate
 
+from .terminal import get_link
 
 APPINSIGHTS_ENDPOINT = "https://api.applicationinsights.io/v1/apps"
 
@@ -45,7 +42,6 @@ class Table:
         value_column: str,
         missing_value: Any = None,
     ) -> "Table":
-
         # assume rows are sorted on id_column
 
         group_column_index = self.columns.index(group_column)
@@ -201,7 +197,6 @@ class QueryProcessor:
             show_query,
             include_link,
         ) in enumerate(self.__queries):
-
             # When clicking on the link, Log Analytics runs the query automatically if there's no preceding whitespace
             query = query.strip()
             print()
