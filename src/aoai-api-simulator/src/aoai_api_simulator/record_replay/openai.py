@@ -4,6 +4,9 @@ import logging
 import requests
 from aoai_api_simulator.constants import (
     LIMITER_OPENAI,
+    OPENAI_OPERATION_CHAT_COMPLETIONS,
+    OPENAI_OPERATION_COMPLETIONS,
+    OPENAI_OPERATION_EMBEDDINGS,
     OPENAI_OPERATION_TRANSLATION,
     SIMULATOR_KEY_DEPLOYMENT_NAME,
     SIMULATOR_KEY_LIMITER,
@@ -89,6 +92,30 @@ def _get_token_usage_from_response(body: str) -> int | None:
     return None
 
 
+def _get_operation_name_from_url(url: str) -> str | None:
+    # Extract operation name from /openai/deployments/{deployment_name}/{operation}
+    url = url.lower()
+    if url.startswith("/openai/deployments/"):
+        url = url[len("/openai/deployments/") :]
+        if url.startswith("completions/"):
+            return OPENAI_OPERATION_COMPLETIONS
+        if url.startswith("chat/completions/"):
+            return OPENAI_OPERATION_CHAT_COMPLETIONS
+        if url.startswith("embeddings/"):
+            return OPENAI_OPERATION_EMBEDDINGS
+        if url.startswith("translations/"):
+            return OPENAI_OPERATION_TRANSLATION
+    return None
+
+
+def _is_token_operation(operation_name: str):
+    return operation_name in [
+        OPENAI_OPERATION_EMBEDDINGS,
+        OPENAI_OPERATION_COMPLETIONS,
+        OPENAI_OPERATION_CHAT_COMPLETIONS,
+    ]
+
+
 async def forward_to_azure_openai(context: RequestContext) -> dict:
     if not context.is_openai_request():
         # assume not an OpenAI request
@@ -141,10 +168,9 @@ async def forward_to_azure_openai(context: RequestContext) -> dict:
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
 
-    if context.is_openai_target_service("translations"):
-        context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_TRANSLATION
-    else:
-        # TODO: Set operation name for non-translation operations
+    operation_name = _get_operation_name_from_url(request.url.path)
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = operation_name
+    if _is_token_operation(operation_name):
         prompt_tokens, completion_tokens, total_tokens = _get_token_usage_from_response(response.text)
         context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
         context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
