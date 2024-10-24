@@ -35,7 +35,12 @@ deployment_warnings_issues: dict[str, bool] = {}
 
 
 async def determine_token_cost(context: RequestContext):
-    if context.values.get(constants.SIMULATOR_KEY_OPERATION_NAME) == constants.OPENAI_OPERATION_TRANSLATION:
+    operation_name = context.values.get(constants.SIMULATOR_KEY_OPERATION_NAME)
+    if operation_name is None:
+        logger.info("No operation name found in context for request: %s", context.request.url.path)
+        return 0
+
+    if operation_name == constants.OPENAI_OPERATION_TRANSLATION:
         # Don't apply token limits to translations
         # Also, don't read the body as it may be a stream
         return 0
@@ -56,11 +61,13 @@ async def determine_token_cost(context: RequestContext):
         #  - text-embedding-3-large
         #  - gpt-3.5-turbo
 
-        if "/chat/completions" in context.request.url.path:
+        operation_name = context.values.get(constants.SIMULATOR_KEY_OPERATION_NAME)
+
+        if operation_name == constants.OPENAI_OPERATION_CHAT_COMPLETIONS:
             token_cost = 16
-        elif "/completions" in context.request.url.path:
+        elif operation_name == constants.OPENAI_OPERATION_COMPLETIONS:
             token_cost = 16
-        elif "/embeddings" in context.request.url.path:
+        elif operation_name == constants.OPENAI_OPERATION_EMBEDDINGS:
             request_body = await context.request.json()
             request_input = request_body.get("input")
             if request_input is None:
@@ -74,7 +81,9 @@ async def determine_token_cost(context: RequestContext):
                     token_cost = math.ceil(len(request_input) / 4)
         else:
             # TODO: implement calculations for other endpoints
-            logger.warning("openai_limiter: unhanndled endpoint %s", context.request.url.path)
+            logger.warning(
+                "openai_limiter: unhanndled endpoint %s (operation_name: %s)", context.request.url.path, operation_name
+            )
             token_cost = 0
 
     context.values[constants.SIMULATOR_KEY_OPENAI_RATE_LIMIT_TOKENS] = token_cost
