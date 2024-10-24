@@ -308,7 +308,7 @@ def create_completion_response(
     )
 
 
-# pylint: disable-next=too-many-arguments
+# pylint: disable-next=too-many-arguments, too-many-positional-arguments
 def create_lorem_chat_completion_response(
     context: RequestContext,
     deployment_name: str,
@@ -337,7 +337,7 @@ def create_lorem_chat_completion_response(
     )
 
 
-# pylint: disable-next=too-many-arguments
+# pylint: disable-next=too-many-arguments, too-many-positional-arguments
 def create_chat_completion_response(
     context: RequestContext,
     deployment_name: str,
