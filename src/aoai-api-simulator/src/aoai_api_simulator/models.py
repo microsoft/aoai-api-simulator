@@ -1,4 +1,5 @@
 import random
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Annotated, Awaitable, Callable
 
@@ -171,24 +172,36 @@ class Config(PatchableConfig):
 
 
 @dataclass
-class OpenAIModel:
+class OpenAIModel(ABC):
     name: str
+
+    @property
+    @abstractmethod
+    def is_token_limited(self) -> bool:
+        pass
 
 
 @dataclass
 class OpenAIChatModel(OpenAIModel):
-    pass
+    @property
+    def is_token_limited(self) -> bool:
+        return True
 
 
 @dataclass
 class OpenAIEmbeddingModel(OpenAIModel):
-    name: str
     supports_custom_dimensions: bool
+
+    @property
+    def is_token_limited(self) -> bool:
+        return True
 
 
 @dataclass
 class OpenAIWhisperModel(OpenAIModel):
-    name: str
+    @property
+    def is_token_limited(self) -> bool:
+        return False
 
 
 @dataclass
@@ -197,7 +210,7 @@ class OpenAIDeployment:
     model: OpenAIModel
     tokens_per_minute: int = 0
     embedding_size: int = 0
-    request_per_minute: int = 0
+    requests_per_minute: int = 0
 
 
 # re-using Starlette's Route class to define a route

@@ -8,7 +8,8 @@ import nanoid
 from aoai_api_simulator import constants
 from aoai_api_simulator.auth import validate_api_key_header
 from aoai_api_simulator.constants import (
-    LIMITER_OPENAI,
+    LIMITER_OPENAI_REQUESTS,
+    LIMITER_OPENAI_TOKENS,
     OPENAI_OPERATION_CHAT_COMPLETIONS,
     OPENAI_OPERATION_COMPLETIONS,
     OPENAI_OPERATION_EMBEDDINGS,
@@ -241,7 +242,7 @@ def create_embeddings_response(
     }
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_TOKENS
     context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_EMBEDDINGS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = tokens
@@ -292,7 +293,7 @@ def create_completion_response(
     }
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_TOKENS
     context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_COMPLETIONS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
@@ -359,7 +360,7 @@ def create_chat_completion_response(
     total_tokens = prompt_tokens + completion_tokens
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_TOKENS
     context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_CHAT_COMPLETIONS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
@@ -760,8 +761,10 @@ def create_translation_response(
     if response_format == "json":
         json_result = {"text": text}
         content = json.dumps(json_result)
+    # TODO: Handle other response formats
+    # see https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#audioresponseformat
 
-    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_REQUESTS
     context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_TRANSLATION
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = completion_tokens

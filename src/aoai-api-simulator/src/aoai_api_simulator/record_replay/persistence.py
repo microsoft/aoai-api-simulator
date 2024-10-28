@@ -1,9 +1,10 @@
 import logging
 import os
-from fastapi.datastructures import URL
-import yaml
 
-from .models import RecordedResponse, hash_request_parts
+import yaml
+from fastapi.datastructures import URL
+
+from .models import RecordedResponse, hash_body, hash_request_parts
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +16,17 @@ class YamlRecordingPersister:
     def save_recording(self, url: str, recording: dict[int, RecordedResponse]):
         interactions = []
         for recorded_response in recording.values():
+            request = recorded_response.full_request
+            # skip the full body for large requests (ensure we have a hash)
+            if "body" in request:
+                if "body_hash" not in request:
+                    request["body_hash"] = hash_body(request["headers"], request["body"])
+
+                if len(request.get("body") or "") > 1024:
+                    request["body"] = None
+
             interaction = {
-                "request": recorded_response.full_request,
+                "request": request,
                 "response": {
                     "status": {"code": recorded_response.status_code},
                     "headers": recorded_response.headers,
@@ -61,18 +71,27 @@ class YamlRecordingPersister:
                 request = interaction["request"]
                 response = interaction["response"]
                 uri_string = request["uri"]
+                # Allow for old recordings without body hash (or edited recordings with just the body)
+                # Also handle large recordings that omit the body and only have the hash
+                if "body_hash" not in request:
+                    if "body" not in request:
+                        raise ValueError(f"No body or body hash found in recording for request {uri_string}")
+                    request["body_hash"] = hash_body(request["headers"], request["body"])
+
                 request_hash = hash_request_parts(
                     request["method"],
                     # parse URL to get path without host for matching against incoming request
                     URL(uri_string).path,
-                    request["body"],
+                    request["headers"],
+                    body_hash=request["body_hash"],
                 )
                 context_values = interaction.get("context_values", {})
+
                 recording[request_hash] = RecordedResponse(
                     request_hash=request_hash,
                     status_code=response["status"]["code"],
                     headers=response["headers"],
-                    body=response["body"]["string"],
+                    body=response["body"].get("string"),
                     context_values=context_values,
                     full_request=request,
                     duration_ms=response.get("duration_ms", 0),  # didn't exist in earlier recordings so default to 0

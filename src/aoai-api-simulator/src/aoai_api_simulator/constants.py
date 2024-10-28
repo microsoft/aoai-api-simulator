@@ -39,8 +39,13 @@ SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE = "X-OpenAI-Max-Tokens-Effective"
 TARGET_DURATION_MS = "Simulator-Target-Duration"
 
 
-# LIMTER_OPENAI is the name of the limiter used for OpenAI requests
-LIMITER_OPENAI = "openai"
+# LIMTER_OPENAI_TOKENS is the name of the limiter used for OpenAI requests
+# that are rate-limited using tokens (and requests-per-10-seconds)
+LIMITER_OPENAI_TOKENS = "openai-tokens"
+
+# LIMITER_OPENAI_REQUESTS is the name of the limiter used for OpenAI requests
+# that are rate-limited using requests-per-minute
+LIMITER_OPENAI_REQUESTS = "openai-requests"
 
 
 OPENAI_OPERATION_EMBEDDINGS = "embeddings"

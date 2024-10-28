@@ -1,11 +1,12 @@
 import math
 import time
-from aoai_api_simulator.limiters import SlidingWindow
+
 import pytest
+from aoai_api_simulator.limiters import TokensPerMinuteSlidingWindow
 
 
 def add_success_request(
-    window: SlidingWindow,
+    window: TokensPerMinuteSlidingWindow,
     token_count: int,
     timestamp: float,
     expected_remaining_requests=None,
@@ -24,15 +25,13 @@ def add_success_request(
 
 
 def test_allow_first_request_within_limits():
-
-    window = SlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
+    window = TokensPerMinuteSlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
 
     add_success_request(window, timestamp=1, token_count=5, expected_remaining_requests=9, expected_remaining_tokens=95)
 
 
 def test_allow_request_in_new_window_period():
-
-    window = SlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
+    window = TokensPerMinuteSlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
 
     add_success_request(window, timestamp=1, token_count=5, expected_remaining_requests=9, expected_remaining_tokens=95)
     add_success_request(window, timestamp=2, token_count=5, expected_remaining_requests=8, expected_remaining_tokens=90)
@@ -55,8 +54,7 @@ def test_allow_request_in_new_window_period():
 
 
 def test_block_when_too_many_requests():
-
-    window = SlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
+    window = TokensPerMinuteSlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
 
     # Time:                 0    1     2     3    4     5    6    7     8     9   10    11   12
     # # Requests                       1     8    1
@@ -81,8 +79,7 @@ def test_block_when_too_many_requests():
 
 
 def test_block_when_too_many_tokens_exact():
-
-    window = SlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
+    window = TokensPerMinuteSlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
 
     add_success_request(window, timestamp=10, token_count=20)
     add_success_request(window, timestamp=20, token_count=20)
@@ -119,8 +116,7 @@ def test_block_when_too_many_tokens_exact():
 
 
 def test_block_when_too_many_tokens_overflow():
-
-    window = SlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
+    window = TokensPerMinuteSlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
 
     add_success_request(window, timestamp=10, token_count=24)
     add_success_request(window, timestamp=20, token_count=24)
@@ -157,8 +153,7 @@ def test_block_when_too_many_tokens_overflow():
 
 
 def test_block_second_request():
-
-    window = SlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
+    window = TokensPerMinuteSlidingWindow(requests_per_10_seconds=10, tokens_per_minute=100)
 
     add_success_request(window, timestamp=10, token_count=100)
 
@@ -176,7 +171,9 @@ def test_perf_successful_requests_SLOW():
     simulated_tpm = 1_000_000
     requests_per_10_seconds = simulated_tpm * 60 / 1000
 
-    window = SlidingWindow(requests_per_10_seconds=requests_per_10_seconds, tokens_per_minute=simulated_tpm)
+    window = TokensPerMinuteSlidingWindow(
+        requests_per_10_seconds=requests_per_10_seconds, tokens_per_minute=simulated_tpm
+    )
 
     start = time.perf_counter()
 
@@ -195,7 +192,9 @@ def test_perf_blocked_requests():
     simulated_tpm = 1_000_000
     requests_per_10_seconds = simulated_tpm * 60 / 1000
 
-    window = SlidingWindow(requests_per_10_seconds=requests_per_10_seconds, tokens_per_minute=simulated_tpm)
+    window = TokensPerMinuteSlidingWindow(
+        requests_per_10_seconds=requests_per_10_seconds, tokens_per_minute=simulated_tpm
+    )
 
     start = time.perf_counter()
 
@@ -211,7 +210,7 @@ def test_perf_blocked_requests():
 
 def test_100k_token_limit():
     # Test the sliding window with a large number of requests
-    window = SlidingWindow(requests_per_10_seconds=100, tokens_per_minute=100_000)
+    window = TokensPerMinuteSlidingWindow(requests_per_10_seconds=100, tokens_per_minute=100_000)
 
     # simulate 10 RPS, with 200 tokens
     # should manage 100,000 / 200 = 500 requests successfully

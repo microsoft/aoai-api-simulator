@@ -3,7 +3,8 @@ import logging
 
 import requests
 from aoai_api_simulator.constants import (
-    LIMITER_OPENAI,
+    LIMITER_OPENAI_REQUESTS,
+    LIMITER_OPENAI_TOKENS,
     OPENAI_OPERATION_CHAT_COMPLETIONS,
     OPENAI_OPERATION_COMPLETIONS,
     OPENAI_OPERATION_EMBEDDINGS,
@@ -97,13 +98,18 @@ def _get_operation_name_from_url(url: str) -> str | None:
     url = url.lower()
     if url.startswith("/openai/deployments/"):
         url = url[len("/openai/deployments/") :]
-        if url.startswith("completions/"):
+        i = url.find("/")
+        if i < 0:
+            return None
+        url = url[i + 1 :]
+
+        if url.startswith("completions"):
             return OPENAI_OPERATION_COMPLETIONS
-        if url.startswith("chat/completions/"):
+        if url.startswith("chat/completions"):
             return OPENAI_OPERATION_CHAT_COMPLETIONS
-        if url.startswith("embeddings/"):
+        if url.startswith("embeddings"):
             return OPENAI_OPERATION_EMBEDDINGS
-        if url.startswith("translations/"):
+        if url.startswith("translations"):
             return OPENAI_OPERATION_TRANSLATION
     return None
 
@@ -166,14 +172,16 @@ async def forward_to_azure_openai(context: RequestContext) -> dict:
     # store values in the context for use by the rate-limiter etc
     deployment_name = _get_deployment_name_from_url(request.url.path)
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
-    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI
 
     operation_name = _get_operation_name_from_url(request.url.path)
     context.values[SIMULATOR_KEY_OPERATION_NAME] = operation_name
     if _is_token_operation(operation_name):
+        context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_TOKENS
         prompt_tokens, completion_tokens, total_tokens = _get_token_usage_from_response(response.text)
         context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
         context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
         context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = total_tokens
+    else:
+        context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_REQUESTS
 
     return {"response": response, "persist_response": True}

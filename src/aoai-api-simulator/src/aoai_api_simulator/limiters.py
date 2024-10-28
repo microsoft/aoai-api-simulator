@@ -8,7 +8,11 @@ from typing import Awaitable, Callable
 
 from aoai_api_simulator import constants
 from aoai_api_simulator.metrics import simulator_metrics
-from aoai_api_simulator.models import Config, RequestContext
+from aoai_api_simulator.models import (
+    Config,
+    OpenAIDeployment,
+    RequestContext,
+)
 from fastapi import Response
 
 logger = logging.getLogger(__name__)
@@ -90,10 +94,6 @@ async def determine_token_cost(context: RequestContext):
     return token_cost
 
 
-def create_openai_limiter(deployments: dict[str, int]) -> Callable[[RequestContext, Response], Response | None]:
-    return create_openai_sliding_window_limiter(deployments)
-
-
 @dataclass
 class WindowEntry:
     timestamp: float
@@ -110,9 +110,9 @@ class WindowAddResult:
 
 
 # pylint: disable-next=too-few-public-methods
-class SlidingWindow:
+class TokensPerMinuteSlidingWindow:
     """
-    Represents a time window for rate-limiting
+    Represents a time window for rate-limiting based on tokens-per-minute and requests-per-10-seconds
     """
 
     _requests: list[WindowEntry]
@@ -238,38 +238,82 @@ class SlidingWindow:
         )
 
 
-def create_openai_sliding_window_limiter(
-    deployments: dict[str, int],
-) -> Callable[[RequestContext, Response], Response | None]:
-    @dataclass
-    class OpenAISlidingWindowLimit:
-        deployment: str
-        window: SlidingWindow
+# pylint: disable-next=too-few-public-methods
+class RequestsPerMinuteSlidingWindow:
+    """
+    Represents a time window for rate-limiting based on requests-per-minute
+    """
 
-    deployment_limits: dict[str, OpenAISlidingWindowLimit] = {}
+    _requests: list[WindowEntry]
+    _requests_per_minute: int
 
-    for deployment, tokens_per_minute in deployments.items():
-        requests_per_10s = math.ceil(tokens_per_minute / 1000)  # 1/6 * (6 * TPM / 1000)
-        deployment_limits[deployment] = OpenAISlidingWindowLimit(
-            deployment=deployment,
-            window=SlidingWindow(requests_per_10_seconds=requests_per_10s, tokens_per_minute=tokens_per_minute),
+    def __init__(self, requests_per_minute: int):
+        self._requests_per_minute = requests_per_minute
+        self._requests = []
+
+    def _purge(self, cut_off: float):
+        while len(self._requests) > 0 and self._requests[0].timestamp <= cut_off:
+            self._requests.pop(0)
+
+    def add_request(self, timestamp: float = -1) -> WindowAddResult:
+        """
+        Add a request to the window
+        """
+
+        if timestamp == -1:
+            timestamp = time.time()
+
+        # remove items older than a minute
+        self._purge(timestamp - 60)
+
+        if len(self._requests) >= self._requests_per_minute:
+            return WindowAddResult(
+                success=False,
+                retry_after=math.ceil(60 - (timestamp - self._requests[0].timestamp)),
+                retry_reason="requests",
+                remaining_tokens=None,
+                remaining_requests=None,
+            )
+
+        self._requests.append(WindowEntry(timestamp, 0))
+        return WindowAddResult(
+            success=True,
+            retry_after=None,
+            retry_reason=None,
+            remaining_requests=self._requests_per_minute - len(self._requests),
+            remaining_tokens=None,
         )
+
+
+def create_openai_tokens_limiter(
+    deployments: dict[str, OpenAIDeployment],
+) -> Callable[[RequestContext, Response], Response | None]:
+    # dict of TokensPerMinuteSlidingWindow objects keyed on deployment name
+    deployment_limits: dict[str, TokensPerMinuteSlidingWindow] = {}
+
+    for deployment in deployments.values():
+        # only handle token-based limited models
+        if deployment.model.is_token_limited:
+            tokens_per_minute = deployment.tokens_per_minute
+            requests_per_10s = math.ceil(tokens_per_minute / 1000)  # 1/6 * (6 * TPM / 1000)
+            deployment_limits[deployment.name] = TokensPerMinuteSlidingWindow(
+                requests_per_10_seconds=requests_per_10s, tokens_per_minute=tokens_per_minute
+            )
 
     async def limiter(context: RequestContext, response: Response) -> Awaitable[Response]:
         deployment_name = context.values.get(constants.SIMULATOR_KEY_DEPLOYMENT_NAME)
-
-        token_cost = await determine_token_cost(context)
         if not deployment_name:
-            logger.warning("openai_limiter: deployment name found in context")
+            logger.warning("openai_limiter: deployment name not found in context")
 
-        limits = deployment_limits.get(deployment_name)
-        if not limits:
+        window: TokensPerMinuteSlidingWindow = deployment_limits.get(deployment_name)
+        if not window:
             if not deployment_warnings_issues.get(deployment_name):
                 logger.warning("Deployment %s not found in limiters - not applying rate limits", deployment_name)
                 deployment_warnings_issues[deployment_name] = True
             return response
 
-        window_result = limits.window.add_request(token_cost=token_cost)
+        token_cost = await determine_token_cost(context)
+        window_result = window.add_request(token_cost=token_cost)
         if not window_result.success:
             cost = token_cost if window_result.retry_reason == "tokens" else 1
             simulator_metrics.histogram_rate_limit.record(
@@ -306,17 +350,67 @@ def create_openai_sliding_window_limiter(
     return limiter
 
 
-def get_default_limiters(config: Config):
-    openai_deployment_limits = (
-        {name: deployment.tokens_per_minute for name, deployment in config.openai_deployments.items()}
-        if config.openai_deployments
-        else {}
-    )
+def create_openai_requests_limiter(
+    deployments: dict[str, OpenAIDeployment],
+) -> Callable[[RequestContext, Response], Response | None]:
+    # dict of RequestsPerMinuteSlidingWindow objects keyed on deployment name
+    deployment_limits: dict[str, RequestsPerMinuteSlidingWindow] = {}
 
+    for deployment in deployments.values():
+        # only handle request-based limited models
+        if not deployment.model.is_token_limited:
+            requests_per_minute = deployment.requests_per_minute
+            deployment_limits[deployment.name] = RequestsPerMinuteSlidingWindow(requests_per_minute)
+
+    async def limiter(context: RequestContext, response: Response) -> Awaitable[Response]:
+        deployment_name = context.values.get(constants.SIMULATOR_KEY_DEPLOYMENT_NAME)
+        if not deployment_name:
+            logger.warning("openai_limiter: deployment name not found in context")
+
+        window: RequestsPerMinuteSlidingWindow = deployment_limits.get(deployment_name)
+        if not window:
+            if not deployment_warnings_issues.get(deployment_name):
+                logger.warning("Deployment %s not found in limiters - not applying rate limits", deployment_name)
+                deployment_warnings_issues[deployment_name] = True
+            return response
+
+        window_result = window.add_request()
+        if not window_result.success:
+            simulator_metrics.histogram_rate_limit.record(
+                1,
+                attributes={
+                    "deployment": deployment_name,
+                    "reason": window_result.retry_reason,
+                },
+            )
+
+            content = {
+                "error": {
+                    "code": "429",
+                    "message": "Requests to the OpenAI API Simulator have exceeded call rate limit. "
+                    + f"Please retry after {window_result.retry_after} seconds.",
+                }
+            }
+
+            return Response(
+                status_code=429,
+                content=json.dumps(content),
+                headers={
+                    "Retry-After": str(window_result.retry_after),
+                },
+            )
+        response.headers["x-ratelimit-remaining-requests"] = str(window_result.remaining_requests)
+        return response
+
+    return limiter
+
+
+def get_default_limiters(config: Config):
     # Dictionary of limiters keyed by name
     # Each limiter is a function that takes a response and returns a boolean indicating
     # whether the request should be allowed
     # Limiter returns Response object if request should be blocked or None otherwise
     return {
-        constants.LIMITER_OPENAI: create_openai_limiter(openai_deployment_limits),
+        constants.LIMITER_OPENAI_TOKENS: create_openai_tokens_limiter(config.openai_deployments or {}),
+        constants.LIMITER_OPENAI_REQUESTS: create_openai_requests_limiter(config.openai_deployments or {}),
     }
