@@ -1,23 +1,32 @@
-from datetime import UTC, datetime, timedelta
-import os
 import logging
+import os
+from datetime import UTC, datetime, timedelta
 
 import asciichartpy as asciichart
 from azure.identity import DefaultAzureCredential
-
 from common.config import (
-    tenant_id,
-    subscription_id,
-    resource_group_name,
     log_analytics_workspace_id,
     log_analytics_workspace_name,
+    resource_group_name,
+    subscription_id,
+    tenant_id,
 )
-
 from common.log_analytics import QueryProcessor, Table
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("azure").setLevel(logging.WARNING)
 
+latency_min_str = os.getenv("LATENCY_MIN", None)
+latency_max_str = os.getenv("LATENCY_MAX", None)
+if latency_min_str is None:
+    raise ValueError("LATENCY_MIN environment variable must be set")
+if latency_max_str is None:
+    raise ValueError("LATENCY_MAX environment variable must be set")
+
+latency_max = float(latency_max_str)
+latency_min = float(latency_min_str)
+print(f"latency_min: {latency_min}")
+print(f"latency_max: {latency_max}")
 
 start_time_string = os.getenv("TEST_START_TIME")
 stop_time_string = os.getenv("TEST_STOP_TIME")
@@ -59,9 +68,9 @@ timespan = (datetime.now(UTC) - timedelta(days=1), datetime.now(UTC))
 
 def validate_request_latency(table: Table):
     mean_latency = table.rows[0][0]
-    if mean_latency > 1100:
+    if mean_latency > latency_max:
         return f"Mean latency is too high: {mean_latency}"
-    if mean_latency < 900:
+    if mean_latency < latency_min:
         return f"Mean latency is too low: {mean_latency}"
     return None
 

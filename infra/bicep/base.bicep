@@ -54,6 +54,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     name: 'Standard_LRS'
   }
   kind: 'StorageV2'
+  properties : {
+    allowSharedKeyAccess: true // needed for Container App Volume Mount
+  }
+
 
 }
 resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01' = {

@@ -123,8 +123,11 @@ class EmbeddingLatency(BaseSettings):
 
 
 class TranslationLatency(BaseSettings):
-    mean: float = Field(default=100, alias="LATENCY_OPENAI_TRANSLATIONS_MEAN")
-    std_dev: float = Field(default=30, alias="LATENCY_OPENAI_TRANSLATIONS_STD_DEV")
+    mean: float = Field(default=15000, alias="LATENCY_OPENAI_TRANSLATIONS_MEAN")
+    std_dev: float = Field(default=1000, alias="LATENCY_OPENAI_TRANSLATIONS_STD_DEV")
+
+    def get_value(self) -> float:
+        return random.normalvariate(self.mean, self.std_dev)
 
 
 class LatencyConfig(BaseSettings):
@@ -134,6 +137,7 @@ class LatencyConfig(BaseSettings):
     open_ai_embeddings: the latency for OpenAI embeddings - mean is mean request duration in milliseconds
     open_ai_completions: the latency for OpenAI completions - mean is the number of milliseconds per token
     open_ai_chat_completions: the latency for OpenAI chat completions - mean is the number of milliseconds per token
+    open_ai_translations: the latency for OpenAI translations - mean is the number of milliseconds per MB of input aud
     """
 
     open_ai_completions: CompletionLatency = Field(default=CompletionLatency())

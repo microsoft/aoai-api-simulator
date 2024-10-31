@@ -66,7 +66,7 @@ def _load_openai_deployments(logger: logging.Logger) -> dict[str, OpenAIDeployme
         deployments[deployment_name] = OpenAIDeployment(
             name=deployment_name,
             model=model,
-            tokens_per_minute=deployment["tokensPerMinute"],
+            tokens_per_minute=int(deployment.get("tokensPerMinute", 0)),
             embedding_size=int(deployment.get("embeddingSize", 1536)),
             requests_per_minute=int(deployment.get("requestPerMinute", 0)),
         )

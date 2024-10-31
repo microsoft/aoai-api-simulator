@@ -101,6 +101,10 @@ def config_get(_: Annotated[bool, Depends(_default_validate_api_key_header)]):
                 "mean": config.latency.open_ai_chat_completions.mean,
                 "std_dev": config.latency.open_ai_chat_completions.std_dev,
             },
+            "open_ai_translations": {
+                "mean": config.latency.open_ai_translations.mean,
+                "std_dev": config.latency.open_ai_translations.std_dev,
+            },
         },
         "openai_deployments": (
             {
@@ -133,6 +137,10 @@ def config_patch(config: dict, _: Annotated[bool, Depends(_default_validate_api_
         if "open_ai_embeddings" in config["latency"]:
             new_config.latency.open_ai_embeddings = original_config.latency.open_ai_embeddings.model_copy(
                 update=config["latency"]["open_ai_embeddings"]
+            )
+        if "open_ai_translations" in config["latency"]:
+            new_config.latency.open_ai_translations = original_config.latency.open_ai_translations.model_copy(
+                update=config["latency"]["open_ai_translations"]
             )
 
     # Update the config and re-initialize

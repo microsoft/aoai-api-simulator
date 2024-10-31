@@ -19,6 +19,25 @@ json
 Content-Disposition: form-data; name="file"; filename="short-spanish.mp3"
 Content-Type: audio/mpeg
 
+< ../tests/audio/short-white-noise.mp3
+-----7MA4YWxkTrZu0gW--
+
+###
+
+
+
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/audio/translations?api-version=2024-06-01
+Content-Type: multipart/form-data; boundary=---7MA4YWxkTrZu0gW
+api-key: {{aoai_key}}
+
+-----7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="response_format"
+
+json
+-----7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="short-spanish.mp3"
+Content-Type: audio/mpeg
+
 < ./short-spanish.mp3
 -----7MA4YWxkTrZu0gW--
 

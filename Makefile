@@ -88,6 +88,7 @@ docker-run-simulated-api: ## Run the AOAI Simulated API docker container
 
 docker-build-load-test: ## Build the AOAI Simulated API Load Test as a docker image
 	# TODO should set a tag!
+	cp -R tests/audio loadtest/.audio && \
 	cd loadtest && \
 	docker build -t aoai-api-simulator-load-test .
 
