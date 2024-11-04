@@ -3,6 +3,8 @@
 ## vNext
 
 - add notes here for the next release
+- Add support for translation endpoint (whisper models)
+  - This also includes internal changes to support non-token based rate limiting
 
 ## v0.5 - 2024-08-27
 
