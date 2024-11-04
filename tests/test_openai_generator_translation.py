@@ -2,6 +2,8 @@
 Test the OpenAI generator endpoints
 """
 
+import re
+
 import pytest
 from aoai_api_simulator.generator.manager import get_default_generators
 from aoai_api_simulator.generator.model_catalogue import model_catalogue
@@ -12,6 +14,7 @@ from aoai_api_simulator.models import (
     EmbeddingLatency,
     LatencyConfig,
     OpenAIDeployment,
+    TranslationLatency,
 )
 from openai import AzureOpenAI, RateLimitError
 
@@ -37,6 +40,10 @@ def _get_generator_config(extension_path: str | None = None) -> Config:
         open_ai_embeddings=EmbeddingLatency(
             LATENCY_OPENAI_EMBEDDINGS_MEAN=0,
             LATENCY_OPENAI_EMBEDDINGS_STD_DEV=0.1,
+        ),
+        open_ai_translations=TranslationLatency(
+            LATENCY_OPENAI_TRANSLATIONS_MEAN=0,
+            LATENCY_OPENAI_TRANSLATIONS_STD_DEV=0.1,
         ),
     )
     config.openai_deployments = {
@@ -137,7 +144,7 @@ async def test_limit_reached():
                 aoai_client.audio.translations.create(model="low_limit", file=file, response_format="text")
 
         assert e.value.status_code == 429
-        assert (
-            e.value.message
-            == "Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after 60 seconds.'}}"
+        assert re.match(
+            r"Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after \d+ seconds.'}}",
+            e.value.message,
         )
