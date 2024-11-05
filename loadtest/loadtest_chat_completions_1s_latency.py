@@ -36,6 +36,8 @@ def on_locust_init(environment: Environment, **_):
     # configure 10ms latency per token
     set_simulator_chat_completions_latency(environment.host, mean=10, std_dev=0.5)
 
+    # initial request to warm up the deployment (to avoid cold start being included in the latency)
+    logging.info("Making initial request to warm up the deployment")
     requests.post(
         environment.host + "/openai/deployments/" + deployment_name + "/chat/completions?api-version=2023-05-15",
         json={

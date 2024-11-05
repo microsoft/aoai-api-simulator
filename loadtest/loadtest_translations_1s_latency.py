@@ -36,6 +36,7 @@ def on_locust_init(environment: Environment, **_):
     set_simulator_translations_latency(environment.host, mean=625, std_dev=0.1)
 
     # initial request to warm up the deployment (to avoid cold start being included in the latency)
+    logging.info("Making initial request to warm up the deployment")
     with open(".audio/short-white-noise.mp3", "rb") as f:
         requests.post(
             environment.host + "/openai/deployments/" + deployment_name + "/audio/translations?api-version=2023-05-15",
