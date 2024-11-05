@@ -75,12 +75,22 @@ To run this test, run `./scripts/run-load-test-base-latency.sh`.
 The test sends requests to the simulator as fast as possible with no latency and no rate limiting.
 This test is useful for validating the base latency and understanding the maximum throughput of the simulator.
 
+This can be run against the following endpoints by setting the `ENDPOINT` environment variable:
+
+- chat completions (default): `ENDPOINT=chat ./scripts/run-load-test-base-latency.sh`
+- translations: `ENDPOINT=translation ./scripts/run-load-test-base-latency.sh`
+
 #### Load test: Added latency (1s latency, no limits)
 
 To run this test, run `./scripts/run-load-test-added-latency.sh`.
 
 The test sends requests to the simulator as fast as possible with 1s latency and no rate limiting.
 This test is useful for validating the simulated latency behavior.
+
+This can be run against the following endpoints by setting the `ENDPOINT` environment variable:
+
+- chat completions (default): `ENDPOINT=chat ./scripts/run-load-test-added-latency.sh`
+- translations: `ENDPOINT=translation ./scripts/run-load-test-added-latency.sh`
 
 #### Load test: Rate limiting (no added latency, 10 requests per second)
 

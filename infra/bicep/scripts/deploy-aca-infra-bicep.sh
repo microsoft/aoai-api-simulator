@@ -89,7 +89,7 @@ cat << EOF > "$script_dir/azuredeploy.parameters.json"
 }
 EOF
 
-deployment_name="deployment-${BASENAME}-${LOCATION}"
+deployment_name="deployment-${BASENAME}-${LOCATION}-main"
 cd "$script_dir/../"
 echo "=="
 echo "==Starting main bicep deployment ($deployment_name)"

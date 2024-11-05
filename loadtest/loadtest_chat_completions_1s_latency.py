@@ -1,13 +1,14 @@
 import logging
 import os
-from locust import HttpUser, task, constant, events
-from locust.env import Environment
 
+import requests
 from common.config import api_key, app_insights_connection_string
 from common.latency import set_simulator_chat_completions_latency
 from common.locust_app_insights import (
     report_request_metric,
 )
+from locust import HttpUser, constant, events, task
+from locust.env import Environment
 
 max_tokens = 100
 deployment_name = os.getenv("DEPLOYMENT_NAME", None)
@@ -35,6 +36,18 @@ def on_locust_init(environment: Environment, **_):
     # configure 10ms latency per token
     set_simulator_chat_completions_latency(environment.host, mean=10, std_dev=0.5)
 
+    # initial request to warm up the deployment (to avoid cold start being included in the latency)
+    logging.info("Making initial request to warm up the deployment")
+    requests.post(
+        environment.host + "/openai/deployments/" + deployment_name + "/chat/completions?api-version=2023-05-15",
+        json={
+            "messages": [{"role": "user", "content": "Hello, world!"}],
+            "model": "gpt-35-turbo",
+            "max_tokens": max_tokens,
+        },
+        headers={"api-key": api_key},
+        timeout=10,
+    )
     logging.info("on_locust_init - done")
 
 

@@ -3,6 +3,8 @@
 ## vNext
 
 - add notes here for the next release
+- Add support for translation endpoint i.e. whisper models. ([#59](https://github.com/microsoft/aoai-api-simulator/pull/59) [@wtulloch](https://github.com/wtulloch))
+  - This also includes internal changes to support non-token based rate limiting
 - Add support for specifying the `dimension` parameter in in embeddings requests for `text-embedding-3` and later models ([#55](https://github.com/microsoft/aoai-api-simulator/pull/55) - [@tanya-borisova](https://github.com/tanya-borisova))
 - Ensure that an API key is always generated if not provided ([#56](https://github.com/microsoft/aoai-api-simulator/pull/56) - [@lucashuet93](https://github.com/lucashuet93))
 - **BREAKING CHANGE** Requests for an incompatible model (e.g. chat requests for an embedding model) fail with a 400 error ([#58](https://github.com/microsoft/aoai-api-simulator/pull/58) - [@tanya-borisova](https://github.com/tanya-borisova))

@@ -5,7 +5,7 @@ import json
 
 from aoai_api_simulator.auth import validate_api_key_header
 from aoai_api_simulator.generator.openai import (
-    calculate_latency,
+    calculate_latency_text_endpoints,
     create_lorem_chat_completion_response,
     get_chat_model_from_deployment_name,
 )
@@ -78,6 +78,6 @@ async def custom_azure_openai_chat_completion(context: RequestContext) -> Respon
     )
 
     # calculate a simulated latency and store in context.values
-    await calculate_latency(context, status_code=response.status_code)
+    await calculate_latency_text_endpoints(context, status_code=response.status_code)
 
     return response

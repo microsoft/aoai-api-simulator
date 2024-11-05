@@ -25,6 +25,8 @@ if [[ -f "$script_dir/../.env" ]]; then
 	source "$script_dir/../.env"
 fi
 
+
+
 if [[ -z "$TEST_FILE" ]]; then
   error_exit "TEST_FILE not specified"
 fi
@@ -97,6 +99,7 @@ log "=="
 
 src_path=$(realpath "$script_dir/../loadtest")
 
+cp -R "${script_dir}/../tests/audio" "${script_dir}/../loadtest/.audio"
 docker build -t "${acr_login_server}/aoai-api-simulator-load-test:latest" "$src_path" -f "$src_path/Dockerfile" 1>&2
 
 az acr login --name "$acr_name" 1>&2
@@ -109,6 +112,9 @@ log "== Creating load test job"
 log "=="
 
 log "\n"
+
+log "!!! API: $api_fqdn"
+log "!!! Deployment: $DEPLOYMENT_NAME"
 
 # https://learn.microsoft.com/en-us/azure/container-apps/jobs-get-started-cli?pivots=container-apps-job-manual
 # https://docs.locust.io/en/stable/configuration.html#all-available-configuration-options

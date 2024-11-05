@@ -3,23 +3,20 @@ Test the OpenAI generator endpoints
 """
 
 import os
-from aoai_api_simulator.models import (
-    Config,
-    LatencyConfig,
-    ChatCompletionLatency,
-    CompletionLatency,
-    EmbeddingLatency,
-)
-from aoai_api_simulator.generator.manager import get_default_generators
-from azure.core.credentials import AzureKeyCredential
-from azure.core.exceptions import ClientAuthenticationError
-from azure.ai.formrecognizer import DocumentAnalysisClient
-
 
 import aiohttp
-import asyncio
 import pytest
-import requests
+from aoai_api_simulator.generator.manager import get_default_generators
+from aoai_api_simulator.models import (
+    ChatCompletionLatency,
+    CompletionLatency,
+    Config,
+    EmbeddingLatency,
+    LatencyConfig,
+)
+from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.core.credentials import AzureKeyCredential
+from azure.core.exceptions import ClientAuthenticationError
 
 from .test_uvicorn_server import UvicornTestServer
 
@@ -115,9 +112,6 @@ async def test_rate_limit():
             "content-type": "application/octet-stream",
             "accept": "application/json",
         }
-
-        # response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
-        # print(response)
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=payload, headers=headers, params=querystring) as response:

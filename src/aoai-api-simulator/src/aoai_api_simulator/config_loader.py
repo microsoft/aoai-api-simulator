@@ -66,8 +66,9 @@ def _load_openai_deployments(logger: logging.Logger) -> dict[str, OpenAIDeployme
         deployments[deployment_name] = OpenAIDeployment(
             name=deployment_name,
             model=model,
-            tokens_per_minute=deployment["tokensPerMinute"],
+            tokens_per_minute=int(deployment.get("tokensPerMinute", 0)),
             embedding_size=int(deployment.get("embeddingSize", 1536)),
+            requests_per_minute=int(deployment.get("requestsPerMinute", 0)),
         )
     return deployments
 
@@ -102,6 +103,7 @@ def _default_openai_deployments() -> dict[str, OpenAIDeployment]:
         "gpt-35-turbo-100m-token": OpenAIDeployment(
             name="gpt-35-turbo-100m-token", model="gpt-3.5-turbo", tokens_per_minute=100000000
         ),
+        "whisper": OpenAIDeployment(name="whisper", model="whisper", requests_per_minute=3),
     }
 
 
