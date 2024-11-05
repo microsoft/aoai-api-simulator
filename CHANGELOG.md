@@ -2,6 +2,7 @@
 
 ## vNext
 
+<!-- markdownlint-disable line-length -->
 - add notes here for the next release
 - Add support for translation endpoint i.e. whisper models. ([#59](https://github.com/microsoft/aoai-api-simulator/pull/59) [@wtulloch](https://github.com/wtulloch))
   - This also includes internal changes to support non-token based rate limiting
@@ -10,9 +11,8 @@
 - **BREAKING CHANGE** Requests for an incompatible model (e.g. chat requests for an embedding model) fail with a 400 error ([#58](https://github.com/microsoft/aoai-api-simulator/pull/58) - [@tanya-borisova](https://github.com/tanya-borisova))
 - Terraform deployment option ([#60](https://github.com/microsoft/aoai-api-simulator/pull/60) [@mluker](https://github.com/mluker))
 - Support for ARM architecture for local Docker builds ([#32](https://github.com/microsoft/aoai-api-simulator/pull/32) [@mluker](https://github.com/mluker))
-- <!-- markdownlint-disable line-length -->
 - Numerous fixes and repo improvements: [#24](https://github.com/microsoft/aoai-api-simulator/pull/24), [#26](https://github.com/microsoft/aoai-api-simulator/pull/26), [#38](https://github.com/microsoft/aoai-api-simulator/pull/38), [#41](https://github.com/microsoft/aoai-api-simulator/pull/41), [#42](https://github.com/microsoft/aoai-api-simulator/pull/42), [#43](https://github.com/microsoft/aoai-api-simulator/pull/43), [#45](https://github.com/microsoft/aoai-api-simulator/pull/45), [#51](https://github.com/microsoft/aoai-api-simulator/pull/51) [@martinpeck](https://github.com/martinpeck)
-- <!-- markdownlint-enable line-length -->
+<!-- markdownlint-enable line-length -->
 
 ## v0.5 - 2024-08-27
 
