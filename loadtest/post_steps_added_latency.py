@@ -153,7 +153,9 @@ AppMetrics
 )
 
 
-query_errors = query_processor.run_queries()
+query_errors = query_processor.run_queries(
+    all_queries_link_text="Show all queries in Log Analytics",
+)
 
 if query_errors:
     exit(1)
