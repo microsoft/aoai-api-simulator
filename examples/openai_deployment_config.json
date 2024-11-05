@@ -75,18 +75,18 @@
     },
     "whisper": {
         "model": "whisper",
-        "requestPerMinute" : 3
+        "requestsPerMinute" : 3
     },
     "whisper100": {
         "model": "whisper",
-        "requestPerMinute" : 100
+        "requestsPerMinute" : 100
     },
     "whisper1k": {
         "model": "whisper",
-        "requestPerMinute" : 1000
+        "requestsPerMinute" : 1000
     },
     "whisper10k": {
         "model": "whisper",
-        "requestPerMinute" : 10000
+        "requestsPerMinute" : 10000
     }
 }
