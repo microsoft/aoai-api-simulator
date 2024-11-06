@@ -2,8 +2,11 @@
 
 ## vNext
 
-<!-- markdownlint-disable line-length -->
 - add notes here for the next release
+
+## v0.6 2024-11-06
+
+<!-- markdownlint-disable line-length -->
 - Add support for translation endpoint i.e. whisper models. ([#59](https://github.com/microsoft/aoai-api-simulator/pull/59) [@wtulloch](https://github.com/wtulloch))
   - This also includes internal changes to support non-token based rate limiting
 - Add support for specifying the `dimension` parameter in in embeddings requests for `text-embedding-3` and later models ([#55](https://github.com/microsoft/aoai-api-simulator/pull/55) - [@tanya-borisova](https://github.com/tanya-borisova))
