@@ -32,8 +32,26 @@ SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED = "X-OpenAI-Max-Tokens-Requested"
 # (taking into account the model's limits/defaults)
 SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE = "X-OpenAI-Max-Tokens-Effective"
 
+# SIMULATOR_KEY_OPENAI_REQUEST_FILE_SIZE stores the size of the request file in bytes
+SIMULATOR_KEY_OPENAI_REQUEST_FILE_SIZE_BYTES = "X-OpenAI-Request-File-Size"
+
 
 # TARGET_DURATION_MS stores the target duration of the request in milliseconds
 # For recorded requests this will be the recorded duration
 # For generated requests this will be estimated based on the request type and response length
 TARGET_DURATION_MS = "Simulator-Target-Duration"
+
+
+# LIMTER_OPENAI_TOKENS is the name of the limiter used for OpenAI requests
+# that are rate-limited using tokens (and requests-per-10-seconds)
+LIMITER_OPENAI_TOKENS = "openai-tokens"
+
+# LIMITER_OPENAI_REQUESTS is the name of the limiter used for OpenAI requests
+# that are rate-limited using requests-per-minute
+LIMITER_OPENAI_REQUESTS = "openai-requests"
+
+
+OPENAI_OPERATION_EMBEDDINGS = "embeddings"
+OPENAI_OPERATION_COMPLETIONS = "completions"
+OPENAI_OPERATION_CHAT_COMPLETIONS = "chat_completions"
+OPENAI_OPERATION_TRANSLATION = "translation"

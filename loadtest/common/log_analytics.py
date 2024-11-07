@@ -1,23 +1,20 @@
 import base64
-from datetime import UTC, datetime, timedelta
 import io
 import logging
 import time
-import requests
 import urllib.parse
-
-import asciichartpy as asciichart
-
-from azure.core.credentials import TokenCredential
-from azure.core.exceptions import HttpResponseError
-from azure.monitor.query import LogsQueryClient, MetricsQueryClient, MetricsClient
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from gzip import GzipFile
-from tabulate import tabulate
 from typing import Any, Callable
 
-from .terminal import get_link
+import asciichartpy as asciichart
+from azure.core.credentials import TokenCredential
+from azure.core.exceptions import HttpResponseError
+from azure.monitor.query import LogsQueryClient
+from tabulate import tabulate
 
+from .terminal import get_link
 
 APPINSIGHTS_ENDPOINT = "https://api.applicationinsights.io/v1/apps"
 
@@ -45,7 +42,6 @@ class Table:
         value_column: str,
         missing_value: Any = None,
     ) -> "Table":
-
         # assume rows are sorted on id_column
 
         group_column_index = self.columns.index(group_column)
@@ -182,11 +178,12 @@ class QueryProcessor:
             )
         )
 
-    def run_queries(self) -> list[str] | None:
+    def run_queries(self, all_queries_link_text=None) -> list[str] | None:
         """
         Runs queries stored in __queries and prints result to stdout.
         Returns None if all validators passed, otherwise returns a list of error messages.
         """
+        all_queries_text = ""
         query_errors = []
         query_error_count = 0
         for query_index, (
@@ -201,9 +198,9 @@ class QueryProcessor:
             show_query,
             include_link,
         ) in enumerate(self.__queries):
-
             # When clicking on the link, Log Analytics runs the query automatically if there's no preceding whitespace
             query = query.strip()
+            all_queries_text += f"\n\n// {title}\n{query.strip()}\n\n\n"
             print()
             print(f"Running query {query_index + 1} of {len(self.__queries)}")
             print(f"{asciichart.yellow}{title}{asciichart.reset}")
@@ -257,6 +254,20 @@ class QueryProcessor:
                     query_errors.append(validation_error)
                     continue
 
+            print()
+
+        if all_queries_link_text:
+            all_queries_url = get_log_analytics_portal_url(
+                self.__tenant_id,
+                self.__subscription_id,
+                self.__resource_group_name,
+                self.__workspace_name,
+                all_queries_text,
+            )
+            all_queries_link = get_link(all_queries_link_text, all_queries_url)
+
+            print()
+            print(all_queries_link)
             print()
 
         return query_errors if len(query_errors) > 0 else None

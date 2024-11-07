@@ -8,12 +8,19 @@ import nanoid
 from aoai_api_simulator import constants
 from aoai_api_simulator.auth import validate_api_key_header
 from aoai_api_simulator.constants import (
+    LIMITER_OPENAI_REQUESTS,
+    LIMITER_OPENAI_TOKENS,
+    OPENAI_OPERATION_CHAT_COMPLETIONS,
+    OPENAI_OPERATION_COMPLETIONS,
+    OPENAI_OPERATION_EMBEDDINGS,
+    OPENAI_OPERATION_TRANSLATION,
     SIMULATOR_KEY_DEPLOYMENT_NAME,
     SIMULATOR_KEY_LIMITER,
     SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS,
     SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE,
     SIMULATOR_KEY_OPENAI_MAX_TOKENS_REQUESTED,
     SIMULATOR_KEY_OPENAI_PROMPT_TOKENS,
+    SIMULATOR_KEY_OPENAI_REQUEST_FILE_SIZE_BYTES,
     SIMULATOR_KEY_OPENAI_TOTAL_TOKENS,
     SIMULATOR_KEY_OPERATION_NAME,
 )
@@ -24,7 +31,13 @@ from aoai_api_simulator.generator.openai_tokens import (
     num_tokens_from_messages,
     num_tokens_from_string,
 )
-from aoai_api_simulator.models import OpenAIChatModel, OpenAIDeployment, OpenAIEmbeddingModel, RequestContext
+from aoai_api_simulator.models import (
+    OpenAIChatModel,
+    OpenAIDeployment,
+    OpenAIEmbeddingModel,
+    OpenAIWhisperModel,
+    RequestContext,
+)
 from fastapi import Response
 from fastapi.responses import StreamingResponse
 
@@ -55,7 +68,7 @@ def get_embedding_deployment_from_name(context: RequestContext, deployment_name:
         deployment_name: Name of the deployment
 
     Returns:
-        OpenAIDeployment | None: Instance of OpenAIDeployment
+        OpenAIEmbeddingModel | None: Instance of OpenAIEmbeddingModel
     """
     deployments = context.config.openai_deployments
 
@@ -125,30 +138,86 @@ def get_chat_model_from_deployment_name(context: RequestContext, deployment_name
     return None
 
 
-async def calculate_latency(context: RequestContext, status_code: int):
+def get_whisper_model_from_deployment_name(context: RequestContext, deployment_name: str) -> OpenAIWhisperModel | None:
+    """
+    Gets the model name for the specified deployment.
+    If the deployment is not in the configured deployments then either a default model is returned (if )
+    """
+    deployments = context.config.openai_deployments
+    if deployments:
+        deployment = deployments.get(deployment_name)
+        if deployment:
+            return deployment
+
+    if context.config.allow_undefined_openai_deployments:
+        default_model = "whisper"
+
+        # Output warning for missing deployment name (only the first time we encounter it)
+        if deployment_name not in deployment_missing_warning_printed:
+            logger.warning(
+                "Deployment %s not found in config and allow_undefined_openai_deployments is True."
+                + " Using default model %s",
+                deployment_name,
+                default_model,
+            )
+            deployment_missing_warning_printed.add(deployment_name)
+        return model_catalogue[default_model]
+
+    # Output warning for missing deployment name (only the first time we encounter it)
+    if deployment_name not in deployment_missing_warning_printed:
+        logger.warning(
+            "Deployment %s not found in config and allow_undefined_openai_deployments is False", deployment_name
+        )
+        deployment_missing_warning_printed.add(deployment_name)
+    return None
+
+
+async def calculate_latency_text_endpoints(context: RequestContext, status_code: int):
     """Calculate additional latency that should be applied"""
     if status_code >= 300:
         return
 
+    operation_name = context.values.get(constants.SIMULATOR_KEY_OPERATION_NAME)
+    config = context.config
+
     # Determine the target latency for the request
     completion_tokens = context.values.get(constants.SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS)
-
     if completion_tokens and completion_tokens > 0:
-        config = context.config
-        operation_name = context.values.get(constants.SIMULATOR_KEY_OPERATION_NAME)
         target_duration_ms = None
-        if operation_name == "embeddings":
+        if operation_name == OPENAI_OPERATION_EMBEDDINGS:
             # embeddings config returns latency value to use (in milliseconds)
             target_duration_ms = config.latency.open_ai_embeddings.get_value()
-        elif operation_name == "completions":
+        elif operation_name == OPENAI_OPERATION_COMPLETIONS:
             # completions config returns latency per completion token in milliseconds
             target_duration_ms = config.latency.open_ai_completions.get_value()
-        elif operation_name == "chat-completions":
+        elif operation_name == OPENAI_OPERATION_CHAT_COMPLETIONS:
             # chat completions config returns latency per completion token in milliseconds
             target_duration_ms = config.latency.open_ai_chat_completions.get_value() * completion_tokens
 
         if target_duration_ms:
+            # store the target duration in the context for use by the apply_latency method
             context.values[constants.TARGET_DURATION_MS] = target_duration_ms
+
+
+async def calculate_latency_translation(context: RequestContext, status_code: int):
+    """Calculate additional latency that should be applied"""
+    if status_code >= 300:
+        return
+
+    config = context.config
+    # Determine the target latency for the request
+    target_duration_ms = None
+
+    # translation config returns latency per MB of input audio in milliseconds
+    file_size_bytes = context.values.get(constants.SIMULATOR_KEY_OPENAI_REQUEST_FILE_SIZE_BYTES)
+    if file_size_bytes is None:
+        raise ValueError("Request file size not found in context values - unable to calculate latency")
+    file_size_mb = file_size_bytes / 1024 / 1024
+    target_duration_ms = config.latency.open_ai_translations.get_value() * file_size_mb
+
+    if target_duration_ms:
+        # store the target duration in the context for use by the apply_latency method
+        context.values[constants.TARGET_DURATION_MS] = target_duration_ms
 
 
 def create_embedding_content(index: int, embedding_size: int):
@@ -194,8 +263,8 @@ def create_embeddings_response(
     }
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "embeddings"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_TOKENS
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_EMBEDDINGS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = tokens
     context.values[SIMULATOR_KEY_OPENAI_TOTAL_TOKENS] = tokens
@@ -245,8 +314,8 @@ def create_completion_response(
     }
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "completions"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_TOKENS
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_COMPLETIONS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
     context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
@@ -261,7 +330,7 @@ def create_completion_response(
     )
 
 
-# pylint: disable-next=too-many-positional-arguments, too-many-arguments
+# pylint: disable-next=too-many-arguments, too-many-positional-arguments
 def create_lorem_chat_completion_response(
     context: RequestContext,
     deployment_name: str,
@@ -290,7 +359,7 @@ def create_lorem_chat_completion_response(
     )
 
 
-# pylint: disable-next=too-many-positional-arguments, too-many-arguments
+# pylint: disable-next=too-many-arguments, too-many-positional-arguments
 def create_chat_completion_response(
     context: RequestContext,
     deployment_name: str,
@@ -312,8 +381,8 @@ def create_chat_completion_response(
     total_tokens = prompt_tokens + completion_tokens
 
     # store values in the context for use by the rate-limiter etc
-    context.values[SIMULATOR_KEY_LIMITER] = "openai"
-    context.values[SIMULATOR_KEY_OPERATION_NAME] = "chat-completions"
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_TOKENS
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_CHAT_COMPLETIONS
     context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
     context.values[SIMULATOR_KEY_OPENAI_PROMPT_TOKENS] = prompt_tokens
     context.values[SIMULATOR_KEY_OPENAI_COMPLETION_TOKENS] = completion_tokens
@@ -501,7 +570,7 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
 
     # calculate a simulated latency and store in context.values
     # needs to be called after the response has been created
-    await calculate_latency(context, 200)
+    await calculate_latency_text_endpoints(context, 200)
 
     return response
 
@@ -564,7 +633,7 @@ async def azure_openai_completion(context: RequestContext) -> Response | None:
 
     # calculate a simulated latency and store in context.values
     # needs to be called after the response has been created
-    await calculate_latency(context, 200)
+    await calculate_latency_text_endpoints(context, 200)
 
     return response
 
@@ -631,6 +700,97 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
 
     # calculate a simulated latency and store in context.values
     # needs to be called after the response has been created
-    await calculate_latency(context, 200)
+    await calculate_latency_text_endpoints(context, 200)
 
     return response
+
+
+async def azure_openai_translation(context: RequestContext) -> Response | None:
+    request = context.request
+    is_match, path_params = context.is_route_match(
+        request=request, path="/openai/deployments/{deployment}/audio/translations", methods=["POST"]
+    )
+    if not is_match:
+        return None
+
+    _validate_api_key_header(context)
+
+    deployment_name = path_params["deployment"]
+    model = get_whisper_model_from_deployment_name(context, deployment_name)
+    if model is None:
+        return Response(
+            status_code=404,
+            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+    request_form = await request.form()
+    audio_file = request_form["file"]
+    response_format = request_form["response_format"]
+
+    file_size = len(audio_file.file.read())
+    context.values[SIMULATOR_KEY_OPENAI_REQUEST_FILE_SIZE_BYTES] = file_size
+
+    if file_size == 0 or file_size > 26214400:
+        return Response(
+            status_code=413,
+            content=json.dumps(
+                {
+                    "error": {
+                        "message": f"Maximum content size limit (26214400) exceeded ({file_size} bytes read)",
+                        "type": "server_error",
+                        "param": "null",
+                        "code": "null",
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+    max_tokens_to_generate = 10 if file_size < 1000 else (file_size // 1000) * 10
+
+    response = create_translation_response(
+        context=context,
+        response_format=response_format,
+        deployment_name=deployment_name,
+        max_tokens_to_generate=max_tokens_to_generate,
+    )
+
+    # calculate a simulated latency and store in context.values
+    # needs to be called after the response has been created
+    await calculate_latency_translation(context, 200)
+
+    return response
+
+
+def create_translation_response(
+    context: RequestContext, response_format: str, deployment_name: str, max_tokens_to_generate: int
+):
+    """
+    Creates a Response object for a translation request and sets context values for the rate-limiter etc
+    """
+
+    # Generate response text based max_tokens_to_generate
+    text = generate_lorem_text(max_tokens=max_tokens_to_generate, model_name="gpt-3.5-turbo-0301")
+
+    content = text
+    if response_format == "json":
+        json_result = {"text": text}
+        content = json.dumps(json_result)
+    # TODO: Handle other response formats
+    # see https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#audioresponseformat
+
+    context.values[SIMULATOR_KEY_LIMITER] = LIMITER_OPENAI_REQUESTS
+    context.values[SIMULATOR_KEY_OPERATION_NAME] = OPENAI_OPERATION_TRANSLATION
+    context.values[SIMULATOR_KEY_DEPLOYMENT_NAME] = deployment_name
+
+    return Response(
+        content=content,
+        headers={
+            "Content-Type": "application/json" if response_format == "json" else "text/plain",
+        },
+        status_code=200,
+    )

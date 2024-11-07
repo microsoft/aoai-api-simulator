@@ -5,21 +5,21 @@ Test the OpenAI generator endpoints
 import shutil
 import tempfile
 
-from openai import AzureOpenAI, InternalServerError, RateLimitError
 import pytest
+from aoai_api_simulator.generator.model_catalogue import model_catalogue
+from aoai_api_simulator.models import (
+    ChatCompletionLatency,
+    CompletionLatency,
+    Config,
+    EmbeddingLatency,
+    LatencyConfig,
+    OpenAIDeployment,
+)
+from aoai_api_simulator.record_replay.handler import get_default_forwarders
+from openai import AzureOpenAI, InternalServerError, RateLimitError
 from pytest_httpserver import HTTPServer
 
 from .test_uvicorn_server import UvicornTestServer
-
-from aoai_api_simulator.record_replay.handler import get_default_forwarders
-from aoai_api_simulator.models import (
-    Config,
-    LatencyConfig,
-    ChatCompletionLatency,
-    CompletionLatency,
-    EmbeddingLatency,
-    OpenAIDeployment,
-)
 
 
 class TempDirectory:
@@ -34,7 +34,6 @@ class TempDirectory:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-
         shutil.rmtree(self._temp_dir)
 
     @property
@@ -92,7 +91,12 @@ def _get_replay_config(recording_path: str) -> Config:
         ),
     )
     config.openai_deployments = {
-        "low_limit": OpenAIDeployment(name="low_limit", model="gpt-3.5-turbo", tokens_per_minute=64 * 6)
+        "low_limit": OpenAIDeployment(
+            name="low_limit", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=64 * 6
+        ),
+        "low_limit_whisper": OpenAIDeployment(
+            name="low_limit_whisper", model=model_catalogue["whisper"], requests_per_minute=1
+        ),
     }
     return config
 
@@ -169,6 +173,7 @@ async def test_openai_record_replay_completion(httpserver: HTTPServer):
 async def test_openai_record_replay_completion_limit_reached(httpserver: HTTPServer):
     """
     Ensure we can call the completions endpoint multiple times using recorded responses to trigger rate-limiting
+    Completions tests token-based rate limiting
     """
 
     # Set up pytest-httpserver to provide an endpoint for the simulator
@@ -226,4 +231,125 @@ async def test_openai_record_replay_completion_limit_reached(httpserver: HTTPSer
             assert (
                 e.value.message
                 == "Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after 10 seconds.'}}"
+            )
+
+
+@pytest.mark.asyncio
+async def test_openai_record_replay_translation(httpserver: HTTPServer):
+    """
+    Ensure we can call the translation endpoint multiple times using recorded responses to trigger rate-limiting
+    Translations uses request-based rate limiting
+    """
+
+    # Set up pytest-httpserver to provide an endpoint for the simulator
+    # to call in record mode
+    httpserver.expect_request(
+        uri="/openai/deployments/deployment1/audio/translations",
+        query_string="api-version=2023-12-01-preview",
+        method="POST",
+    ).respond_with_data('{"text":"foo"}\n')
+
+    audio_file_path = "/workspaces/aoai-api-simulator/tests/audio/short-white-noise.mp3"
+    with TempDirectory() as temp_dir:
+        # set up simulated API in record mode
+        config = _get_record_config(httpserver, temp_dir.path)
+        server = UvicornTestServer(config)
+        with server.run_in_thread():
+            aoai_client = AzureOpenAI(
+                api_key=API_KEY,
+                api_version="2023-12-01-preview",
+                azure_endpoint="http://localhost:8001",
+                max_retries=0,
+            )
+            with open(audio_file_path, "rb") as file:
+                response = aoai_client.audio.translations.create(model="deployment1", file=file, response_format="json")
+
+            assert len(response.text) > 0
+
+        # Undo httpserver config to ensure there isn't an endpoint to forward to
+        # when testing in replay mode
+        httpserver.clear_all_handlers()
+
+        # set up simulated API in replay mode (using the recording from above)
+        config = _get_replay_config(temp_dir.path)
+        server = UvicornTestServer(config)
+        with server.run_in_thread():
+            aoai_client = AzureOpenAI(
+                api_key=API_KEY,
+                api_version="2023-12-01-preview",
+                azure_endpoint="http://localhost:8001",
+                max_retries=0,
+            )
+            with open(audio_file_path, "rb") as file:
+                response = aoai_client.audio.translations.create(model="deployment1", file=file, response_format="json")
+
+            assert len(response.text) > 0
+
+
+@pytest.mark.asyncio
+async def test_openai_record_replay_translation_limit_reached(httpserver: HTTPServer):
+    """
+    Ensure we can call the translation endpoint multiple times using recorded responses to trigger rate-limiting
+    Translations uses request-based rate limiting
+    """
+
+    # Set up pytest-httpserver to provide an endpoint for the simulator
+    # to call in record mode
+    httpserver.expect_request(
+        uri="/openai/deployments/low_limit_whisper/audio/translations",
+        query_string="api-version=2023-12-01-preview",
+        method="POST",
+    ).respond_with_data('{"text":"foo"}\n')
+
+    audio_file_path = "/workspaces/aoai-api-simulator/tests/audio/short-white-noise.mp3"
+    with TempDirectory() as temp_dir:
+        # set up simulated API in record mode
+        config = _get_record_config(httpserver, temp_dir.path)
+        server = UvicornTestServer(config)
+        with server.run_in_thread():
+            aoai_client = AzureOpenAI(
+                api_key=API_KEY,
+                api_version="2023-12-01-preview",
+                azure_endpoint="http://localhost:8001",
+                max_retries=0,
+            )
+            with open(audio_file_path, "rb") as file:
+                response = aoai_client.audio.translations.create(
+                    model="low_limit_whisper", file=file, response_format="json"
+                )
+
+            assert len(response.text) > 0
+
+        # Undo httpserver config to ensure there isn't an endpoint to forward to
+        # when testing in replay mode
+        httpserver.clear_all_handlers()
+
+        # set up simulated API in replay mode (using the recording from above)
+        config = _get_replay_config(temp_dir.path)
+        server = UvicornTestServer(config)
+        with server.run_in_thread():
+            aoai_client = AzureOpenAI(
+                api_key=API_KEY,
+                api_version="2023-12-01-preview",
+                azure_endpoint="http://localhost:8001",
+                max_retries=0,
+            )
+            with open(audio_file_path, "rb") as file:
+                response = aoai_client.audio.translations.create(
+                    model="low_limit_whisper", file=file, response_format="json"
+                )
+
+            assert len(response.text) > 0
+
+            with pytest.raises(RateLimitError) as e:
+                with open(audio_file_path, "rb") as file:
+                    response = aoai_client.audio.translations.create(
+                        model="low_limit_whisper", file=file, response_format="json"
+                    )
+
+            assert e.value.status_code == 429
+            # limit should be enforced based on requests (not tokens), so reset in 10s
+            assert (
+                e.value.message
+                == "Error code: 429 - {'error': {'code': '429', 'message': 'Requests to the OpenAI API Simulator have exceeded call rate limit. Please retry after 60 seconds.'}}"
             )

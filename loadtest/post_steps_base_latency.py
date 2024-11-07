@@ -1,18 +1,16 @@
-from datetime import UTC, datetime, timedelta
-import os
 import logging
+import os
+from datetime import UTC, datetime, timedelta
 
 import asciichartpy as asciichart
 from azure.identity import DefaultAzureCredential
-
 from common.config import (
-    tenant_id,
-    subscription_id,
-    resource_group_name,
     log_analytics_workspace_id,
     log_analytics_workspace_name,
+    resource_group_name,
+    subscription_id,
+    tenant_id,
 )
-
 from common.log_analytics import QueryProcessor, Table
 
 logging.basicConfig(level=logging.INFO)
@@ -164,7 +162,9 @@ AppMetrics
 )
 
 
-query_errors = query_processor.run_queries()
+query_errors = query_processor.run_queries(
+    all_queries_link_text="Show all queries in Log Analytics",
+)
 
 if query_errors:
     exit(1)

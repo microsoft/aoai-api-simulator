@@ -5,11 +5,10 @@ from typing import Awaitable, Callable
 
 import fastapi
 import requests
-
 from aoai_api_simulator import constants
 from aoai_api_simulator.models import RequestContext
+from aoai_api_simulator.record_replay.models import RecordedResponse, get_request_hash, hash_body, hash_request_parts
 from aoai_api_simulator.record_replay.openai import forward_to_azure_openai
-from aoai_api_simulator.record_replay.models import RecordedResponse, get_request_hash, hash_request_parts
 from aoai_api_simulator.record_replay.persistence import YamlRecordingPersister
 
 logger = logging.getLogger(__name__)
@@ -17,18 +16,20 @@ logger = logging.getLogger(__name__)
 text_content_types = ["application/json", "application/text"]
 
 
-def get_default_forwarders() -> list[
-    Callable[
-        [RequestContext],
-        fastapi.Response
-        | Awaitable[fastapi.Response]
-        | requests.Response
-        | Awaitable[requests.Response]
-        | dict
-        | Awaitable[dict]
-        | None,
+def get_default_forwarders() -> (
+    list[
+        Callable[
+            [RequestContext],
+            fastapi.Response
+            | Awaitable[fastapi.Response]
+            | requests.Response
+            | Awaitable[requests.Response]
+            | dict
+            | Awaitable[dict]
+            | None,
+        ]
     ]
-]:
+):
     # Return a list of functions to call when recording and no matching saved request is found
     #
     # If the function returns a Response object (from FastAPI or requests package)
@@ -58,7 +59,6 @@ class ForwardedResponse:
 
 
 class RecordReplayHandler:
-
     _recordings: dict[str, dict[int, RecordedResponse]]
     _forwarders: list[
         Callable[
@@ -116,8 +116,10 @@ class RecordReplayHandler:
         request = context.request
         url = request.url.path
         recording = await self._get_recording_for_url(url)
+        request_hash = await get_request_hash(request)
+
         if recording:
-            request_hash = await get_request_hash(request)
+            # request_hash = await get_request_hash(request)
             response_info = recording.get(request_hash)
             if response_info:
                 headers = {k: v[0] for k, v in response_info.headers.items()}
@@ -184,11 +186,14 @@ class RecordReplayHandler:
         if request_content_type in text_content_types:
             request_body = request_body.decode("utf-8")
 
+        request_body_hash = hash_body(request_headers, request_body)
         recorded_response = RecordedResponse(
             status_code=response.status_code,
             headers={k: [v] for k, v in dict(response.headers).items()},
             body=body,
-            request_hash=hash_request_parts(request.method, request.url.path, request_body),
+            request_hash=hash_request_parts(
+                request.method, request.url.path, request.headers, body_hash=request_body_hash
+            ),
             context_values=context.values,
             full_request={
                 "method": request.method,

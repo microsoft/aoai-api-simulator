@@ -182,3 +182,6 @@ infra/.openai_deployment_config.json
 
 # Ignore os specific files
 .DS_Store
+
+
+.audio

@@ -1,4 +1,5 @@
 import random
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Annotated, Awaitable, Callable
 
@@ -60,6 +61,18 @@ class RequestContext:
             return (False, {})
         return (True, scopes["path_params"])
 
+    def is_form_data(self):
+        """
+        Checks if the request is a form data request
+        """
+        return "multipart/form-data" in self.request.headers.get("Content-Type", "")
+
+    def is_openai_request(self):
+        """
+        Checks if the request is an OpenAI request
+        """
+        return self.request.url.path.startswith("/openai/")
+
 
 class RecordingConfig(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
@@ -109,6 +122,14 @@ class EmbeddingLatency(BaseSettings):
         return random.normalvariate(self.mean, self.std_dev)
 
 
+class TranslationLatency(BaseSettings):
+    mean: float = Field(default=15000, alias="LATENCY_OPENAI_TRANSLATIONS_MEAN")
+    std_dev: float = Field(default=1000, alias="LATENCY_OPENAI_TRANSLATIONS_STD_DEV")
+
+    def get_value(self) -> float:
+        return random.normalvariate(self.mean, self.std_dev)
+
+
 class LatencyConfig(BaseSettings):
     """
     Defines the latency for different types of requests
@@ -116,11 +137,13 @@ class LatencyConfig(BaseSettings):
     open_ai_embeddings: the latency for OpenAI embeddings - mean is mean request duration in milliseconds
     open_ai_completions: the latency for OpenAI completions - mean is the number of milliseconds per token
     open_ai_chat_completions: the latency for OpenAI chat completions - mean is the number of milliseconds per token
+    open_ai_translations: the latency for OpenAI translations - mean is the number of milliseconds per MB of input aud
     """
 
     open_ai_completions: CompletionLatency = Field(default=CompletionLatency())
     open_ai_chat_completions: ChatCompletionLatency = Field(default=ChatCompletionLatency())
     open_ai_embeddings: EmbeddingLatency = Field(default=EmbeddingLatency())
+    open_ai_translations: TranslationLatency = Field(default=TranslationLatency())
 
 
 class PatchableConfig(BaseSettings):
@@ -153,19 +176,36 @@ class Config(PatchableConfig):
 
 
 @dataclass
-class OpenAIModel:
+class OpenAIModel(ABC):
     name: str
+
+    @property
+    @abstractmethod
+    def is_token_limited(self) -> bool:
+        pass
 
 
 @dataclass
 class OpenAIChatModel(OpenAIModel):
-    pass
+    @property
+    def is_token_limited(self) -> bool:
+        return True
 
 
 @dataclass
 class OpenAIEmbeddingModel(OpenAIModel):
-    name: str
     supports_custom_dimensions: bool
+
+    @property
+    def is_token_limited(self) -> bool:
+        return True
+
+
+@dataclass
+class OpenAIWhisperModel(OpenAIModel):
+    @property
+    def is_token_limited(self) -> bool:
+        return False
 
 
 @dataclass
@@ -174,6 +214,7 @@ class OpenAIDeployment:
     model: OpenAIModel
     tokens_per_minute: int = 0
     embedding_size: int = 0
+    requests_per_minute: int = 0
 
 
 # re-using Starlette's Route class to define a route
