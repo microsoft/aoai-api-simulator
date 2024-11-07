@@ -95,3 +95,6 @@ docker-build-load-test: ## Build the AOAI Simulated API Load Test as a docker im
 erase-recording: ## Erase all *.recording files
 	rm -rf "${makefile_dir}.recording"
 
+start-telemetry:
+	-docker-compose -f build/telemetry-docker-compose.yaml down
+	docker-compose -f ./build/telemetry-docker-compose.yaml up

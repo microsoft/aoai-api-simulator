@@ -1,18 +1,18 @@
 import logging
-from opentelemetry import metrics
+
 from azure.monitor.opentelemetry import configure_azure_monitor
+from opentelemetry import metrics
 
 from .config import (
-    app_insights_connection_string,
+    applicationinsights_connection_string,
 )
-
 
 histogram_request_latency: metrics.Histogram
 
-if app_insights_connection_string:
+if applicationinsights_connection_string:
     # Options: https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/monitor/azure-monitor-opentelemetry#usage
     logging.getLogger("azure").setLevel(logging.WARNING)
-    configure_azure_monitor(connection_string=app_insights_connection_string)
+    configure_azure_monitor(connection_string=applicationinsights_connection_string)
     histogram_request_latency = metrics.get_meter(__name__).create_histogram(
         "locust.request_latency", "Request latency", "s"
     )

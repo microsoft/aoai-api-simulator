@@ -86,8 +86,8 @@ if [[ -z "${key_vault_name}" ]]; then
 	echo "Key Vault Name not found in output.json"
 	exit 1
 fi
-app_insights_connection_string=$(az keyvault secret show --vault-name "$key_vault_name" --name app-insights-connection-string --query value --output tsv)
-if [[ -z "${app_insights_connection_string}" ]]; then
+applicationinsights_connection_string=$(az keyvault secret show --vault-name "$key_vault_name" --name applicationinsights-connection-string --query value --output tsv)
+if [[ -z "${applicationinsights_connection_string}" ]]; then
 	echo "App Insights Connection String not found in Key Vault"
 	exit 1
 fi
@@ -133,7 +133,7 @@ az containerapp job create \
   --cpu "1" \
   --memory "2Gi" \
   --command "locust" \
-  --env-vars "LOCUST_LOCUSTFILE=$TEST_FILE" "LOCUST_HOST=https://${api_fqdn}/" "LOCUST_USERS=$LOCUST_USERS" "LOCUST_SPAWN_RATE=$LOCUST_SPAWN_RATE" "LOCUST_AUTOSTART=true" "LOCUST_RUN_TIME=$LOCUST_RUN_TIME" "LOCUST_AUTOQUIT=10" "SIMULATOR_API_KEY=${SIMULATOR_API_KEY}" "APP_INSIGHTS_CONNECTION_STRING=${app_insights_connection_string}" "MAX_TOKENS=${MAX_TOKENS}" "DEPLOYMENT_NAME=${DEPLOYMENT_NAME}" ALLOW_429_RESPONSES=${ALLOW_429_RESPONSES} 1>&2
+  --env-vars "LOCUST_LOCUSTFILE=$TEST_FILE" "LOCUST_HOST=https://${api_fqdn}/" "LOCUST_USERS=$LOCUST_USERS" "LOCUST_SPAWN_RATE=$LOCUST_SPAWN_RATE" "LOCUST_AUTOSTART=true" "LOCUST_RUN_TIME=$LOCUST_RUN_TIME" "LOCUST_AUTOQUIT=10" "SIMULATOR_API_KEY=${SIMULATOR_API_KEY}" "APP_INSIGHTS_CONNECTION_STRING=${applicationinsights_connection_string}" "MAX_TOKENS=${MAX_TOKENS}" "DEPLOYMENT_NAME=${DEPLOYMENT_NAME}" ALLOW_429_RESPONSES=${ALLOW_429_RESPONSES} 1>&2
 
 
 start_time=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
