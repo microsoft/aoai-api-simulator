@@ -57,6 +57,16 @@ default_openai_embedding_model = OpenAIDeployment(
 )
 
 
+def _deployment_not_found_response(deployment_name: str) -> Response:
+    return Response(
+        status_code=404,
+        content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
+        headers={
+            "Content-Type": "application/json",
+        },
+    )
+
+
 def get_embedding_deployment_from_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
     """
     Gets the embedding model for the specified embedding deployment.
@@ -531,13 +541,7 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
     deployment = get_embedding_deployment_from_name(context, deployment_name)
 
     if deployment is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
 
     if not isinstance(deployment.model, OpenAIEmbeddingModel):
         return Response(
@@ -588,13 +592,7 @@ async def azure_openai_completion(context: RequestContext) -> Response | None:
     deployment_name = path_params["deployment"]
     model = get_chat_model_from_deployment_name(context, deployment_name)
     if model is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
 
     if not isinstance(model, OpenAIChatModel):
         return Response(
@@ -652,13 +650,8 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
     deployment_name = path_params["deployment"]
     model = get_chat_model_from_deployment_name(context, deployment_name)
     if model is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
+
     if not isinstance(model, OpenAIChatModel):
         return Response(
             status_code=400,
@@ -718,13 +711,8 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
     deployment_name = path_params["deployment"]
     model = get_whisper_model_from_deployment_name(context, deployment_name)
     if model is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
+
     request_form = await request.form()
     audio_file = request_form["file"]
     response_format = request_form["response_format"]
