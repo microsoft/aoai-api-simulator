@@ -39,6 +39,14 @@
         "model": "gpt-3.5-turbo",
         "tokensPerMinute" : 100000000
     },
+    "gpt-4-10k-token" : {
+        "model": "gpt-4",
+        "tokensPerMinute" : 10000
+    },
+    "gpt-4o-10k-token" : {
+        "model": "gpt-4o",
+        "tokensPerMinute" : 10000
+    },
     "embedding" : {
         "model": "text-embedding-ada-002",
         "tokensPerMinute" : 10000

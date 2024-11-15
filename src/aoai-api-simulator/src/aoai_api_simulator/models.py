@@ -187,6 +187,8 @@ class OpenAIModel(ABC):
 
 @dataclass
 class OpenAIChatModel(OpenAIModel):
+    supports_json_schema: bool
+
     @property
     def is_token_limited(self) -> bool:
         return True
