@@ -15,9 +15,9 @@ api-key: {{aoai_key}}
 
 {
   "messages": [{
-    "role": "user",
-    "content": "Is this thing on?"
-    }],
+	"role": "user",
+	"content": "Is this thing on?"
+	}],
   "model": "gpt-5-turbo-1",
   "max_tokens": 20
 }
@@ -29,10 +29,72 @@ api-key: {{aoai_key}}
 
 {
   "messages": [{
-    "role": "user",
-    "content": "What is the meaning of life?"
-    }],
+	"role": "user",
+	"content": "What is the meaning of life?"
+	}],
   "model": "gpt-5-turbo-1",
+  "max_tokens": 2000
+}
+
+###
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2024-10-21
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "messages": [{
+	"role": "user",
+	"content": "What is the meaning of life?"
+	}],
+  "model": "gpt-5-turbo-1",
+  "response_format": {
+	"type": "json_schema",
+	"json_schema": {
+					"name": "CalendarEventResponse",
+					"strict": true,
+					"schema": {
+						"type": "object",
+						"properties": {
+							"name": {
+							  "type": "string"
+							},
+							"date": {
+								"type": "string"
+							},
+							"participants": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						},
+						"required": [
+							"name",
+							"date",
+							"participants"
+						],
+						"additionalProperties": false
+					}
+				}
+  },
+  "max_tokens": 2000
+}
+###
+POST {{aoai_endpoint}}/openai/deployments/{{aoai_deployment}}/chat/completions?api-version=2024-10-21
+Content-Type: application/json
+api-key: {{aoai_key}}
+
+{
+  "messages": [{
+	"role": "user",
+	"content": "What is the meaning of life?"
+	}],
+  "model": "gpt-5-turbo-1",
+  "response_format": {
+	"type": "json_schema",
+	"json_schema": {
+	}
+  },
   "max_tokens": 2000
 }
 
@@ -125,15 +187,15 @@ api-key: {{aoai_key}}
 
 {
   "messages": [{
-    "role": "user",
-    "content": "What is the meaning of life?"
-    }, {
-      "role": "assistant",
-      "content": "blank"
-    }, {
-      "role": "user",
-      "content": "What is the meaning of life?"
-    }],
+	"role": "user",
+	"content": "What is the meaning of life?"
+	}, {
+	  "role": "assistant",
+	  "content": "blank"
+	}, {
+	  "role": "user",
+	  "content": "What is the meaning of life?"
+	}],
   "model": "gpt-5-turbo-1"
 }
 
@@ -145,13 +207,13 @@ api-key: {{aoai_key}}
 
 {
   "messages": [
-    {"role": "user", "content": "What is the furthest human-made object from Earth?"},
-    {"role": "assistant", "content": "As an AI language model, I don't have the latest information on this. However, as of August 2021, the furthest human-made object from Earth is the Voyager 1 spacecraft. It was launched in 1977 and is currently over 14 billion miles away from Earth and is still transmitting data."},
+	{"role": "user", "content": "What is the furthest human-made object from Earth?"},
+	{"role": "assistant", "content": "As an AI language model, I don't have the latest information on this. However, as of August 2021, the furthest human-made object from Earth is the Voyager 1 spacecraft. It was launched in 1977 and is currently over 14 billion miles away from Earth and is still transmitting data."},
 
-    {"role": "user", "content": "How fast is it travelling?"},
-    {"role": "assistant", "content": "As of August 2021, Voyager 1 is traveling at a speed of about 17.7 km/s (62,136 km/h or 38,614 miles per hour). This is about 0.006% of the speed of light, which means it would take over 17,000 years to travel one light-year."},
+	{"role": "user", "content": "How fast is it travelling?"},
+	{"role": "assistant", "content": "As of August 2021, Voyager 1 is traveling at a speed of about 17.7 km/s (62,136 km/h or 38,614 miles per hour). This is about 0.006% of the speed of light, which means it would take over 17,000 years to travel one light-year."},
 
-    {"role": "user", "content": "How much does it weigh?"}
+	{"role": "user", "content": "How much does it weigh?"}
   ],
   "model": "gpt-5-turbo-1"
 }

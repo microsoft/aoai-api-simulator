@@ -58,32 +58,44 @@ def num_tokens_from_messages(messages, model):
     if model in {
         "gpt-3.5-turbo-0613",
         "gpt-3.5-turbo-16k-0613",
+        "gpt-3.5-turbo-0125",
         "gpt-4-0314",
         "gpt-4-32k-0314",
         "gpt-4-0613",
         "gpt-4-32k-0613",
+        "gpt-4o-mini-2024-07-18",
+        "gpt-4o-2024-08-06",
     }:
         tokens_per_message = 3
         tokens_per_name = 1
-    elif model == "gpt-3.5-turbo-0301":
-        tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
-        tokens_per_name = -1  # if there's a name, the role is omitted
     elif "gpt-3.5-turbo" in model:
         _warn_once(
             model, "Warning: gpt-3.5-turbo may update over time. Returning num tokens assuming gpt-3.5-turbo-0613."
         )
         return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613")
+    elif model == "gpt-3.5-turbo-0301":
+        tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
+        tokens_per_name = -1  # if there's a name, the role is omitted    elif "gpt-3.5-turbo" in model:
+        _warn_once(
+            model, "Warning: gpt-3.5-turbo may update over time. Returning num tokens assuming gpt-3.5-turbo-0125."
+        )
+        return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0125")
+    elif "gpt-4o-mini" in model:
+        _warn_once(
+            model, "Warning: gpt-4o-mini may update over time. Returning num tokens assuming gpt-4o-mini-2024-07-18."
+        )
+        return num_tokens_from_messages(messages, model="gpt-4o-mini-2024-07-18")
+    elif "gpt-4o" in model:
+        _warn_once(
+            model,
+            "Warning: gpt-4o and gpt-4o-mini may update over time. Returning num tokens assuming gpt-4o-2024-08-06.",
+        )
+        return num_tokens_from_messages(messages, model="gpt-4o-2024-08-06")
     elif "gpt-4" in model:
         _warn_once(model, "Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-0613.")
         return num_tokens_from_messages(messages, model="gpt-4-0613")
-    elif "whisper" in model:
-        return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301")
     else:
-        raise NotImplementedError(
-            f"num_tokens_from_messages() is not implemented for model {model}. "
-            + "See https://github.com/openai/openai-python/blob/main/chatml.md for information "
-            + " on how messages are converted to tokens."
-        )
+        raise NotImplementedError(f"""num_tokens_from_messages() is not implemented for model {model}.""")
     num_tokens = 0
     for message in messages:
         num_tokens += tokens_per_message
