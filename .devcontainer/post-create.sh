@@ -10,5 +10,5 @@ make install-requirements
 # available for loaded extensions (forwarders/generators)
 api_path=$(realpath "${script_dir}/../src/aoai-api-simulator" )
 
-pip install --editable "${api_path}"
+pip install "${api_path}"
 

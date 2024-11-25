@@ -9,8 +9,8 @@ FROM base AS simulator-unrestricted-network
 # Install gcc and python3-dev to support ARM architecture
 RUN apt-get update && apt-get install -y gcc python3-dev
 
-COPY ./requirements.txt ./
-RUN pip install -r requirements.txt
+COPY ./requirements.txt.new ./
+RUN pip install -r requirements.txt.new --require-hashes --no-deps
 
 COPY . .
 RUN pip install .

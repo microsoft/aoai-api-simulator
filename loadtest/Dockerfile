@@ -2,8 +2,8 @@ FROM python@sha256:2098ae1a93b47ea9ea4ea66a6ff4659deb770c45e35244a7a5db73ea4e93d
 WORKDIR /app
 
 
-COPY ./requirements.txt ./
-RUN pip install -r requirements.txt
+COPY ./requirements.txt.new ./
+RUN pip install -r requirements.txt.new --require-hashes --no-deps
 
 COPY . .
 

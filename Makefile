@@ -12,12 +12,12 @@ help: ## Show this help
 	| awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-32s\033[0m %s\n", $$1, $$2}'
 
 install-requirements: ## Install PyPI requirements for all projects
-	pip install -r src/aoai-api-simulator/requirements.txt
-	pip install -r loadtest/requirements.txt
-	pip install -r tests/requirements.txt
-	pip install -r tools/test-client/requirements.txt
-	pip install -r tools/test-client-web/requirements.txt
-	pip install -r tools/dev-requirements.txt
+	pip install -r src/aoai-api-simulator/requirements.txt --require-hashes
+	pip install -r loadtest/requirements.txt --require-hashes
+	pip install -r tests/requirements.txt --require-hashes
+	pip install -r tools/test-client/requirements.txt --require-hashes
+	pip install -r tools/test-client-web/requirements.txt --require-hashes
+	pip install -r tools/dev-requirements.txt --require-hashes
 
 run-simulated-api: ## Launch the AOAI Simulated API locally
 	gunicorn \
