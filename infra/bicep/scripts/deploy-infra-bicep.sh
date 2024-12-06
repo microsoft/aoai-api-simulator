@@ -23,10 +23,6 @@ if [[ "$deployment_target" != "aca" && "$deployment_target" != "aks" ]]; then
   exit 1
 fi
 
-echo "hi"
-echo $deployment_target
-exit
-
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [[ -f "$script_dir/../../../.env" ]]; then
@@ -81,36 +77,39 @@ cat << EOF > "$script_dir/azuredeploy.parameters.json"
     "baseName": {
       "value": "${BASENAME}"
     },
-	"simulatorMode": {
-	  "value": "${SIMULATOR_MODE}"
-	},
-	"simulatorApiKey": {
-	  "value": "${SIMULATOR_API_KEY}"
-	},
-	"recordingDir": {
-	  "value": "${RECORDING_DIR}"
-	},
-	"recordingAutoSave": {
-	  "value": "${RECORDING_AUTO_SAVE}"
-	},
-	"extensionPath": {
-	  "value": "${EXTENSION_PATH}"
-	},
-	"azureOpenAIEndpoint": {
-	  "value": "${AZURE_OPENAI_ENDPOINT}"
-	},
-	"azureOpenAIKey": {
-	  "value": "${AZURE_OPENAI_KEY}"
-	},
-	"logLevel": {
-	  "value": "${LOG_LEVEL}"
-	},
-	"simulatorImageTag": {
-	  "value": "${image_tag}"
-	},
-	"currentUserPrincipalId": {
-	  "value": "${user_id}"
-	}
+    "simulatorMode": {
+      "value": "${SIMULATOR_MODE}"
+    },
+    "simulatorApiKey": {
+      "value": "${SIMULATOR_API_KEY}"
+    },
+    "recordingDir": {
+      "value": "${RECORDING_DIR}"
+    },
+    "recordingAutoSave": {
+      "value": "${RECORDING_AUTO_SAVE}"
+    },
+    "extensionPath": {
+      "value": "${EXTENSION_PATH}"
+    },
+    "azureOpenAIEndpoint": {
+      "value": "${AZURE_OPENAI_ENDPOINT}"
+    },
+    "azureOpenAIKey": {
+      "value": "${AZURE_OPENAI_KEY}"
+    },
+    "logLevel": {
+      "value": "${LOG_LEVEL}"
+    },
+    "simulatorImageTag": {
+      "value": "${image_tag}"
+    },
+    "currentUserPrincipalId": {
+      "value": "${user_id}"
+    }
+    "deploymentTarget": {
+      "value": "${deployment_target}"
+    }
   }
 }
 EOF
