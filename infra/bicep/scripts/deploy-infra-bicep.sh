@@ -1,6 +1,32 @@
 #!/bin/bash
 set -e
 
+# Default value for deployment_target
+deployment_target="aca"
+
+# Parse input arguments
+while getopts "t:" opt; do
+  case $opt in
+    t)
+      deployment_target=$OPTARG
+      ;;
+    *)
+      echo "Usage: $0 [-t deployment_target]"
+      exit 1
+      ;;
+  esac
+done
+
+if [[ "$deployment_target" != "aca" && "$deployment_target" != "aks" ]]; then
+  echo "Invalid deployment_target: $deployment_target"
+  echo "Valid options are: aca or aks"
+  exit 1
+fi
+
+echo "hi"
+echo $deployment_target
+exit
+
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [[ -f "$script_dir/../../../.env" ]]; then

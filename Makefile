@@ -28,7 +28,10 @@ run-simulated-api: ## Launch the AOAI Simulated API locally
 		--timeout 3600
 
 deploy-aca-bicep: ## Run deployment script for Azure Container Apps
-	./scripts/deploy-aca-bicep.sh
+	./scripts/deploy-bicep.sh -t aca
+
+deploy-aks-bicep: ## Run deployment script for Azure Kubernetes Service
+	./scripts/deploy-bicep.sh -t aks
 
 deploy-aca-terraform: ## Run deployment script for Azure Container Apps
 	./scripts/deploy-aca-terraform.sh
