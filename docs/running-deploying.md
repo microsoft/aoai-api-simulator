@@ -3,6 +3,7 @@
 - [Running and Deploying the Azure OpenAI API Simulator](#running-and-deploying-the-azure-openai-api-simulator)
   - [Getting Started](#getting-started)
   - [Running the Simulator Locally](#running-the-simulator-locally)
+  - [Non-Dev Container Setup](#non-dev-container-setup)
   - [Changing the Simulator Mode](#changing-the-simulator-mode)
   - [Deploying to Azure Container Apps](#deploying-to-azure-container-apps)
   - [Running in Docker](#running-in-docker)
@@ -20,11 +21,8 @@ The simplest way to work with the simulator code is from within a [Dev Container
 
 This repo contains Dev Container configuration that will set up a Dev Container and install all of the dependencies needed to develop the simulator, including the Python environment and dependencies.
 
-Most of this documentation will assume that you are using a Dev Container, but it is possible to work outside of a Dev Container as well. If you are not using a Dev Container then, after cloning the repo, you can install the Python dependencies using:
-
-```console
-make install-requirements
-```
+> [!NOTE]
+> If you're not using a Dev Container, you will need to complete some additional steps. See [here](#non-dev-container-setup).
 
 ## Running the Simulator Locally
 
@@ -46,8 +44,33 @@ make install-requirements
     ```
 
     Kill the process and run the command again to restart the simulator whenever you make changes to the config.
+
 3. Now open the [http/chat-completions.http](../http/chat-completions.http) file, and send the first POST request. If you are using the rest-client extension, you may have to set the environment to `test`. Use the `>p rest client: switch environment` command in VS Code to do so.
+
 4. You should receive an http `200` response with some generated completions. Check the terminal for any warnings or errors.  
+
+## Non-Dev Container Setup
+
+Most of this documentation will assume that you are using a Dev Container, but it is possible to work outside of a Dev Container as well. If you are not using a Dev Container then, after cloning the repo, complete these additional steps:
+
+1. Create and activate a new Python environment:
+
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate
+    ```
+
+1. Install Python dependencies:
+
+    ```console
+    make install-requirements
+    ```
+
+1. Install the simulator code:
+
+    ```console
+    pip install --editable ./src/aoai-api-simulator
+    ```
 
 ## Changing the Simulator Mode
 
