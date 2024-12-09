@@ -2,7 +2,7 @@ import logging
 import os
 
 import requests
-from common.config import api_key, app_insights_connection_string
+from common.config import api_key, applicationinsights_connection_string
 from common.latency import set_simulator_chat_completions_latency
 from common.locust_app_insights import (
     report_request_metric,
@@ -22,7 +22,7 @@ def on_locust_init(environment: Environment, **_):
     """
     Configure test
     """
-    if app_insights_connection_string:
+    if applicationinsights_connection_string:
         logging.info("App Insights connection string found - enabling request metrics")
         environment.events.request.add_listener(report_request_metric)
     else:

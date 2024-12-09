@@ -7,12 +7,12 @@ from dataclasses import dataclass
 from typing import Awaitable, Callable
 
 from aoai_api_simulator import constants
-from aoai_api_simulator.metrics import simulator_metrics
 from aoai_api_simulator.models import (
     Config,
     OpenAIDeployment,
     RequestContext,
 )
+from aoai_api_simulator.telemetry import simulator_metrics
 from fastapi import Response
 
 logger = logging.getLogger(__name__)
