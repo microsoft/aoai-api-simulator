@@ -55,32 +55,11 @@ cat << EOF > "$script_dir/azuredeploy.parameters.json"
     "baseName": {
       "value": "${BASENAME}"
     },
-    "simulatorMode": {
-      "value": "${SIMULATOR_MODE}"
-    },
     "simulatorApiKey": {
       "value": "${SIMULATOR_API_KEY}"
     },
-    "recordingDir": {
-      "value": "${RECORDING_DIR}"
-    },
-    "recordingAutoSave": {
-      "value": "${RECORDING_AUTO_SAVE}"
-    },
-    "extensionPath": {
-      "value": "${EXTENSION_PATH}"
-    },
-    "azureOpenAIEndpoint": {
-      "value": "${AZURE_OPENAI_ENDPOINT}"
-    },
     "azureOpenAIKey": {
       "value": "${AZURE_OPENAI_KEY}"
-    },
-    "logLevel": {
-      "value": "${LOG_LEVEL}"
-    },
-    "simulatorImageTag": {
-      "value": "${image_tag}"
     },
     "currentUserPrincipalId": {
       "value": "${user_id}"
@@ -96,7 +75,7 @@ echo "==Starting main bicep deployment ($deployment_name)"
 echo "=="
 output=$(az deployment group create \
   --resource-group "$RESOURCE_GROUP_NAME" \
-  --template-file aca-infra.bicep \
+  --template-file aks-infra.bicep \
   --name "$deployment_name" \
   --parameters "$script_dir/azuredeploy.parameters.json" \
   --output json)

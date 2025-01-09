@@ -17,10 +17,10 @@ scripts_iac_dir="$script_dir/../infra/bicep/scripts"
 "$script_dir/docker-build-and-push.sh"
 
 # Deploy ACA etc
-"$scripts_iac_dir/deploy-aca-infra-bicep.sh"
+"$scripts_iac_dir/deploy-aks-infra-bicep.sh"
 
 # Test that the deployment is functioning
-"$script_dir/deploy-test.sh"
+"$script_dir/deploy-aks-test.sh"
 
 # show logs
-"$script_dir/deploy-aca-show-logs.sh"
+"$script_dir/deploy-aks-show-logs.sh"

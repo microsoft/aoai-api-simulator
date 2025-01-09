@@ -14,7 +14,7 @@ scripts_iac_dir="$script_dir/../infra/terraform/scripts"
 "$scripts_iac_dir/deploy-aca-infra-terraform.sh"
 
 # Test that the deployment is functioning
-"$script_dir/deploy-aca-test.sh"
+"$script_dir/deploy-test.sh"
 
 # show logs
 "$script_dir/deploy-aca-show-logs.sh"
