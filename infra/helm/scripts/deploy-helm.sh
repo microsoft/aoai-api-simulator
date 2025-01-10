@@ -10,11 +10,12 @@ fi
 
 # Function to display help message
 show_help() {
-    echo "Usage: $0 [-h] [-g RESOURCE_GROUP] [-n AKS_NAME]"
+    echo "Usage: $0 [-h] [-g RESOURCE_GROUP] [-n AKS_NAME] [-r REGISTRY]"
     echo
     echo "   -h                    Display this help message"
     echo "   -g RESOURCE_GROUP     Resource group name"
     echo "   -n AKS_NAME           AKS name"
+    echo "   -r REGISTRY           Registry to use for the simulator image"
 }
 
 # Default values

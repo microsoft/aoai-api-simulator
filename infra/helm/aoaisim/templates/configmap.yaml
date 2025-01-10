@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "aoaisim.fullname" . }}
+  labels:
+    {{- include "aoaisim.labels" . | nindent 4 }}
+{{- with .Values.config }}
+data:
+  SIMULATOR_MODE: {{ .simulatorMode | quote }}
+  RECORDING_DIR: {{ .recordingDir | quote }}
+  RECORDING_AUTO_SAVE: {{ .recordingAutoSave | quote }}
+  EXTENSION_PATH: {{ .extensionPath | quote }}
+  AZURE_OPENAI_ENDPOINT: {{ .azureOpenAIEndpoint | quote }}
+  LOG_LEVEL: {{ .logLevel | quote }}
+  OTEL_SERVICE_NAME: {{ include "aoaisim.name" $ | quote }}
+  OTEL_METRIC_EXPORT_INTERVAL: 10000
+{{- end }}

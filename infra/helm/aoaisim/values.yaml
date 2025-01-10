@@ -57,15 +57,6 @@ resources:
     cpu: "1"
     memory: 2Gi
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
-
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -89,3 +80,11 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+config:
+  simulatorMode: ""
+  recordingDir: "/mnt/simulator/recording"
+  recordingAutoSave: ""
+  extensionPath: ""
+  azureOpenAIEndpoint: ""
+  logLevel: ""
