@@ -66,6 +66,7 @@ module kubernetesService './modules/kubernetes-service.bicep' = {
     location: location
 
     managedIdentityName: managedIdentityName
+    containerRegistryName: containerRegistryName
   }
 }
 

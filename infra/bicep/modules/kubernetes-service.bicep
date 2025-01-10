@@ -25,11 +25,16 @@ param agentVMSize string = 'Standard_D2s_v3'
 param osType string = 'Linux'
 
 param managedIdentityName string
+param containerRegistryName string
 
 var aksClusterName = 'aoaisim-${baseName}'
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: managedIdentityName
+}
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' existing = {
+  name: containerRegistryName
 }
 
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
@@ -58,6 +63,18 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
         mode: 'System'
       }
     ]
+  }
+}
+
+var acrPullRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+
+resource acrPullRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, aksCluster.id, acrPullRoleDefinitionId)
+  scope: containerRegistry
+  properties: {
+    principalId: aksCluster.properties.identityProfile.kubeletidentity.objectId
+    roleDefinitionId: acrPullRoleDefinitionId
+    principalType: 'ServicePrincipal'
   }
 }
 

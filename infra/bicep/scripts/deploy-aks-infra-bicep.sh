@@ -3,6 +3,9 @@ set -e
 
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+# Get the directory of the Helm scripts
+scripts_helm_dir="$script_dir/../../helm/scripts"
+
 if [[ -f "$script_dir/../../../.env" ]]; then
 	echo "Loading .env"
 	source "$script_dir/../../../.env"
@@ -81,3 +84,21 @@ output=$(az deployment group create \
   --output json)
 echo "$output" | jq "[.properties.outputs | to_entries | .[] | {key:.key, value: .value.value}] | from_entries" > "$script_dir/../../output.json"
 echo -e "\n"
+
+ACR_LOGIN_SERVER=$(jq -r .containerRegistryLoginServer < "$script_dir/../../output.json")
+if [[ -z "$ACR_LOGIN_SERVER" ]]; then
+  echo "Container registry login server not found in output.json"
+  exit 1
+fi
+
+AKS_CLUSTER_NAME=$(jq -r .aksClusterName < "$script_dir/../../output.json")
+if [[ -z "$AKS_CLUSTER_NAME" ]]; then
+  echo "Container registry login server not found in output.json"
+  exit 1
+fi
+
+# Complete Deployment with Kubernetes Resources
+"$scripts_helm_dir/deploy-helm.sh \
+  -g $RESOURCE_GROUP_NAME \
+  -n $AKS_CLUSTER_NAME \
+  -r $ACR_LOGIN_SERVER
