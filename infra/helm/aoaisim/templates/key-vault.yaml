@@ -1,0 +1,42 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: {{ include "aoaisim.fullname" . }}
+  labels:
+    {{- include "aoaisim.labels" . | nindent 4 }}
+spec:
+  provider: azure
+  secretObjects:
+    - secretName: {{ include "aoaisim.fullname" . }}
+      type: Opaque
+      labels:
+        {{- include "aoaisim.labels" . | nindent 8 }}
+      data:
+        - key: simulator-api-key
+          objectName: simulator-api-key
+        - key: azure-openai-key
+          objectName: azure-openai-key
+        - key: app-insights-connection-string
+          objectName: app-insights-connection-string
+  parameters:
+    {{- with .Values.keyVault }}
+    usePodIdentity: "false"
+    useVMManagedIdentity: "true"
+    userAssignedIdentityID: {{ .clientId | quote }}
+    keyvaultName: {{ .name | quote }}
+    objects:  |
+      array:
+        - |
+          objectName: simulator-api-key
+          objectType: secret
+          objectVersion: ""
+        - |
+          objectName: azure-openai-key
+          objectType: secret
+          objectVersion: ""
+        - |
+          objectName: app-insights-connection-string
+          objectType: secret
+          objectVersion: ""
+    tenantId: {{ .tenantId | quote }}
+    {{- end }}

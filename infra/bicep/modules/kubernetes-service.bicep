@@ -24,17 +24,17 @@ param agentVMSize string = 'Standard_D2s_v3'
 ])
 param osType string = 'Linux'
 
-param managedIdentityName string
 param containerRegistryName string
+param keyVaultName string
 
 var aksClusterName = 'aoaisim-${baseName}'
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
-  name: managedIdentityName
-}
-
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' existing = {
   name: containerRegistryName
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+  name: keyVaultName
 }
 
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
@@ -44,10 +44,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
     displayname: 'AKS Cluster'
   }
   identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
+    type: 'SystemAssigned'
   }
   properties: {
     enableRBAC: true
@@ -63,6 +60,11 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
         mode: 'System'
       }
     ]
+    addonProfiles: {
+      azureKeyvaultSecretsProvider: {
+        enabled: true
+      }
+    }
   }
 }
 
@@ -72,11 +74,26 @@ resource acrPullRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(resourceGroup().id, aksCluster.id, acrPullRoleDefinitionId)
   scope: containerRegistry
   properties: {
+    description: 'Assign ACR Pull role to AKS Kubelet Identity'
     principalId: aksCluster.properties.identityProfile.kubeletidentity.objectId
     roleDefinitionId: acrPullRoleDefinitionId
     principalType: 'ServicePrincipal'
   }
 }
 
+var keyVaultSecretsUserRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
+
+resource assignSecretsReaderRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(resourceGroup().id, keyVault.name, aksCluster.name, 'assignSecretsReaderRole')
+  scope: keyVault
+  properties: {
+    description: 'Assign Key Vault Secrets Reader role to AKS Kubelet Identity'
+    principalId: aksCluster.properties.identityProfile.kubeletidentity.objectId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: keyVaultSecretsUserRoleDefinitionId
+  }
+}
+
 output aksClusterName string = aksClusterName
 output controlPlaneFQDN string = aksCluster.properties.fqdn
+output kubeletClientId string = aksCluster.properties.identityProfile.kubeletidentity.clientId

@@ -33,9 +33,6 @@ module roleAssignments './modules/role-assignments.bicep' = {
   name: 'roleAssignments'
   params: {
     currentUserPrincipalId: currentUserPrincipalId
-
-    managedIdentityName: managedIdentityName
-    containerRegistryName: containerRegistryName
     keyVaultName: keyVaultName
   }
 }
@@ -65,8 +62,8 @@ module kubernetesService './modules/kubernetes-service.bicep' = {
     baseName: baseName
     location: location
 
-    managedIdentityName: managedIdentityName
     containerRegistryName: containerRegistryName
+    keyVaultName: keyVaultName
   }
 }
 
@@ -77,7 +74,7 @@ output storageAccountName string = storageAccountName
 output fileShareName string = 'TODO'
 
 output aksClusterName string = kubernetesService.outputs.aksClusterName
-output acaIdentityId string = managedIdentity.id
+output kubeletClientId string = kubernetesService.outputs.kubeletClientId
 
 output logAnalyticsName string = monitor.outputs.logAnalyticsName
 

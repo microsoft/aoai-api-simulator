@@ -11,7 +11,8 @@ data:
   RECORDING_AUTO_SAVE: {{ .recordingAutoSave | quote }}
   EXTENSION_PATH: {{ .extensionPath | quote }}
   AZURE_OPENAI_ENDPOINT: {{ .azureOpenAIEndpoint | quote }}
+  OPENAI_DEPLOYMENT_CONFIG_PATH: "/mnt/deployment-config/simulator_deployment_config.json"
   LOG_LEVEL: {{ .logLevel | quote }}
   OTEL_SERVICE_NAME: {{ include "aoaisim.name" $ | quote }}
-  OTEL_METRIC_EXPORT_INTERVAL: 10000
+  OTEL_METRIC_EXPORT_INTERVAL: "10000"
 {{- end }}

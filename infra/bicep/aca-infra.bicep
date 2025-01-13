@@ -23,7 +23,6 @@ param azureOpenAIKey string
 param currentUserPrincipalId string
 
 var containerRegistryName = replace('aoaisim-${baseName}', '-', '')
-var managedIdentityName = 'aoaisim-${baseName}'
 var keyVaultName = replace('aoaisim-${baseName}', '-', '')
 var storageAccountName = replace('aoaisim${baseName}', '-', '')
 
@@ -32,18 +31,10 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-pr
   name: containerRegistryName
 }
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: managedIdentityName
-  location: location
-}
-
 module roleAssignments './modules/role-assignments.bicep' = {
   name: 'roleAssignments'
   params: {
     currentUserPrincipalId: currentUserPrincipalId
-
-    managedIdentityName: managedIdentityName
-    containerRegistryName: containerRegistryName
     keyVaultName: keyVaultName
   }
 }
@@ -77,7 +68,6 @@ module containerApps './modules/container-apps.bicep' = {
     storageAccountName: storageAccountName
     keyVaultName: keyVaultName
     containerRegistryName: containerRegistryName
-    managedIdentityName: managedIdentityName
 
     simulatorImageTag: simulatorImageTag
     simulatorMode: simulatorMode
@@ -97,7 +87,7 @@ output fileShareName string = containerApps.outputs.simulatorFileShareName
 
 output acaName string = containerApps.outputs.containerAppName
 output acaEnvName string = containerApps.outputs.containerAppEnvName
-output acaIdentityId string = managedIdentity.id
+output acaIdentityId string = containerApps.outputs.managedIdentityId
 output apiSimFqdn string = containerApps.outputs.applicationFqdn
 
 output logAnalyticsName string = monitor.outputs.logAnalyticsName

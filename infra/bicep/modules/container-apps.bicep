@@ -8,7 +8,6 @@ param logAnalyticsName string
 param storageAccountName string
 param keyVaultName string
 param containerRegistryName string
-param managedIdentityName string
 
 param simulatorImageTag string
 param simulatorMode string
@@ -18,6 +17,7 @@ param extensionPath string
 param azureOpenAIEndpoint string
 param logLevel string
 
+var managedIdentityName = 'aoaisim-${baseName}'
 var containerAppEnvName = 'aoaisim-${baseName}'
 var apiSimulatorName = 'aoai-api-simulator'
 
@@ -47,8 +47,9 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-pr
   name: containerRegistryName
 }
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: managedIdentityName
+  location: location
 }
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
@@ -189,7 +190,34 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
   }
 }
 
+var acrPullRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+
+resource assignAcrPullToAca 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(resourceGroup().id, containerRegistry.name, managedIdentity.name, 'AssignAcrPullToAks')
+  scope: containerRegistry
+  properties: {
+    description: 'Assign AcrPull role to ACA identity'
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: acrPullRoleDefinitionId
+  }
+}
+
+var keyVaultSecretsUserRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
+
+resource assignSecretsReaderRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(resourceGroup().id, keyVault.name, managedIdentity.name, 'assignSecretsReaderRole')
+  scope: keyVault
+  properties: {
+    description: 'Assign Key Vault Secrets Reader role to ACA identity'
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: keyVaultSecretsUserRoleDefinitionId
+  }
+}
+
 output containerAppName string = apiSim.name
 output containerAppEnvName string = containerAppEnv.name
 output applicationFqdn string = apiSim.properties.configuration.ingress.fqdn
 output simulatorFileShareName string = simulatorFileShare.name
+output managedIdentityId string = managedIdentity.id

@@ -39,20 +39,31 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "aoaisim.fullname" . }}
+            - secretRef:
+                name: {{ include "aoaisim.fullname" . }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: secrets-store
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+            - name: deployment-config
+              mountPath: "/mnt/deployment-config"
+              readOnly: true
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "aoaisim.fullname" . }}
+        - name: deployment-config
+          configMap:
+            name: {{ include "aoaisim.fullname" . }}-openai-deployment-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
