@@ -21,6 +21,3 @@ scripts_iac_dir="$script_dir/../infra/bicep/scripts"
 
 # Test that the deployment is functioning
 "$script_dir/deploy-aks-test.sh"
-
-# show logs
-"$script_dir/deploy-aks-show-logs.sh"
