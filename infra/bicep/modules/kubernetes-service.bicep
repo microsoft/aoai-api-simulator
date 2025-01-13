@@ -65,6 +65,11 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
         enabled: true
       }
     }
+    storageProfile: {
+      fileCSIDriver: { 
+        enabled: true
+      }
+    }
   }
 }
 

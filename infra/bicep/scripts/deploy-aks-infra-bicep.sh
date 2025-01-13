@@ -115,6 +115,15 @@ fi
 
 TENANT_ID=$(az account show --query tenantId -o tsv)
 
+STORAGE_ACCOUNT_NAME=$(jq -r .storageAccountName < "$script_dir/../../output.json")
+if [[ -z "$STORAGE_ACCOUNT_NAME" ]]; then
+  echo "Storage Account Name not found in output.json"
+  exit 1
+fi
+
+STORAGE_ACCOUNT_KEY=$(az storage account keys list --account-name $STORAGE_ACCOUNT_NAME --resource-group $RESOURCE_GROUP_NAME --query "[0].value" -o tsv)
+FILE_SHARE_NAME="simulator"
+
 helm upgrade --install aoaisim "$HELM_CHART_DIR" \
     --set image.repository=$IMAGE_REPO \
     --set image.tag=$IMAGE_TAG \
@@ -128,4 +137,9 @@ helm upgrade --install aoaisim "$HELM_CHART_DIR" \
     \
     --set keyVault.name=$KEYVAULT_NAME \
     --set keyVault.tenantId=$TENANT_ID \
-    --set keyVault.clientId=$KUBELET_CLIENT_ID
+    --set keyVault.clientId=$KUBELET_CLIENT_ID \
+    \
+    --set azureFiles.resourceGroup=$RESOURCE_GROUP_NAME \
+    --set azureFiles.azureStorageAccountName=$STORAGE_ACCOUNT_NAME \
+    --set azureFiles.azureStorageAccountKey=$STORAGE_ACCOUNT_KEY \
+    --set azureFiles.fileShareName=$FILE_SHARE_NAME

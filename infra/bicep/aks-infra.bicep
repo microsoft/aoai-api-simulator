@@ -71,7 +71,6 @@ output rgName string = resourceGroup().name
 output containerRegistryLoginServer string = containerRegistry.properties.loginServer
 output containerRegistryName string = containerRegistryName
 output storageAccountName string = storageAccountName
-output fileShareName string = 'TODO'
 
 output aksClusterName string = kubernetesService.outputs.aksClusterName
 output kubeletClientId string = kubernetesService.outputs.kubeletClientId
