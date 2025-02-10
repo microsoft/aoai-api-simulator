@@ -10,7 +10,8 @@
 		"ghcr.io/devcontainers/features/azure-cli": {
 			"installBicep": true
 		},
-		"ghcr.io/devcontainers/features/terraform": {}
+		"ghcr.io/devcontainers/features/terraform": {},
+		"ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {}
 	},
 	"customizations": {
 		"vscode": {
