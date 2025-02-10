@@ -59,6 +59,9 @@ cat << EOF > "$script_dir/azuredeploy.parameters.json"
     "azureOpenAIKey": {
       "value": "${AZURE_OPENAI_KEY}"
     },
+    "agentVMSize": {
+      "value": "${AGENT_VM_SIZE}"
+    },
     "currentUserPrincipalId": {
       "value": "${USER_ID}"
     }

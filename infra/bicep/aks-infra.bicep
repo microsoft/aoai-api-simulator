@@ -6,6 +6,9 @@ param baseName string
 @description('The supported Azure location (region) where the resources will be deployed')
 param location string
 
+@description('The size of the Virtual Machine for the Kubernetes nodepool.')
+param agentVMSize string = 'Standard_D2s_v3'
+
 @secure()
 param simulatorApiKey string
 
@@ -61,6 +64,7 @@ module kubernetesService './modules/kubernetes-service.bicep' = {
   params: {
     baseName: baseName
     location: location
+    agentVMSize: agentVMSize
 
     containerRegistryName: containerRegistryName
     keyVaultName: keyVaultName
