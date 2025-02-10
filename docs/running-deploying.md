@@ -6,6 +6,7 @@
   - [Non-Dev Container Setup](#non-dev-container-setup)
   - [Changing the Simulator Mode](#changing-the-simulator-mode)
   - [Deploying to Azure Container Apps](#deploying-to-azure-container-apps)
+  - [Deploying to Azure Kubernetes Service](#deploying-to-azure-kubernetes-service)
   - [Running in Docker](#running-in-docker)
     - [Example: Running Container in Record Mode](#example-running-container-in-record-mode)
     - [Example: Running Container in Replay Mode](#example-running-container-in-replay-mode)
@@ -112,6 +113,29 @@ make deploy-aca-terraform
 This will deploy a container registry, build and push the simulator image to it, and deploy an Azure Container App running the simulator with the settings from `.env`.
 
 The ACA deployment also creates an Azure Storage account with a file share. This file share is mounted into the simulator container as `/mnt/simulator`.
+
+If no value is specified for `RECORDING_DIR`, the simulator will use `/mnt/simulator/recording` as the recording directory.
+
+The file share can also be used for setting the OpenAI deployment configuration or for any forwarder/generator config.
+
+## Deploying to Azure Kubernetes Service
+
+The simulated API can be deployed to Azure Kubernetes Service (AKS) to provide a publicly accessible endpoint for testing with the rest of your system.
+
+Before deploying, set up a `.env` file. See [Azure OpenAI API Simulator Configuration Options](./config.md) for details on how to do this.
+
+> [!NOTE]
+> By default, the Agent VM Size is set to 'Standard_D2s_v3'. You can change this by setting the `AGENT_VM_SIZE` environment variable in the `.env` file.
+
+Once you have your `.env` file, you can deploy to Azure using one the following commands:
+
+```console
+make deploy-aks-bicep
+```
+
+Like the Azure Container Apps deployment, this will deploy a container registry, build and push the simulator image to it, and deploy the simulator to Azure Kubernetes Service with the settings from `.env`.
+
+The AKS deployment also creates an Azure Storage account with a file share. Using [`azure-files-csi`](https://learn.microsoft.com/en-us/azure/aks/azure-files-csi) the file share is mounted into the simulator container as `/mnt/simulator`.
 
 If no value is specified for `RECORDING_DIR`, the simulator will use `/mnt/simulator/recording` as the recording directory.
 
