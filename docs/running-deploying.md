@@ -150,13 +150,13 @@ This project maintains a Helm chart for deploying the simulator to Kubernetes. T
 
 To deploy the simulator to Kubernetes using the Helm chart, you can use the following command:
 
-```
+```console
 helm upgrade --install aoaisim ./infra/helm/aoaisim
 ```
 
 Custom values can be set using the `--set` flag. For example, to set the `SIMULATOR_MODE` environment variable to `record`, you can use the following command:
 
-```
+```console
 helm upgrade --install aoaisim ./infra/helm/aoaisim --set config.simulatorMode=record
 ```
 
