@@ -16,7 +16,7 @@ scripts_iac_dir="$script_dir/../infra/bicep/scripts"
 # Build and push Docker image to container registry
 "$script_dir/docker-build-and-push.sh"
 
-# Deploy ACA etc
+# Deploy AKS etc
 "$scripts_iac_dir/deploy-aks-infra-bicep.sh"
 
 # Test that the deployment is functioning
