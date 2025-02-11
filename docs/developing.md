@@ -41,6 +41,7 @@ The following section of this document describes some of the more commonly used 
 | `make lint`                 | Lints the aoai-api-simulator source code                       |
 | `make lint-docs`            | Lints Markdown docs                                            |
 | `make deploy-aca-bicep`     | Runs the Bicep deployment scripts for Azure Container Apps     |
+| `make deploy-aks-bicep`     | Runs the Bicep deployment scripts for Azure Kubernetes Service |
 | `make deploy-aca-terraform` | Runs the Terraform deployment scripts for Azure Container Apps |
 
 For a full set of rules, type `make help` from the command line and you will be presented with a list of available rules.

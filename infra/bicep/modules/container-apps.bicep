@@ -1,131 +1,56 @@
-targetScope = 'resourceGroup'
-
 @description('The base name for the deployment')
 param baseName string
 
 @description('The supported Azure location (region) where the resources will be deployed')
 param location string
 
-@description('The mode the simulator should run in')
-param simulatorMode string
-
-@description('The API key the simulator will use to authenticate requests')
-@secure()
-param simulatorApiKey string
-
-param recordingDir string
-
-param recordingAutoSave string
-
-param extensionPath string
-
-param azureOpenAIEndpoint string
-
-@secure()
-param azureOpenAIKey string
-
-param logLevel string
+param logAnalyticsName string
+param storageAccountName string
+param keyVaultName string
+param containerRegistryName string
 
 param simulatorImageTag string
+param simulatorMode string
+param recordingDir string
+param recordingAutoSave string
+param extensionPath string
+param azureOpenAIEndpoint string
+param logLevel string
 
-param currentUserPrincipalId string
-
-// extract these to a common module to have a single, shared place for these across base/infra?
-var containerRegistryName = replace('aoaisim-${baseName}', '-', '')
+var managedIdentityName = 'aoaisim-${baseName}'
 var containerAppEnvName = 'aoaisim-${baseName}'
-var logAnalyticsName = 'aoaisim-${baseName}'
-var appInsightsName = 'aoaisim-${baseName}'
-var keyVaultName = replace('aoaisim-${baseName}', '-', '')
-var storageAccountName = replace('aoaisim${baseName}', '-', '')
-
 var apiSimulatorName = 'aoai-api-simulator'
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' existing = {
-  name: containerRegistryName
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' existing = {
+  name: logAnalyticsName
 }
-
-resource vault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
-  name: keyVaultName
-}
-var keyVaultUri = vault.properties.vaultUri
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' existing = {
   name: storageAccountName
 }
+
 resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01' existing = {
   parent: storageAccount
   name: 'default'
 }
+
 resource simulatorFileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' existing = {
   parent: fileService
   name: 'simulator'
 }
 
-resource acrPullRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  scope: subscription()
-  name: '7f951dda-4ed3-4680-a7ca-43fe172d538d' // https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#acrpull
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
+  name: keyVaultName
 }
-resource assignAcrPullToAca 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(resourceGroup().id, containerRegistry.name, managedIdentity.name, 'AssignAcrPullToAks')
-  scope: containerRegistry
-  properties: {
-    description: 'Assign AcrPull role to ACA identity'
-    principalId: managedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: acrPullRoleDefinition.id
-  }
-}
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
-  name: logAnalyticsName
-  location: location
-  properties: {
-    sku: {
-      name: 'PerGB2018'
-    }
-  }
-}
-resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
-  name: appInsightsName
-  location: location
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-    WorkspaceResourceId: logAnalytics.id
-  }
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-12-01-preview' existing = {
+  name: containerRegistryName
 }
 
 resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${containerAppEnvName}-identity'
+  name: managedIdentityName
   location: location
 }
-
-resource keyVaultSecretsUserRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  scope: subscription()
-  name: '4633458b-17de-408a-b874-0445c86b69e6' // https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli
-}
-resource assignSecretsReaderRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(resourceGroup().id, vault.name, managedIdentity.name, 'assignSecretsReaderRole')
-  scope: vault
-  properties: {
-    description: 'Assign Key Vault Secrets Reader role to ACA identity'
-    principalId: managedIdentity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: keyVaultSecretsUserRoleDefinition.id
-  }
-}
-
-resource assignSecretsReaderRole_CurrentUser 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(resourceGroup().id, vault.name, currentUserPrincipalId, 'assignSecretsReaderRole')
-  scope: vault
-  properties: {
-    description: 'Assign Key Vault Secrets Reader role to current user'
-    principalId: currentUserPrincipalId
-    principalType: 'User'
-    roleDefinitionId: keyVaultSecretsUserRoleDefinition.id
-  }
-}
-
-
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' = {
   name: containerAppEnvName
@@ -140,6 +65,7 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2023-11-02-preview' 
     }
   }
 }
+
 resource containerAppStorage 'Microsoft.App/managedEnvironments/storages@2023-05-01' = {
   parent: containerAppEnv
   name: 'simulator-storage'
@@ -150,29 +76,6 @@ resource containerAppStorage 'Microsoft.App/managedEnvironments/storages@2023-05
       accountKey: storageAccount.listKeys().keys[0].value
       accessMode: 'ReadWrite'
     }
-  }
-}
-
-resource simulatorApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: vault
-  name: 'simulator-api-key'
-  properties: {
-    value: simulatorApiKey
-  }
-}
-resource azureOpenAIKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: vault
-  name: 'azure-openai-key'
-  properties: {
-    // workaround to deployment issue https://github.com/microsoft/aoai-api-simulator/issues/28
-    value: empty(azureOpenAIKey) ? 'place-holder-API-key' : azureOpenAIKey
-  }
-}
-resource appInsightsConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: vault
-  name: 'app-insights-connection-string'
-  properties: {
-    value: appInsights.properties.ConnectionString
   }
 }
 
@@ -199,22 +102,22 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
       secrets: [
         {
           name: 'simulator-api-key'
-          keyVaultUrl: '${keyVaultUri}secrets/simulator-api-key'
+          keyVaultUrl: '${keyVault.properties.vaultUri}secrets/simulator-api-key'
           identity: managedIdentity.id
         }
         {
           name: 'azure-openai-key'
-          keyVaultUrl: '${keyVaultUri}secrets/azure-openai-key'
+          keyVaultUrl: '${keyVault.properties.vaultUri}secrets/azure-openai-key'
           identity: managedIdentity.id
         }
         {
           name: 'app-insights-connection-string'
-          keyVaultUrl: '${keyVaultUri}secrets/app-insights-connection-string'
+          keyVaultUrl: '${keyVault.properties.vaultUri}secrets/app-insights-connection-string'
           identity: managedIdentity.id
         }
         {
           name: 'deployment-config'
-          value: loadTextContent('../.openai_deployment_config.json')
+          value: loadTextContent('../../.openai_deployment_config.json')
         }
       ]
       registries: [
@@ -287,17 +190,34 @@ resource apiSim 'Microsoft.App/containerApps@2023-05-01' = {
   }
 }
 
-output rgName string = resourceGroup().name
-output containerRegistryLoginServer string = containerRegistry.properties.loginServer
-output containerRegistryName string = containerRegistry.name
-output storageAccountName string = storageAccount.name
-output fileShareName string = simulatorFileShare.name
+var acrPullRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 
-output acaName string = apiSim.name
-output acaEnvName string = containerAppEnv.name
-output acaIdentityId string = managedIdentity.id
-output apiSimFqdn string = apiSim.properties.configuration.ingress.fqdn
+resource assignAcrPullToAca 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(resourceGroup().id, containerRegistry.name, managedIdentity.name, 'AssignAcrPullToAks')
+  scope: containerRegistry
+  properties: {
+    description: 'Assign AcrPull role to ACA identity'
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: acrPullRoleDefinitionId
+  }
+}
 
-output logAnalyticsName string = logAnalyticsName
+var keyVaultSecretsUserRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
 
-output keyVaultName string = vault.name
+resource assignSecretsReaderRole 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(resourceGroup().id, keyVault.name, managedIdentity.name, 'assignSecretsReaderRole')
+  scope: keyVault
+  properties: {
+    description: 'Assign Key Vault Secrets Reader role to ACA identity'
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: keyVaultSecretsUserRoleDefinitionId
+  }
+}
+
+output containerAppName string = apiSim.name
+output containerAppEnvName string = containerAppEnv.name
+output applicationFqdn string = apiSim.properties.configuration.ingress.fqdn
+output simulatorFileShareName string = simulatorFileShare.name
+output managedIdentityId string = managedIdentity.id
