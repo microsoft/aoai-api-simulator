@@ -37,6 +37,7 @@ This repo contains Dev Container configuration that will set up a Dev Container 
     TEST_OPENAI_ENDPOINT=http://localhost:8000/
     TEST_OPENAI_KEY=my-test-key
     TEST_OPENAI_DEPLOYMENT=gpt-3.5-turbo-0613
+    OPENAI_DEPLOYMENT_CONFIG_PATH=examples/openai_deployment_config.json
     ```  
 
 2. Start the simulator by running the following command in your terminal from the repository root directory:
