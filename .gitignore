@@ -178,7 +178,7 @@ terraform.tfstate.backup
 tf.tfvars
 terraform.tfstate
 .terraform
-infra/.openai_deployment_config.json
+.openai_deployment_config.json
 
 # Ignore os specific files
 .DS_Store
