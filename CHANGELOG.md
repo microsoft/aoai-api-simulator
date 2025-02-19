@@ -2,7 +2,8 @@
 
 ## vNext
 
-- add notes here for the next release
+- Add AKS deployment option using Bicep and Helm ([#75](https://github.com/microsoft/aoai-api-simulator/pull/75) [@liammoat](https://github.com/liammoat))
+- Fix: Update OpenAIDeployment.model to use model_catalogue - fixes error when deployment config file not specified. ([#77](https://github.com/microsoft/aoai-api-simulator/pull/77) [@liammoat](https://github.com/liammoat))
 
 ## v0.6 2024-11-06
 
