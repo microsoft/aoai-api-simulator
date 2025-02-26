@@ -21,7 +21,7 @@ The lab requires the following tools to be installed on your machine. Alternativ
 
 **Objective:** Clone the `aoai-api-simulator` repository and run the simulator locally. 
 
-<img src="./images/running.png" width="650">
+<img src="./images/running.png" width="600">
 
 **Resources:**
 
@@ -33,25 +33,25 @@ The lab requires the following tools to be installed on your machine. Alternativ
 
 1. See [Getting Started](../running-deploying.md#getting-started) and [Running the Simulator Locally](../running-deploying.md#running-the-simulator-locally).
 
+    > **Top tip:** The project has a [Dev Container](https://code.visualstudio.com/docs/remote/containers) that works out of the box. Open the project in VS Code and click on the "Reopen in Container" button (or use a [GitHub Codespaces](https://github.com/features/codespaces)).
+
 ### 2. Send sample HTTP requests to the simulator.
 
 **Objective:** Send some HTTP requests to the simulator and verify `200` responses with some generated completions.
 
-<img src="./images/rest-client.png" width="650">
+<img src="./images/rest-client.png" width="600">
 
 **Resources:**
 
 1. Use a tool like [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) or `curl` to send HTTP requests to the simulator.
 
-    > **Note:** The project's Dev Container should install the REST Client extension.
-
 1. Some sample requests can be found in the [http](../../http/) directory of the repository. For example, [http/chat-completions.http](../../http/chat-completions.http).
 
 ### 3. Run the `aoai-api-simulator` in `record` mode.
 
-**Objective:** Change the simulator mode to `record`, and configure it to use the Azure OpenAI Service. Send some requests and verify the completions are from the Azure OpenAI Service, and the responses are recorded.
+**Objective:** Change the simulator mode to `record`, and configure it to use the [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview). Send some requests and verify the completions are from the Azure OpenAI Service, and the responses are recorded.
 
-<img src="./images/recording.png" width="650">
+<img src="./images/recording.png" width="600">
 
 **Resources:**
 
@@ -63,8 +63,7 @@ The lab requires the following tools to be installed on your machine. Alternativ
 
 ### 4. Deploy `aoai-api-simulator` to Azure Kubernetes Service (AKS).
 
-**Objective:** Deploy the `aoai-api-simulator` to an Azure Kubernetes Service (AKS) cluster.
-
+**Objective:** Deploy the `aoai-api-simulator` to an Azure Kubernetes Service (AKS) cluster using the provided deployment scripts.
 
 **Resources:**
 
