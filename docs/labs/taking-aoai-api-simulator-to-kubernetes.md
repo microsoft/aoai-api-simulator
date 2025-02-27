@@ -65,6 +65,8 @@ The lab requires the following tools to be installed on your machine. Alternativ
 
 **Objective:** Deploy the `aoai-api-simulator` to an Azure Kubernetes Service (AKS) cluster using the provided deployment scripts.
 
+<img alt="Running in AKS" src="./images/aks.png" width="600">
+
 **Resources:**
 
 1. See [Deploying to Azure Kubernetes Service (AKS)](../running-deploying.md#deploying-to-azure-kubernetes-service)
@@ -74,3 +76,9 @@ The lab requires the following tools to be installed on your machine. Alternativ
 ### 5. Configure the simulator to run in 'replay' mode
 
 **Objective:** Upload the recordings from task #3 to an Azure File Share, and configure the AKS-hosted simulator to use them.
+
+1. See [Changing the Simulator Mode](../running-deploying.md#changing-the-simulator-mode)
+
+1. The File Share is deployed as part of the [base.bicep](../../infra/bicep/base.bicep) deployment.
+
+1. See [Upload a file to Azure File Share](https://learn.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-portal?tabs=azure-portal#upload-a-file).
