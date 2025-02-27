@@ -11,7 +11,7 @@ The lab requires the following tools to be installed on your machine. Alternativ
 - [Git](https://git-scm.com/downloads)
 - [Docker](https://www.docker.com/get-started/)
 - [VS Code](https://code.visualstudio.com/Download)
-- [VS Code Dev Cotnainers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+- [VS Code Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - [Azure Subscription](https://azure.microsoft.com/free)
 - *(Optional)* [Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource)
 
