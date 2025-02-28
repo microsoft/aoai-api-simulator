@@ -3,3 +3,6 @@
 # MD013/line-length : Line length : https://github.com/DavidAnson/markdownlint/blob/v0.35.0/doc/md013.md
 MD013:
   line_length: 500 # initial setting to aid getting markdownlint added. Not ideal, but better than nothing
+
+MD033:
+  allowed_elements: ['img']
