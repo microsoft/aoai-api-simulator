@@ -33,7 +33,7 @@ The lab requires the following tools to be installed on your machine. Alternativ
 
 1. See [Getting Started](../running-deploying.md#getting-started) and [Running the Simulator Locally](../running-deploying.md#running-the-simulator-locally).
 
-    > **Top tip:** The project has a [Dev Container](https://code.visualstudio.com/docs/remote/containers) that works out of the box. Open the project in VS Code and click on the "Reopen in Container" button (or use a [GitHub Codespaces](https://github.com/features/codespaces)).
+    > **Top tip:** The project has a [Dev Container](https://code.visualstudio.com/docs/remote/containers) that works out of the box. Open the project in VS Code and click on the "Reopen in Container" button (or use [GitHub Codespaces](https://github.com/features/codespaces)).
 
 ### 2. Send sample HTTP requests to the simulator
 
