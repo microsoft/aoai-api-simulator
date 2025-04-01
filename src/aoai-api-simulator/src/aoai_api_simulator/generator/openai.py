@@ -40,6 +40,7 @@ from aoai_api_simulator.models import (
 )
 from fastapi import Response
 from fastapi.responses import StreamingResponse
+from jsf import JSF
 
 # This file contains a default implementation of the openai generators
 # You can configure your own generators by creating a generator_config.py file and setting the
@@ -55,6 +56,16 @@ embedding_deployment_missing_warning_printed = set()
 default_openai_embedding_model = OpenAIDeployment(
     name="embedding", model=model_catalogue["text-embedding-ada-002"], tokens_per_minute=10000, embedding_size=1536
 )
+
+
+def _deployment_not_found_response(deployment_name: str) -> Response:
+    return Response(
+        status_code=404,
+        content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
+        headers={
+            "Content-Type": "application/json",
+        },
+    )
 
 
 def get_embedding_deployment_from_name(context: RequestContext, deployment_name: str) -> OpenAIDeployment | None:
@@ -531,13 +542,7 @@ async def azure_openai_embedding(context: RequestContext) -> Response | None:
     deployment = get_embedding_deployment_from_name(context, deployment_name)
 
     if deployment is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
 
     if not isinstance(deployment.model, OpenAIEmbeddingModel):
         return Response(
@@ -588,13 +593,7 @@ async def azure_openai_completion(context: RequestContext) -> Response | None:
     deployment_name = path_params["deployment"]
     model = get_chat_model_from_deployment_name(context, deployment_name)
     if model is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
 
     if not isinstance(model, OpenAIChatModel):
         return Response(
@@ -652,13 +651,8 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
     deployment_name = path_params["deployment"]
     model = get_chat_model_from_deployment_name(context, deployment_name)
     if model is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
+
     if not isinstance(model, OpenAIChatModel):
         return Response(
             status_code=400,
@@ -688,20 +682,145 @@ async def azure_openai_chat_completion(context: RequestContext) -> Response | No
     context.values[SIMULATOR_KEY_OPENAI_MAX_TOKENS_EFFECTIVE] = max_tokens
 
     streaming = request_body.get("stream", False)
+    response_format = request_body.get("response_format", None)
 
-    response = create_lorem_chat_completion_response(
-        context=context,
-        deployment_name=deployment_name,
-        model_name=model.name,
-        streaming=streaming,
-        max_tokens=max_tokens,
-        prompt_messages=messages,
-    )
+    # pylint: disable-next=line-too-long
+    # versions https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=python-secure%2Cglobal-standard%2Cstandard-chat-completions#gpt-4-and-gpt-4-turbo-models
+    response_format_type = response_format.get("type") if response_format else "text"
+    if response_format_type == "text":
+        response = create_lorem_chat_completion_response(
+            context=context,
+            deployment_name=deployment_name,
+            model_name=model.name,
+            streaming=streaming,
+            max_tokens=max_tokens,
+            prompt_messages=messages,
+        )
+    elif response_format_type == "json_schema":
+        response = create_json_schema_chat_completion_response(
+            context=context,
+            model=model,
+            deployment_name=deployment_name,
+            streaming=streaming,
+            messages=messages,
+            response_format=response_format,
+        )
+    else:
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "message": f"Unsupported response_format type: {response_format_type}. "
+                        + "Currently supported types are 'text' and 'json_schema'.",
+                        "type": "invalid_request_error",
+                        "param": None,
+                        "code": None,
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
 
     # calculate a simulated latency and store in context.values
     # needs to be called after the response has been created
     await calculate_latency_text_endpoints(context, 200)
 
+    return response
+
+
+# pylint: disable-next=too-many-arguments, too-many-positional-arguments
+async def create_json_schema_chat_completion_response(
+    context: RequestContext,
+    model: OpenAIChatModel,
+    deployment_name: str,
+    streaming: bool,
+    messages: list,
+    response_format: dict,
+):
+    # response_format value as json_schema is enabled only for api versions 2024-08-01-preview and later
+    # We're not currently enforcing this limit, but could consider it
+
+    # https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/structured-outputs?tabs=rest
+    if not model.supports_json_schema:
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "message": "Invalid parameter: 'response_format' of type 'json_schema' is not supported "
+                        + "with this model. Learn more about supported models at the Structured Outputs "
+                        + "guide: https://platform.openai.com/docs/guides/structured-outputs",
+                        "type": "invalid_request_error",
+                        "param": None,
+                        "code": None,
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+    error_message = None
+    schema_info = response_format.get("json_schema")
+    if schema_info is None:
+        error_message = "Missing required parameter: 'response_format.json_schema'."
+    else:
+        schema = schema_info.get("schema")
+        if schema is None:
+            error_message = "Missing required parameter: 'response_format.json_schema.schema'."
+    if error_message:
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "message": error_message,
+                        "type": "invalid_request_error",
+                        "param": None,
+                        "code": None,
+                    }
+                }
+            ),
+            headers={
+                "Content-Type": "application/json",
+            },
+        )
+
+    # Generate a JSON response based on the schema
+
+    # Check for $provider in schema (https://github.com/ghandic/jsf/issues/1)
+    if "$provider" in json.dumps(schema):
+        return Response(
+            status_code=400,
+            content=json.dumps(
+                {
+                    "error": {
+                        "message": "$provider is not allowed in JSON Schema.",
+                        "type": "invalid_request_error",
+                        "param": None,
+                        "code": None,
+                    }
+                }
+            ),
+        )
+
+    # TODO: add caching of JSF objects
+    json_faker = JSF(schema)
+    json_response = json_faker.generate()
+
+    response = create_chat_completion_response(
+        context=context,
+        deployment_name=deployment_name,
+        model_name=model.name,
+        streaming=streaming,
+        prompt_messages=messages,
+        generated_content=json.dumps(json_response),
+        finish_reason="stop",
+    )
     return response
 
 
@@ -718,13 +837,8 @@ async def azure_openai_translation(context: RequestContext) -> Response | None:
     deployment_name = path_params["deployment"]
     model = get_whisper_model_from_deployment_name(context, deployment_name)
     if model is None:
-        return Response(
-            status_code=404,
-            content=json.dumps({"error": f"Deployment {deployment_name} not found"}),
-            headers={
-                "Content-Type": "application/json",
-            },
-        )
+        return _deployment_not_found_response(deployment_name)
+
     request_form = await request.form()
     audio_file = request_form["file"]
     response_format = request_form["response_format"]
