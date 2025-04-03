@@ -1,13 +1,10 @@
 ARG network_type=unrestricted
 ARG TIKTOKEN_CACHE_PATH=/app/tiktoken_cache
 
-FROM python:3.12.1-slim-bullseye AS base
+FROM python:3.12.1-bookworm AS base
 WORKDIR /app
 
 FROM base AS simulator-unrestricted-network
-
-# Install gcc and python3-dev to support ARM architecture
-RUN apt-get update && apt-get install -y gcc python3-dev
 
 COPY ./requirements.txt ./
 RUN pip install -r requirements.txt
