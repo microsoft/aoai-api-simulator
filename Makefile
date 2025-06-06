@@ -84,6 +84,7 @@ docker-run-simulated-api: ## Run the AOAI Simulated API docker container
 		-e AZURE_OPENAI_ENDPOINT \
 		-e AZURE_OPENAI_KEY \
 		-e AZURE_OPENAI_DEPLOYMENT \
+		-e OPENAI_DEPLOYMENT_CONFIG_PATH \
 		aoai-api-simulator
 
 docker-build-load-test: ## Build the AOAI Simulated API Load Test as a docker image

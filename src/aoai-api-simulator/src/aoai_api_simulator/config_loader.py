@@ -77,33 +77,36 @@ def _default_openai_deployments() -> dict[str, OpenAIDeployment]:
     # Default set of OpenAI deployment configurations for when none are provided
     return {
         "embedding": OpenAIDeployment(
-            name="embedding", model="text-embedding-ada-002", tokens_per_minute=20000, embedding_size=1536
+            name="embedding",
+            model=model_catalogue["text-embedding-ada-002"],
+            tokens_per_minute=20000,
+            embedding_size=1536,
         ),
         "gpt-35-turbo-1k-token": OpenAIDeployment(
-            name="gpt-35-turbo-1k-token", model="gpt-3.5-turbo", tokens_per_minute=1000
+            name="gpt-35-turbo-1k-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=1000
         ),
         "gpt-35-turbo-2k-token": OpenAIDeployment(
-            name="gpt-35-turbo-2k-token", model="gpt-3.5-turbo", tokens_per_minute=2000
+            name="gpt-35-turbo-2k-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=2000
         ),
         "gpt-35-turbo-5k-token": OpenAIDeployment(
-            name="gpt-35-turbo-5k-token", model="gpt-3.5-turbo", tokens_per_minute=5000
+            name="gpt-35-turbo-5k-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=5000
         ),
         "gpt-35-turbo-10k-token": OpenAIDeployment(
-            name="gpt-35-turbo-10k-token", model="gpt-3.5-turbo", tokens_per_minute=10000
+            name="gpt-35-turbo-10k-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=10000
         ),
         "gpt-35-turbo-20k-token": OpenAIDeployment(
-            name="gpt-35-turbo-20k-token", model="gpt-3.5-turbo", tokens_per_minute=20000
+            name="gpt-35-turbo-20k-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=20000
         ),
         "gpt-35-turbo-50k-token": OpenAIDeployment(
-            name="gpt-35-turbo-50k-token", model="gpt-3.5-turbo", tokens_per_minute=50000
+            name="gpt-35-turbo-50k-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=50000
         ),
         "gpt-35-turbo-100k-token": OpenAIDeployment(
-            name="gpt-35-turbo-100k-token", model="gpt-3.5-turbo", tokens_per_minute=100000
+            name="gpt-35-turbo-100k-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=100000
         ),
         "gpt-35-turbo-100m-token": OpenAIDeployment(
-            name="gpt-35-turbo-100m-token", model="gpt-3.5-turbo", tokens_per_minute=100000000
+            name="gpt-35-turbo-100m-token", model=model_catalogue["gpt-3.5-turbo"], tokens_per_minute=100000000
         ),
-        "whisper": OpenAIDeployment(name="whisper", model="whisper", requests_per_minute=3),
+        "whisper": OpenAIDeployment(name="whisper", model=model_catalogue["whisper"], requests_per_minute=3),
     }
 
 
